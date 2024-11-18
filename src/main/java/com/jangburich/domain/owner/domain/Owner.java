@@ -13,9 +13,11 @@ import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Owner extends BaseEntity {
 
@@ -42,4 +44,11 @@ public class Owner extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+	public static Owner create(User user) {
+		Owner newOwner = new Owner();
+		newOwner.setUser(user);
+		return newOwner;
+	}
+
 }
