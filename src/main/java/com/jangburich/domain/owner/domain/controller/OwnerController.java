@@ -28,8 +28,8 @@ public class OwnerController {
 	@Operation(summary = "사장님 정보 등록", description = "사장님 상세 정보를 등록합니다.")
 	@PostMapping("/register")
 	public ResponseCustom<Message> registerOwner(Authentication authentication, OwnerCreateReqDTO ownerCreateReqDTO) {
-		CustomOAuthUser customOAuth2User = (CustomOAuthUser)authentication.getPrincipal();
-		ownerService.registerOwner(customOAuth2User, ownerCreateReqDTO);
+		CustomOAuthUser customOAuthUser = (CustomOAuthUser)authentication.getPrincipal();
+		ownerService.registerOwner(customOAuthUser, ownerCreateReqDTO);
 		return ResponseCustom.OK(Message.builder()
 						.message("success")
 				.build());
