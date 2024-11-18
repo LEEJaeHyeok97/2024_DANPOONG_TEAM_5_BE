@@ -1,6 +1,7 @@
 package com.jangburich.domain.store.domain;
 
 import com.jangburich.domain.owner.domain.Owner;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,67 +15,92 @@ import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Setter
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Store {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
+	private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
-    private Owner owner;
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "owner_id")
+	private Owner owner;
 
-    @Column(name = "name")
-    private String name;
+	@Column(name = "name")
+	private String name;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "category")
-    private Category category;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "category")
+	private Category category;
 
-    @Column(name = "representative_image")
-    private String representativeImage;
+	@Column(name = "representative_image")
+	private String representativeImage;
 
-    @Column(name = "reservation_available")
-    private Boolean reservationAvailable;
+	@Column(name = "reservation_available")
+	private Boolean reservationAvailable;
 
-    @Column(name = "max_reservation")
-    private Long maxReservation;
+	@Column(name = "max_reservation")
+	private Long maxReservation;
 
-    @Column(name = "min_prepayment")
-    private Long minPrepayment;
+	@Column(name = "min_prepayment")
+	private Long minPrepayment;
 
-    @Column(name = "prepayment_duration")
-    private Long prepaymentDuration;
+	@Column(name = "prepayment_duration")
+	private Long prepaymentDuration;
 
-    @Column(name = "introduction")
-    private String introduction;
+	@Column(name = "introduction")
+	private String introduction;
 
-    @Column(name = "latitude")
-    private Double latitude;
+	@Column(name = "latitude")
+	private Double latitude;
 
-    @Column(name = "longitude")
-    private Double longitude;
+	@Column(name = "longitude")
+	private Double longitude;
 
-    @Column(name = "address")
-    private String address;
+	@Column(name = "address")
+	private String address;
 
-    @Column(name = "location")
-    private String location;
+	@Column(name = "location")
+	private String location;
 
-    @Column(name = "day_of_week")
-    private String dayOfWeek;
+	@Column(name = "day_of_week")
+	private String dayOfWeek;
 
-    @Column(name = "open_time")
-    private String openTime;
+	@Column(name = "open_time")
+	private String openTime;
 
-    @Column(name = "close_time")
-    private String closeTime;
+	@Column(name = "close_time")
+	private String closeTime;
 
-    @Column(name = "contact_number")
-    private String contactNumber;
+	@Column(name = "contact_number")
+	private String contactNumber;
+
+	public static Store of(Owner owner, StoreCreateRequestDTO storeCreateRequestDTO) {
+		Store newStore = new Store();
+		newStore.setOwner(owner);
+		newStore.setName(storeCreateRequestDTO.getName());
+		newStore.setCategory(storeCreateRequestDTO.getCategory());
+		newStore.setRepresentativeImage(storeCreateRequestDTO.getRepresentativeImage());
+		newStore.setReservationAvailable(storeCreateRequestDTO.getReservationAvailable());
+		newStore.setMaxReservation(storeCreateRequestDTO.getMaxReservation());
+		newStore.setMinPrepayment(storeCreateRequestDTO.getMinPrepayment());
+		newStore.setPrepaymentDuration(storeCreateRequestDTO.getPrepaymentDuration());
+		newStore.setIntroduction(storeCreateRequestDTO.getIntroduction());
+		newStore.setLatitude(storeCreateRequestDTO.getLatitude());
+		newStore.setLongitude(storeCreateRequestDTO.getLongitude());
+		newStore.setAddress(storeCreateRequestDTO.getAddress());
+		newStore.setAddress(storeCreateRequestDTO.getAddress());
+		newStore.setLocation(storeCreateRequestDTO.getLocation());
+		newStore.setDayOfWeek(storeCreateRequestDTO.getDayOfWeek());
+		newStore.setOpenTime(storeCreateRequestDTO.getOpenTime());
+		newStore.setCloseTime(storeCreateRequestDTO.getCloseTime());
+		newStore.setContactNumber(storeCreateRequestDTO.getContactNumber());
+		return newStore;
+	}
 }
