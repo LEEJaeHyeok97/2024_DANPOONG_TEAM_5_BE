@@ -1,5 +1,9 @@
 package com.jangburich.domain.store.domain;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.List;
+
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Getter;
@@ -27,15 +31,16 @@ public class StoreGetResponseDTO {
 	private Double longitude;
 	private String address;
 	private String location;
-	private String dayOfWeek;
-	private String openTime;
-	private String closeTime;
+	private List<DayOfWeek> dayOfWeek;
+	private LocalTime openTime;
+	private LocalTime closeTime;
 
 	public StoreGetResponseDTO(Long id, String ownerId, String name, Category category, String representativeImage,
 		Boolean reservationAvailable, Long maxReservation, Long minPrepayment, Long prepaymentDuration,
 		String introduction,
-		Double latitude, Double longitude, String address, String location, String dayOfWeek, String openTime,
-		String closeTime) {
+		Double latitude, Double longitude, String address, String location, List<DayOfWeek> dayOfWeek,
+		LocalTime openTime,
+		LocalTime closeTime) {
 		this.id = id;
 		this.ownerId = ownerId;
 		this.name = name;
@@ -71,7 +76,7 @@ public class StoreGetResponseDTO {
 			store.getLongitude(),
 			store.getAddress(),
 			store.getLocation(),
-			store.getDayOfWeek(),
+			store.getWorkDays(),
 			store.getOpenTime(),
 			store.getCloseTime()
 		);
