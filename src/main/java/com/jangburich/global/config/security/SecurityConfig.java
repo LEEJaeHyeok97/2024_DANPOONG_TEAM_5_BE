@@ -46,8 +46,8 @@ public class SecurityConfig {
 				.successHandler(customSuccessHandler))
 
 			.authorizeHttpRequests(request -> request
-				.requestMatchers("/", "/oauth2/**", "/login/**", "/swagger-ui/**", "/v3/api-docs/**",
-					"/swagger-resources/**", "/kakaoPay/success").permitAll()  // /kakaoPay/success 경로 인증 예외 처리
+				.requestMatchers("/**", "/oauth2/**", "/login/**", "/swagger-ui/**", "/v3/api-docs/**",
+					"/swagger-resources/**", "/payments/**").permitAll()
 				.anyRequest().authenticated()
 			);
 
