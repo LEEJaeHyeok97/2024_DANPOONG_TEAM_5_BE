@@ -13,12 +13,12 @@ public class PaymentProcessingService {
 
     private final PaymentServiceStrategy paymentServiceStrategy;
 
-    public ReadyResponse processPayment(Long userId, PayRequest payRequest) {
+    public ReadyResponse processPayment(String userId, PayRequest payRequest) {
         PaymentService paymentService = paymentServiceStrategy.getPaymentService(payRequest.paymentType());
         return paymentService.payReady(userId, payRequest);
     }
 
-    public ApproveResponse processSuccess(Long userId, String tid, String pgToken) {
+    public ApproveResponse processSuccess(String userId, String tid, String pgToken) {
         PaymentService paymentService = paymentServiceStrategy.getPaymentService("kakao");
         return paymentService.payApprove(userId, tid, pgToken);
     }

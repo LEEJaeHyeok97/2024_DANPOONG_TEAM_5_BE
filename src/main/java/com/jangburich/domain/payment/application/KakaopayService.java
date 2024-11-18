@@ -46,7 +46,7 @@ public class KakaopayService implements PaymentService {
 
     @Transactional
     @Override
-    public ReadyResponse payReady(Long userId, PayRequest payRequest) {
+    public ReadyResponse payReady(String userId, PayRequest payRequest) {
         Map<String, String> parameters = new HashMap<>();
 
         parameters.put("cid", "TC0ONETIME");                                    // 가맹점 코드(테스트용)
@@ -85,7 +85,7 @@ public class KakaopayService implements PaymentService {
 
     @Transactional
     @Override
-    public ApproveResponse payApprove(Long userId, String tid, String pgToken) {
+    public ApproveResponse payApprove(String userId, String tid, String pgToken) {
         Map<String, String> parameters = new HashMap<>();
         parameters.put("cid", "TC0ONETIME");              // 가맹점 코드(테스트용)
         parameters.put("tid", tid);                       // 결제 고유번호
