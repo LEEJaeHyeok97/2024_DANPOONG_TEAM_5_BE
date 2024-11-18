@@ -1,5 +1,8 @@
 package com.jangburich.domain.user.domain;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.jangburich.domain.common.BaseEntity;
 import com.jangburich.domain.team.domain.Team;
 import jakarta.persistence.Column;
@@ -9,6 +12,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -50,9 +55,13 @@ public class User extends BaseEntity {
     @Column(name = "role")
     private String role;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id")
-    private Team team;
+    @ManyToMany
+    @JoinTable(
+        name = "user_team",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "team_id")
+    )
+    private Set<Team> teams = new HashSet<>();
 
     public static User create(String userId, String nickname, String image, String role) {
         User newUser = new User();
