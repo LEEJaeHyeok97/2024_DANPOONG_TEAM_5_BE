@@ -1,5 +1,7 @@
 package com.jangburich.domain.store.domain.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,8 +12,10 @@ import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.store.domain.StoreAdditionalInfoCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreGetResponseDTO;
+import com.jangburich.domain.store.domain.StoreTeamResponseDTO;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
 import com.jangburich.domain.store.domain.repository.StoreRepository;
+import com.jangburich.domain.store.domain.repository.StoreTeamRepository;
 import com.jangburich.domain.user.domain.User;
 import com.jangburich.domain.user.domain.repository.UserRepository;
 import com.jangburich.global.error.DefaultNullPointerException;
@@ -26,9 +30,10 @@ public class StoreService {
 	private final StoreRepository storeRepository;
 	private final OwnerRepository ownerRepository;
 	private final UserRepository userRepository;
+	private final StoreTeamRepository storeTeamRepository;
 
 	@Transactional
-	public void CreateStore(CustomOAuthUser customOAuth2User, StoreCreateRequestDTO storeCreateRequestDTO) {
+	public void createStore(CustomOAuthUser customOAuth2User, StoreCreateRequestDTO storeCreateRequestDTO) {
 		User user = userRepository.findByProviderId(customOAuth2User.getUserId())
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
@@ -39,7 +44,7 @@ public class StoreService {
 	}
 
 	@Transactional
-	public void CreateAdditionalInfo(CustomOAuthUser customOAuthUser,
+	public void createAdditionalInfo(CustomOAuthUser customOAuthUser,
 		StoreAdditionalInfoCreateRequestDTO storeAdditionalInfoCreateRequestDTO) {
 		User user = userRepository.findByProviderId(customOAuthUser.getUserId())
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
@@ -132,5 +137,19 @@ public class StoreService {
 		}
 
 		return new StoreGetResponseDTO().of(store);
+	}
+
+	public Page<StoreTeamResponseDTO> getPaymentGroup(String userId, Pageable pageable) {
+		User user = userRepository.findByProviderId(userId)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		Owner owner = ownerRepository.findByUser(user)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		Store store = storeRepository.findByOwner(owner)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		return storeTeamRepository.findAllByStore(store, pageable);
+
 	}
 }

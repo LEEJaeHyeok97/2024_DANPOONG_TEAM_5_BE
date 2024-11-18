@@ -1,5 +1,7 @@
 package com.jangburich.domain.store.domain.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -13,10 +15,12 @@ import com.jangburich.domain.oauth.domain.CustomOAuthUser;
 import com.jangburich.domain.store.domain.StoreAdditionalInfoCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreGetResponseDTO;
+import com.jangburich.domain.store.domain.StoreTeamResponseDTO;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
 import com.jangburich.domain.store.domain.service.StoreService;
 import com.jangburich.global.payload.Message;
 import com.jangburich.global.payload.ResponseCustom;
+import com.jangburich.utils.parser.AuthenticationParser;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,32 +38,26 @@ public class StoreController {
 	public ResponseCustom<Message> createStore(Authentication authentication,
 		@RequestBody StoreCreateRequestDTO storeCreateRequestDTO) {
 		CustomOAuthUser customOAuth2User = (CustomOAuthUser)authentication.getPrincipal();
-		storeService.CreateStore(customOAuth2User, storeCreateRequestDTO);
-		return ResponseCustom.OK(Message.builder()
-			.message("success")
-			.build());
+		storeService.createStore(customOAuth2User, storeCreateRequestDTO);
+		return ResponseCustom.OK(Message.builder().message("success").build());
 	}
 
 	@Operation(summary = "가게 추가정보 저장", description = "예약 가능 여부, 최소 선결제 금액, 선결제 사용 기간을 저장합니다.")
 	@PostMapping("/create/additionalInfo")
-	public ResponseCustom<Message> createAdditionalInfo(Authentication authentication, @RequestBody
-	StoreAdditionalInfoCreateRequestDTO storeAdditionalInfoCreateRequestDTO) {
+	public ResponseCustom<Message> createAdditionalInfo(Authentication authentication,
+		@RequestBody StoreAdditionalInfoCreateRequestDTO storeAdditionalInfoCreateRequestDTO) {
 		CustomOAuthUser customOAuthUser = (CustomOAuthUser)authentication.getPrincipal();
-		storeService.CreateAdditionalInfo(customOAuthUser, storeAdditionalInfoCreateRequestDTO);
-		return ResponseCustom.OK(Message.builder()
-			.message("success")
-			.build());
+		storeService.createAdditionalInfo(customOAuthUser, storeAdditionalInfoCreateRequestDTO);
+		return ResponseCustom.OK(Message.builder().message("success").build());
 	}
 
 	@Operation(summary = "가게 정보 수정", description = "가게 정보를 수정합니다.")
 	@PatchMapping("/{storeId}/update")
-	public ResponseCustom<Message> updateStore(Authentication authentication, @PathVariable Long storeId, @RequestBody
-	StoreUpdateRequestDTO storeUpdateRequestDTO) {
+	public ResponseCustom<Message> updateStore(Authentication authentication, @PathVariable Long storeId,
+		@RequestBody StoreUpdateRequestDTO storeUpdateRequestDTO) {
 		CustomOAuthUser principal = (CustomOAuthUser)authentication.getPrincipal();
 		storeService.updateStore(principal, storeId, storeUpdateRequestDTO);
-		return ResponseCustom.OK(Message.builder()
-			.message("success")
-			.build());
+		return ResponseCustom.OK(Message.builder().message("success").build());
 	}
 
 	@Operation(summary = "가게 정보 조회", description = "가게 상세 정보를 조회합니다.")
@@ -67,5 +65,13 @@ public class StoreController {
 	public ResponseCustom<StoreGetResponseDTO> getStoreInfo(Authentication authentication) {
 		CustomOAuthUser customOAuth2User = (CustomOAuthUser)authentication.getPrincipal();
 		return ResponseCustom.OK(storeService.getStoreInfo(customOAuth2User));
+	}
+
+	@Operation(summary = "결제 그룹 조회", description = "장부 결제 그룹을 조회합니다.")
+	@GetMapping("/payment_group")
+	public ResponseCustom<Page<StoreTeamResponseDTO>> getPaymentGroup(Authentication authentication,
+		Pageable pageable) {
+		return ResponseCustom.OK(
+			storeService.getPaymentGroup(AuthenticationParser.parseUserId(authentication), pageable));
 	}
 }
