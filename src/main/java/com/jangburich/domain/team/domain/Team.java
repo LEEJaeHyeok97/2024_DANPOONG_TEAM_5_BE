@@ -38,9 +38,6 @@ public class Team extends BaseEntity {
     @Embedded
     private TeamLeader teamLeader;
 
-    @Column(name = "point")
-    private Integer point;
-
     @Column(name = "member_limit")
     private Integer memberLimit;
 
@@ -48,19 +45,14 @@ public class Team extends BaseEntity {
     @Column(name = "team_type")
     private TeamType teamType;
 
-    public void updatePoint(Integer point) {
-        this.point += point;
-    }
-
 
     @Builder
-    public Team(String name, String description, String secretCode, TeamLeader teamLeader, Integer point,
+    public Team(String name, String description, String secretCode, TeamLeader teamLeader,
                 Integer memberLimit, TeamType teamType) {
         this.name = name;
         this.description = description;
         this.secretCode = secretCode;
         this.teamLeader = teamLeader;
-        this.point = point;
         this.memberLimit = memberLimit;
         this.teamType = teamType;
     }
