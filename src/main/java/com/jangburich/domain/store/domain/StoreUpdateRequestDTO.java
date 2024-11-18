@@ -1,5 +1,9 @@
 package com.jangburich.domain.store.domain;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.List;
+
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Getter;
@@ -22,7 +26,7 @@ public class StoreUpdateRequestDTO {
 	private Double longitude;
 	private String address;
 	private String location;
-	private String dayOfWeek;
-	private String openTime;
-	private String closeTime;
+	private List<DayOfWeek> dayOfWeek;
+	private LocalTime openTime;
+	private LocalTime closeTime;
 }
