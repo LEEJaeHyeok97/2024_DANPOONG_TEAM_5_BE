@@ -2,6 +2,14 @@ package com.jangburich.domain.store.domain.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import com.jangburich.domain.store.domain.Category;
+import com.jangburich.domain.store.domain.dto.condition.StoreSearchCondition;
+import com.jangburich.domain.store.domain.dto.condition.StoreSearchConditionWithType;
+import com.jangburich.domain.store.domain.dto.response.SearchStoresResponse;
+import com.jangburich.utils.parser.AuthenticationParser;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -151,5 +159,25 @@ public class StoreService {
 
 		return storeTeamRepository.findAllByStore(store, pageable);
 
+	}
+
+	public Page<SearchStoresResponse> searchByCategory(final Authentication authentication,
+													   final Integer searchRadius,
+													   final Category category,
+													   final StoreSearchCondition storeSearchCondition,
+													   final Pageable pageable) {
+		String parsed = AuthenticationParser.parseUserId(authentication);
+		User user = userRepository.findByProviderId(parsed)
+				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+		return storeRepository.findStoresByCategory(user.getUserId(), searchRadius, category, storeSearchCondition, pageable);
+	}
+
+	public Page<SearchStoresResponse> searchStores(final Authentication authentication, final String keyword,
+												   final StoreSearchConditionWithType storeSearchConditionWithType,
+												   final Pageable pageable) {
+		String parsed = AuthenticationParser.parseUserId(authentication);
+		User user = userRepository.findByProviderId(parsed)
+				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+		return storeRepository.findStores(user.getUserId(), keyword, storeSearchConditionWithType, pageable);
 	}
 }
