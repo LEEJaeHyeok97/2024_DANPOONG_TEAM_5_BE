@@ -51,9 +51,9 @@ public class StoreController {
 	}
 
 	@Operation(summary = "가게 정보 조회", description = "가게 상세 정보를 조회합니다.")
-	@GetMapping("/{storeId}")
-	public ResponseCustom<StoreGetResponseDTO> getStoreInfo(Authentication authentication, @PathVariable Long storeId) {
+	@GetMapping("")
+	public ResponseCustom<StoreGetResponseDTO> getStoreInfo(Authentication authentication) {
 		CustomOAuthUser customOAuth2User = (CustomOAuthUser)authentication.getPrincipal();
-		return ResponseCustom.OK(storeService.getStoreInfo(customOAuth2User, storeId));
+		return ResponseCustom.OK(storeService.getStoreInfo(customOAuth2User));
 	}
 }

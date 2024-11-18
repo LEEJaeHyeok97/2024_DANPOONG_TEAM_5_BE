@@ -1,8 +1,15 @@
 package com.jangburich.domain.store.domain;
 
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jangburich.domain.owner.domain.Owner;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -69,14 +76,19 @@ public class Store {
 	@Column(name = "location")
 	private String location;
 
+	@ElementCollection(targetClass = DayOfWeek.class)
+	@Enumerated(EnumType.STRING)
+	@CollectionTable(name = "work_days", joinColumns = @JoinColumn(name = "work_schedule_id"))
 	@Column(name = "day_of_week")
-	private String dayOfWeek;
+	private List<DayOfWeek> workDays;
 
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
 	@Column(name = "open_time")
-	private String openTime;
+	private LocalTime openTime;
 
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
 	@Column(name = "close_time")
-	private String closeTime;
+	private LocalTime closeTime;
 
 	@Column(name = "contact_number")
 	private String contactNumber;
@@ -97,7 +109,7 @@ public class Store {
 		newStore.setAddress(storeCreateRequestDTO.getAddress());
 		newStore.setAddress(storeCreateRequestDTO.getAddress());
 		newStore.setLocation(storeCreateRequestDTO.getLocation());
-		newStore.setDayOfWeek(storeCreateRequestDTO.getDayOfWeek());
+		newStore.setWorkDays(storeCreateRequestDTO.getDayOfWeek());
 		newStore.setOpenTime(storeCreateRequestDTO.getOpenTime());
 		newStore.setCloseTime(storeCreateRequestDTO.getCloseTime());
 		newStore.setContactNumber(storeCreateRequestDTO.getContactNumber());

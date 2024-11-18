@@ -76,7 +76,7 @@ public class OAuthUserService extends DefaultOAuth2UserService {
 			}
 		} else if ("owner".equals(state)) {
 			User existUser = userRepository.findByProviderId(userId).orElse(null);
-			if (existUser == null) {
+			if (existUser == null || !existUser.getRole().equals("ROLE_OWNER")) {
 				User newUser = User.create(userId, oAuth2Response.getNickname(), oAuth2Response.getImage(),
 					"ROLE_OWNER");
 				userRepository.save(newUser);
