@@ -35,7 +35,6 @@ public class TeamService {
                 .description(registerTeamRequest.description())
                 .teamLeader(new TeamLeader(user.getUserId(), registerTeamRequest.teamLeaderAccountNumber(),
                         registerTeamRequest.bankName()))
-                .point(ZERO)
                 .memberLimit(registerTeamRequest.memberLimit())
                 .teamType(TeamType.valueOf(registerTeamRequest.teamType()))
                 .build();

@@ -18,8 +18,8 @@ public class PaymentProcessingService {
         return paymentService.payReady(userId, payRequest);
     }
 
-    public ApproveResponse processSuccess(String userId, String tid, String pgToken) {
+    public ApproveResponse processSuccess(String pgToken) {
         PaymentService paymentService = paymentServiceStrategy.getPaymentService("kakao");
-        return paymentService.payApprove(userId, tid, pgToken);
+        return paymentService.payApprove(pgToken);
     }
 }
