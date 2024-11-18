@@ -6,8 +6,8 @@ import org.springframework.security.core.Authentication;
 public class AuthenticationParser {
     private AuthenticationParser(){}
 
-    public static Long parseUserId(Authentication authentication) {
+    public static String parseUserId(Authentication authentication) {
         CustomOAuthUser principal = (CustomOAuthUser) authentication.getPrincipal();
-        return Long.parseLong(principal.getUserId());
+        return principal.getUserId();
     }
 }

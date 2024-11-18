@@ -3,19 +3,16 @@ package com.jangburich.domain.team.domain;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import java.util.HashSet;
-import java.util.Set;
 
 import com.jangburich.domain.common.BaseEntity;
-import com.jangburich.domain.user.domain.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -51,10 +48,20 @@ public class Team extends BaseEntity {
     @Column(name = "team_type")
     private TeamType teamType;
 
-    @ManyToMany(mappedBy = "teams")
-    private Set<User> users = new HashSet<>();
-
     public void updatePoint(Integer point) {
         this.point += point;
+    }
+
+
+    @Builder
+    public Team(String name, String description, String secretCode, TeamLeader teamLeader, Integer point,
+                Integer memberLimit, TeamType teamType) {
+        this.name = name;
+        this.description = description;
+        this.secretCode = secretCode;
+        this.teamLeader = teamLeader;
+        this.point = point;
+        this.memberLimit = memberLimit;
+        this.teamType = teamType;
     }
 }
