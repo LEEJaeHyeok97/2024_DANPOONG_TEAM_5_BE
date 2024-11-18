@@ -2,7 +2,6 @@ package com.jangburich.domain.store.domain;
 
 import com.jangburich.domain.common.BaseEntity;
 import com.jangburich.domain.team.domain.Team;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,8 +15,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
 @Setter
+@Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StoreTeam extends BaseEntity {
