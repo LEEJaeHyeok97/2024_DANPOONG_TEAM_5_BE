@@ -99,10 +99,6 @@ public class Store {
 		newStore.setName(storeCreateRequestDTO.getName());
 		newStore.setCategory(storeCreateRequestDTO.getCategory());
 		newStore.setRepresentativeImage(storeCreateRequestDTO.getRepresentativeImage());
-		newStore.setReservationAvailable(storeCreateRequestDTO.getReservationAvailable());
-		newStore.setMaxReservation(storeCreateRequestDTO.getMaxReservation());
-		newStore.setMinPrepayment(storeCreateRequestDTO.getMinPrepayment());
-		newStore.setPrepaymentDuration(storeCreateRequestDTO.getPrepaymentDuration());
 		newStore.setIntroduction(storeCreateRequestDTO.getIntroduction());
 		newStore.setLatitude(storeCreateRequestDTO.getLatitude());
 		newStore.setLongitude(storeCreateRequestDTO.getLongitude());

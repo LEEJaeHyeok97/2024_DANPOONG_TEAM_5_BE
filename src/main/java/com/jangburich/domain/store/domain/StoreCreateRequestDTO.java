@@ -21,10 +21,6 @@ public class StoreCreateRequestDTO {
 	private Category category;
 
 	private String representativeImage;
-	private Boolean reservationAvailable;
-	private Long maxReservation;
-	private Long minPrepayment;
-	private Long prepaymentDuration;
 	private String introduction;
 	private String contactNumber;
 

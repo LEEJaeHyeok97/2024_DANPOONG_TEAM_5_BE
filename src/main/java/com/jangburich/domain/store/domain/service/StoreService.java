@@ -7,6 +7,7 @@ import com.jangburich.domain.oauth.domain.CustomOAuthUser;
 import com.jangburich.domain.owner.domain.Owner;
 import com.jangburich.domain.owner.domain.repository.OwnerRepository;
 import com.jangburich.domain.store.domain.Store;
+import com.jangburich.domain.store.domain.StoreAdditionalInfoCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreGetResponseDTO;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
@@ -35,6 +36,26 @@ public class StoreService {
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		storeRepository.save(Store.of(owner, storeCreateRequestDTO));
+	}
+
+	@Transactional
+	public void CreateAdditionalInfo(CustomOAuthUser customOAuthUser,
+		StoreAdditionalInfoCreateRequestDTO storeAdditionalInfoCreateRequestDTO) {
+		User user = userRepository.findByProviderId(customOAuthUser.getUserId())
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		Owner owner = ownerRepository.findByUser(user)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		Store store = storeRepository.findByOwner(owner)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		store.setReservationAvailable(storeAdditionalInfoCreateRequestDTO.getReservationAvailable());
+		store.setMinPrepayment(storeAdditionalInfoCreateRequestDTO.getMinPrepayment());
+		store.setMaxReservation(storeAdditionalInfoCreateRequestDTO.getMaxReservation());
+		store.setPrepaymentDuration(storeAdditionalInfoCreateRequestDTO.getPrepaymentDuration());
+
+		storeRepository.save(store);
 	}
 
 	@Transactional
