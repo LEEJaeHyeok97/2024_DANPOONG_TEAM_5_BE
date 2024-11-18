@@ -1,12 +1,20 @@
 package com.jangburich.domain.store.domain.controller;
 
+import com.jangburich.domain.store.domain.Category;
+import com.jangburich.domain.store.domain.dto.condition.StoreSearchCondition;
+import com.jangburich.domain.store.domain.dto.condition.StoreSearchConditionWithType;
+import com.jangburich.domain.store.domain.dto.response.SearchStoresResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jangburich.domain.oauth.domain.CustomOAuthUser;
@@ -27,7 +35,31 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/store")
 public class StoreController {
+
 	private final StoreService storeService;
+
+	@Operation(summary = "카테고리 별 가게 목록 조회", description = "카테고리 별로 가게 목록을 조회합니다.")
+	@GetMapping
+	public ResponseCustom<Page<SearchStoresResponse>> searchByCategory(
+			Authentication authentication,
+			@RequestParam(required = false, defaultValue = "3") Integer searchRadius,
+			@RequestParam(required = false, defaultValue = "ALL") Category category,
+			@ModelAttribute StoreSearchCondition storeSearchCondition,
+			Pageable pageable
+	) {
+		return ResponseCustom.OK(storeService.searchByCategory(authentication, searchRadius, category, storeSearchCondition, pageable));
+	}
+
+	@Operation(summary = "매장 찾기(검색)", description = "검색어와 매장 유형에 맞는 매장을 검색합니다.")
+	@GetMapping("/search")
+	public ResponseCustom<Page<SearchStoresResponse>> searchStores(
+			Authentication authentication,
+			@RequestParam(required = false, defaultValue = "") String keyword,
+			@ModelAttribute StoreSearchConditionWithType storeSearchConditionWithType,
+			Pageable pageable
+	) {
+		return ResponseCustom.OK(storeService.searchStores(authentication, keyword, storeSearchConditionWithType, pageable));
+	}
 
 	@Operation(summary = "가게 등록", description = "신규 파트너 가게를 등록합니다.")
 	@PostMapping("/create")
@@ -63,7 +95,7 @@ public class StoreController {
 	}
 
 	@Operation(summary = "가게 정보 조회", description = "가게 상세 정보를 조회합니다.")
-	@GetMapping("")
+	@GetMapping("/{storeId}")
 	public ResponseCustom<StoreGetResponseDTO> getStoreInfo(Authentication authentication) {
 		CustomOAuthUser customOAuth2User = (CustomOAuthUser)authentication.getPrincipal();
 		return ResponseCustom.OK(storeService.getStoreInfo(customOAuth2User));
