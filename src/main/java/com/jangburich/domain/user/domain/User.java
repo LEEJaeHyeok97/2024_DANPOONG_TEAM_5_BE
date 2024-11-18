@@ -9,9 +9,11 @@ import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
 
@@ -43,4 +45,13 @@ public class User extends BaseEntity {
 
     @Column(name = "role")
     private String role;
+
+    public static User create(String userId, String nickname, String image, String role) {
+        User newUser = new User();
+        newUser.setProviderId(userId);
+        newUser.setNickname(nickname);
+        newUser.setProfileImageUrl(image);
+        newUser.setRole(role);
+        return newUser;
+    }
 }
