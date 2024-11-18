@@ -33,14 +33,14 @@ public class PaymentController {
 	@PostMapping("/ready")
 	public ResponseCustom<ReadyResponse> payReady(Authentication authentication, @RequestBody PayRequest payRequest) {
 		return ResponseCustom.OK(
-			paymentProcessingService.processPayment(AuthenticationParser.parseUserId(authentication), payRequest));
+				paymentProcessingService.processPayment(AuthenticationParser.parseUserId(authentication), payRequest));
 	}
 
 	@Operation(summary = "결제 성공", description = "결제 성공")
 	@GetMapping("/success")
 	public ResponseCustom<ApproveResponse> afterPayRequest(@RequestParam("pg_token") String pgToken) {
 		return ResponseCustom.OK(
-			paymentProcessingService.processSuccess(pgToken));
+				paymentProcessingService.processSuccess(pgToken));
 	}
 
 	@Operation(summary = "결제 취소", description = "결제 진행 중에 취소되는 경우")
