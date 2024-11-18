@@ -1,5 +1,8 @@
 package com.jangburich.domain.team.domain;
 
+import jakarta.persistence.Embedded;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,11 +32,24 @@ public class Team extends BaseEntity {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "secret_code")
+    private String secretCode;
+
+    @Embedded
+    private TeamLeader teamLeader;
+
     @Column(name = "point")
     private Integer point;
 
     @Column(name = "member_limit")
     private Integer memberLimit;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "team_type")
+    private TeamType teamType;
 
     @ManyToMany(mappedBy = "teams")
     private Set<User> users = new HashSet<>();
