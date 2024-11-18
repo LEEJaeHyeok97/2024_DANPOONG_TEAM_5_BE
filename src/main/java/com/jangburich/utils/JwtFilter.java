@@ -56,12 +56,12 @@ public class JwtFilter extends OncePerRequestFilter {
 			userDTO.setUserId(userId);
 			userDTO.setRole(role);
 
-			// CustomOAuth2User 생성
-			CustomOAuthUser customOAuth2User = new CustomOAuthUser(userDTO);
+			// CustomOAuthUser 생성
+			CustomOAuthUser customOAuthUser = new CustomOAuthUser(userDTO);
 
 			// 스프링 시큐리티 인증 토큰 생성 및 설정
-			Authentication authToken = new UsernamePasswordAuthenticationToken(customOAuth2User, null,
-				customOAuth2User.getAuthorities());
+			Authentication authToken = new UsernamePasswordAuthenticationToken(customOAuthUser, null,
+				customOAuthUser.getAuthorities());
 			SecurityContextHolder.getContext().setAuthentication(authToken);
 
 		} catch (Exception e) {
