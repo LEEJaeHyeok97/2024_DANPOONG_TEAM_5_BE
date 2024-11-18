@@ -52,6 +52,18 @@ public class Team extends BaseEntity {
         this.point += point;
     }
 
+    public void validateJoinCode(String joinCode) {
+        if (!this.secretCode.equals(joinCode)) {
+            throw new IllegalArgumentException("유효하지 않은 입장 코드입니다.");
+        }
+    }
+
+    public void validateMemberLimit(int currentMemberCount) {
+        if (currentMemberCount >= this.memberLimit) {
+            throw new IllegalStateException("멤버 제한을 초과합니다.");
+        }
+    }
+
 
     @Builder
     public Team(String name, String description, String secretCode, TeamLeader teamLeader, Integer point,

@@ -1,17 +1,8 @@
 package com.jangburich.domain.payment.application;
 
-import com.jangburich.domain.payment.domain.PaymentChargeStatus;
-import com.jangburich.domain.payment.domain.TeamChargeHistory;
-import com.jangburich.domain.payment.domain.repository.TeamChargeHistoryRepository;
-import com.jangburich.domain.payment.dto.request.PayRequest;
-import com.jangburich.domain.payment.dto.response.ApproveResponse;
-import com.jangburich.domain.payment.dto.response.ReadyResponse;
-import com.jangburich.domain.payment.exception.TeamNotFoundException;
-import com.jangburich.domain.team.domain.Team;
-import com.jangburich.domain.team.domain.repository.TeamRepository;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +10,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+
+import com.jangburich.domain.payment.domain.PaymentChargeStatus;
+import com.jangburich.domain.payment.domain.TeamChargeHistory;
+import com.jangburich.domain.payment.domain.repository.TeamChargeHistoryRepository;
+import com.jangburich.domain.payment.dto.request.PayRequest;
+import com.jangburich.domain.payment.dto.response.ApproveResponse;
+import com.jangburich.domain.payment.dto.response.ReadyResponse;
+import com.jangburich.domain.payment.exception.TeamNotFoundException;
+import com.jangburich.domain.store.domain.Store;
+import com.jangburich.domain.store.domain.StoreTeam;
+import com.jangburich.domain.store.domain.repository.StoreRepository;
+import com.jangburich.domain.store.domain.repository.StoreTeamRepository;
+import com.jangburich.domain.team.domain.Team;
+import com.jangburich.domain.team.domain.repository.TeamRepository;
+import com.jangburich.global.error.DefaultNullPointerException;
+import com.jangburich.global.payload.ErrorCode;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +48,14 @@ public class KakaopayService implements PaymentService {
 
     private final TeamRepository teamRepository;
 
+    private final StoreTeamRepository storeTeamRepository;
+
+    private final StoreRepository storeRepository;
+
+    private ResponseEntity<ReadyResponse> readyResponseResponseEntity;
+    private String userId;
+    private Long storeId;
+
     @Override
     public String getType() {
         return "kakao";
@@ -48,6 +65,9 @@ public class KakaopayService implements PaymentService {
     @Override
     public ReadyResponse payReady(String userId, PayRequest payRequest) {
         Map<String, String> parameters = new HashMap<>();
+
+        this.userId = userId;
+        this.storeId = payRequest.storeId();
 
         parameters.put("cid", "TC0ONETIME");                                    // 가맹점 코드(테스트용)
         parameters.put("partner_order_id", "1234567890");                       // 주문번호
@@ -65,11 +85,9 @@ public class KakaopayService implements PaymentService {
         RestTemplate template = new RestTemplate();
         String url = "https://open-api.kakaopay.com/online/v1/payment/ready";
 
-        ResponseEntity<ReadyResponse> readyResponseResponseEntity = template.postForEntity(url, requestEntity,
-                ReadyResponse.class);
+        readyResponseResponseEntity = template.postForEntity(url, requestEntity, ReadyResponse.class);
 
-        Team team = teamRepository.findById(payRequest.teamId())
-                .orElseThrow(() -> new TeamNotFoundException());
+        Team team = teamRepository.findById(payRequest.teamId()).orElseThrow(() -> new TeamNotFoundException());
 
         TeamChargeHistory teamChargeHistory = TeamChargeHistory.builder()
                 .transactionId(readyResponseResponseEntity.getBody().tid())
@@ -85,10 +103,10 @@ public class KakaopayService implements PaymentService {
 
     @Transactional
     @Override
-    public ApproveResponse payApprove(String userId, String tid, String pgToken) {
+    public ApproveResponse payApprove(String pgToken) {
         Map<String, String> parameters = new HashMap<>();
         parameters.put("cid", "TC0ONETIME");              // 가맹점 코드(테스트용)
-        parameters.put("tid", tid);                       // 결제 고유번호
+        parameters.put("tid", readyResponseResponseEntity.getBody().tid());                       // 결제 고유번호
         parameters.put("partner_order_id", "1234567890"); // 주문번호
         parameters.put("partner_user_id", String.valueOf(userId));    // 회원 아이디
         parameters.put("pg_token", pgToken);              // 결제승인 요청을 인증하는 토큰
@@ -100,15 +118,23 @@ public class KakaopayService implements PaymentService {
         String url = "https://open-api.kakaopay.com/online/v1/payment/approve";
         ApproveResponse approveResponse = template.postForObject(url, requestEntity, ApproveResponse.class);
 
-        TeamChargeHistory teamChargeHistory = teamChargeHistoryRepository.findByTransactionId(tid)
-                .orElseThrow(() -> new NullPointerException());
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
+
+        TeamChargeHistory teamChargeHistory = teamChargeHistoryRepository.findByTransactionId(
+                readyResponseResponseEntity.getBody().tid()).orElseThrow(() -> new NullPointerException());
 
         teamChargeHistory.completePaymentChargeStatus();
 
-        Team team = teamRepository.findById(teamChargeHistory.getTeam().getId())
-                .orElseThrow(() -> new TeamNotFoundException());
+        StoreTeam storeTeam = storeTeamRepository.findByStoreIdAndTeamId(storeId, teamChargeHistory.getTeam().getId())
+                .orElse(null);
 
-        team.updatePoint(teamChargeHistory.getPaymentAmount());
+        if (storeTeam != null) {
+            storeTeam.updatePoint(teamChargeHistory.getPaymentAmount());
+        } else {
+            storeTeamRepository.save(
+                    StoreTeam.create(teamChargeHistory.getTeam(), store, teamChargeHistory.getPaymentAmount()));
+        }
 
         return approveResponse;
     }
