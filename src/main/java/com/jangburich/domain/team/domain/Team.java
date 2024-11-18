@@ -28,4 +28,8 @@ public class Team extends BaseEntity {
 
     @Column(name = "member_limit")
     private Integer memberLimit;
+
+    public void updatePoint(Integer point) {
+        this.point += point;
+    }
 }
