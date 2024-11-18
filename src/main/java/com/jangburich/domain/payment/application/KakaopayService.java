@@ -37,13 +37,14 @@ public class KakaopayService implements PaymentService {
     @Value("${kakaopay.fail-url}")
     private String failUrl;
 
-    private TeamRepository teamRepository;
+    private final TeamRepository teamRepository;
 
     @Override
     public String getType() {
         return "kakao";
     }
 
+    @Transactional
     @Override
     public ReadyResponse payReady(Long userId, PayRequest payRequest) {
         Map<String, String> parameters = new HashMap<>();
@@ -82,6 +83,7 @@ public class KakaopayService implements PaymentService {
         return readyResponseResponseEntity.getBody();
     }
 
+    @Transactional
     @Override
     public ApproveResponse payApprove(Long userId, String tid, String pgToken) {
         Map<String, String> parameters = new HashMap<>();
