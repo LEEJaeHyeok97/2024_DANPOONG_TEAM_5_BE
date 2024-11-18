@@ -55,6 +55,7 @@ public class User extends BaseEntity {
     @Column(name = "role")
     private String role;
 
+
     @ManyToMany
     @JoinTable(
         name = "user_team",
