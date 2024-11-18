@@ -17,6 +17,17 @@ public class KakaopayService implements PaymentService {
     @Value("${kakaopay.secretKey}")
     private String secretKey;
 
+    @Value("${kakaopay.approve-url}")
+    private String approvalUrl;
+
+    @Value("${kakaopay.cancel-url}")
+    private String cancelUrl;
+
+    @Value("${kakaopay.fail-url}")
+    private String failUrl;
+
+    private ReadyResponse readyResponse;
+
     @Override
     public String getType() {
         return "kakao";
@@ -33,9 +44,9 @@ public class KakaopayService implements PaymentService {
         parameters.put("quantity", "1");                                        // 상품 수량
         parameters.put("total_amount", "2200");                                 // 상품 총액
         parameters.put("tax_free_amount", "0");                                 // 상품 비과세 금액
-        parameters.put("approval_url", "http://localhost/order/pay/completed"); // 결제 성공 시 URL
-        parameters.put("cancel_url", "http://localhost/order/pay/cancel");      // 결제 취소 시 URL
-        parameters.put("fail_url", "http://localhost/order/pay/fail");          // 결제 실패 시 URL
+        parameters.put("approval_url", approvalUrl);                            // 결제 성공 시 URL
+        parameters.put("cancel_url", cancelUrl);                                // 결제 취소 시 URL
+        parameters.put("fail_url", failUrl);                   // 결제 실패 시 URL
 
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
 
@@ -61,7 +72,7 @@ public class KakaopayService implements PaymentService {
 
         RestTemplate template = new RestTemplate();
 
-        String url = "https://open-api.kakaopay.com/online/v1/payment/ready";
+        String url = "https://open-api.kakaopay.com/online/v1/payment/approve";
         ApproveResponse approveResponse = template.postForObject(url, requestEntity, ApproveResponse.class);
 
         return approveResponse;
