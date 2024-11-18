@@ -35,7 +35,7 @@ public class TeamChargeHistory extends BaseEntity {
     private Integer paymentAmount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_charge_status")
+    @Column(name = "payment_charge_status", length = 20)
     private PaymentChargeStatus paymentChargeStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
