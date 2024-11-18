@@ -5,9 +5,9 @@ import com.jangburich.domain.payment.dto.response.ApproveResponse;
 import com.jangburich.domain.payment.dto.response.ReadyResponse;
 
 public interface PaymentService {
-    String getType();
+	String getType();
 
-    ReadyResponse payReady(String userId, PayRequest payRequest);
+	ReadyResponse payReady(String userId, PayRequest payRequest);
 
-    ApproveResponse payApprove(String pgToken);
+	ApproveResponse payApprove(String pgToken);
 }
