@@ -21,8 +21,8 @@ public class OwnerService {
 	private final OwnerRepository ownerRepository;
 	private final UserRepository userRepository;
 
-	public void registerOwner(CustomOAuthUser customOAuth2User, OwnerCreateReqDTO ownerCreateReqDTO) {
-		User user = userRepository.findByProviderId(customOAuth2User.getUserId())
+	public void registerOwner(CustomOAuthUser customOAuthUser, OwnerCreateReqDTO ownerCreateReqDTO) {
+		User user = userRepository.findByProviderId(customOAuthUser.getUserId())
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
@@ -37,8 +37,8 @@ public class OwnerService {
 		ownerRepository.save(owner);
 	}
 
-	public OwnerGetResDTO getOwnerInfo(CustomOAuthUser customOAuth2User) {
-		User user = userRepository.findByProviderId(customOAuth2User.getUserId())
+	public OwnerGetResDTO getOwnerInfo(CustomOAuthUser customOAuthUser) {
+		User user = userRepository.findByProviderId(customOAuthUser.getUserId())
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
