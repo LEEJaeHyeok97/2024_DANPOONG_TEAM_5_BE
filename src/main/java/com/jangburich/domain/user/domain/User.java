@@ -56,14 +56,6 @@ public class User extends BaseEntity {
     private String role;
 
 
-    @ManyToMany
-    @JoinTable(
-        name = "user_team",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "team_id")
-    )
-    private Set<Team> teams = new HashSet<>();
-
     public static User create(String userId, String nickname, String image, String role) {
         User newUser = new User();
         newUser.setProviderId(userId);
