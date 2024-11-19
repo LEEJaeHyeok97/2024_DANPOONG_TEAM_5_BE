@@ -79,11 +79,17 @@ public class StoreService {
 	}
 
 	@Transactional
-	public void updateStore(CustomOAuthUser customOAuth2User, Long storeId,
-		StoreUpdateRequestDTO storeUpdateRequestDTO) {
-		Store store = storeRepository.findById(storeId)
-			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_STORE_ID));
-		if (!store.getOwner().getUser().getProviderId().equals(customOAuth2User.getUserId())) {
+	public void updateStore(String userId, StoreUpdateRequestDTO storeUpdateRequestDTO) {
+		User user = userRepository.findByProviderId(userId)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		Owner owner = ownerRepository.findByUser(user)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		Store store = storeRepository.findByOwner(owner)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		if (!store.getOwner().getUser().getProviderId().equals(userId)) {
 			throw new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION);
 		}
 
@@ -167,11 +173,8 @@ public class StoreService {
 		return storeTeamRepository.findAllByStore(store, pageable);
 	}
 
-	public Page<SearchStoresResponse> searchByCategory(final Authentication authentication,
-		final Integer searchRadius,
-		final Category category,
-		final StoreSearchCondition storeSearchCondition,
-		final Pageable pageable) {
+	public Page<SearchStoresResponse> searchByCategory(final Authentication authentication, final Integer searchRadius,
+		final Category category, final StoreSearchCondition storeSearchCondition, final Pageable pageable) {
 		String parsed = AuthenticationParser.parseUserId(authentication);
 		User user = userRepository.findByProviderId(parsed)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
@@ -180,8 +183,7 @@ public class StoreService {
 	}
 
 	public Page<SearchStoresResponse> searchStores(final Authentication authentication, final String keyword,
-		final StoreSearchConditionWithType storeSearchConditionWithType,
-		final Pageable pageable) {
+		final StoreSearchConditionWithType storeSearchConditionWithType, final Pageable pageable) {
 		String parsed = AuthenticationParser.parseUserId(authentication);
 		User user = userRepository.findByProviderId(parsed)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));

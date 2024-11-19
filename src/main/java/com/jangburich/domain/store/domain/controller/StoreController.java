@@ -85,11 +85,10 @@ public class StoreController {
 	}
 
 	@Operation(summary = "가게 정보 수정", description = "가게 정보를 수정합니다.")
-	@PatchMapping("/{storeId}/update")
-	public ResponseCustom<Message> updateStore(Authentication authentication, @PathVariable Long storeId,
+	@PatchMapping("/update")
+	public ResponseCustom<Message> updateStore(Authentication authentication,
 		@RequestBody StoreUpdateRequestDTO storeUpdateRequestDTO) {
-		CustomOAuthUser principal = (CustomOAuthUser)authentication.getPrincipal();
-		storeService.updateStore(principal, storeId, storeUpdateRequestDTO);
+		storeService.updateStore(AuthenticationParser.parseUserId(authentication), storeUpdateRequestDTO);
 		return ResponseCustom.OK(Message.builder().message("success").build());
 	}
 
@@ -120,6 +119,7 @@ public class StoreController {
 	@Operation(summary = "결제 내역 조회", description = "가게에서 일어난 결제 내역을 조회합니다.")
 	@GetMapping("/payment_history")
 	public ResponseCustom<?> getPaymentHistory(Authentication authentication, Pageable pageable) {
-		return ResponseCustom.OK(storeService.getPaymentHistory(AuthenticationParser.parseUserId(authentication), pageable));
+		return ResponseCustom.OK(
+			storeService.getPaymentHistory(AuthenticationParser.parseUserId(authentication), pageable));
 	}
 }
