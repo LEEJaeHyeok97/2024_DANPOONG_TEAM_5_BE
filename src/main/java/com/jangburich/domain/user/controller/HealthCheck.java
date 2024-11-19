@@ -1,4 +1,4 @@
-package com.jangburich.domain.user.domain.controller;
+package com.jangburich.domain.user.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

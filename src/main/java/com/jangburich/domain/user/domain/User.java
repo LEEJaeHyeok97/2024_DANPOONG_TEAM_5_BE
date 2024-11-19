@@ -56,10 +56,11 @@ public class User extends BaseEntity {
     private String role;
 
 
-    public static User create(String userId, String nickname, String image, String role) {
+    public static User create(String userId, String nickname, String email, String image, String role) {
         User newUser = new User();
         newUser.setProviderId(userId);
         newUser.setNickname(nickname);
+        newUser.setEmail(email);
         newUser.setProfileImageUrl(image);
         newUser.setRole(role);
         return newUser;
