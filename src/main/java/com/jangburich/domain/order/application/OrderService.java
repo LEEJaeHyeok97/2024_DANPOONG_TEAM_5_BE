@@ -4,13 +4,15 @@ import com.jangburich.domain.menu.domain.Menu;
 import com.jangburich.domain.menu.domain.repository.MenuRepository;
 import com.jangburich.domain.order.domain.Cart;
 import com.jangburich.domain.order.domain.repository.CartRepository;
-import com.jangburich.domain.order.domain.repository.OrdersRepository;
 import com.jangburich.domain.order.dto.request.AddCartRequest;
+import com.jangburich.domain.order.dto.response.CartResponse;
+import com.jangburich.domain.order.dto.response.CartResponse.GetCartItemsResponse;
 import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.store.domain.repository.StoreRepository;
 import com.jangburich.domain.user.domain.User;
 import com.jangburich.domain.user.domain.repository.UserRepository;
 import com.jangburich.global.payload.Message;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -64,5 +66,30 @@ public class OrderService {
         return Message.builder()
                 .message("장바구니에 상품을 추가했습니다.")
                 .build();
+    }
+
+    public CartResponse getCartItems(String userProviderId) {
+        User user = userRepository.findByProviderId(userProviderId)
+                .orElseThrow(() -> new NullPointerException());
+
+        List<Cart> carts = cartRepository.findAllByUser(user);
+
+        if (carts.isEmpty()) {
+            return CartResponse.of(List.of(), 0);
+        }
+
+        List<GetCartItemsResponse> cartItems = carts.stream()
+                .map(cart -> GetCartItemsResponse.of(
+                        cart.getMenu().getName(),
+                        cart.getMenu().getDescription(),
+                        cart.getQuantity(),
+                        cart.getMenu().getPrice()
+                ))
+                .toList();
+
+        int discountAmount = 0;
+        CartResponse cartResponse = CartResponse.of(cartItems, discountAmount);
+
+        return cartResponse;
     }
 }
