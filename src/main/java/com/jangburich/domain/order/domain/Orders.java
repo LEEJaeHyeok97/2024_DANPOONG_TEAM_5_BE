@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -37,4 +38,18 @@ public class Orders extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
+
+
+    @Builder
+    public Orders(Store store, User user, Team team) {
+        this.store = store;
+        this.user = user;
+        this.team = team;
+    }
+
+    public void validateUser(User user) {
+        if (!this.user.equals(user)) {
+            throw new IllegalArgumentException("유저 정보가 일치하지 않습니다.");
+        }
+    }
 }

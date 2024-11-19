@@ -1,6 +1,8 @@
 package com.jangburich.domain.order.domain.repository;
 
+import com.jangburich.domain.common.Status;
 import com.jangburich.domain.order.domain.Cart;
+import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.user.domain.User;
 import java.util.List;
 import java.util.Optional;
@@ -14,5 +16,7 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     @Query("SELECT c FROM Cart c WHERE c.user.userId = :userId AND c.menu.id = :menuId")
     Optional<Cart> findByUserIdAndMenuId(@Param("userId") Long userId, @Param("menuId") Long menuId);
 
-    List<Cart> findAllByUser(User user);
+    List<Cart> findAllByUserAndStore(User user, Store store);
+
+    List<Cart> findAllByUserAndStatus(User user, Status status);
 }

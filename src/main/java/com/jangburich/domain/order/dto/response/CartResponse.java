@@ -10,7 +10,7 @@ public record CartResponse(
 ) {
     public static CartResponse of(List<GetCartItemsResponse> cartItems, Integer discountAmount) {
         int totalAmount = cartItems.stream()
-                .mapToInt(item -> item.menuPrice * item.quantity)
+                .mapToInt(item -> item.menuPrice() * item.quantity())
                 .sum();
 
         discountAmount = 0;
@@ -20,14 +20,4 @@ public record CartResponse(
         return new CartResponse(cartItems, totalAmount, discountAmount, finalAmount);
     }
 
-    public record GetCartItemsResponse(
-            String menuName,
-            String menuDescription,
-            Integer quantity,
-            Integer menuPrice
-    ) {
-        public static GetCartItemsResponse of(String menuName, String menuDescription, Integer quantity, Integer menuPrice) {
-            return new GetCartItemsResponse(menuName, menuDescription, quantity, menuPrice);
-        }
-    }
 }
