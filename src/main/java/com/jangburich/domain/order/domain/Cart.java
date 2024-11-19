@@ -58,6 +58,10 @@ public class Cart extends BaseEntity {
     }
 
     public void updateQuantity(int quantity) {
-        this.quantity += quantity;
+        this.quantity = quantity;
+    }
+
+    public void updateOrders(Orders orders) {
+        this.orders = orders;
     }
 }
