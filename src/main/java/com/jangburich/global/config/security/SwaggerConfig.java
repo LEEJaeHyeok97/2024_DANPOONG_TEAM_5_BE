@@ -23,11 +23,12 @@ public class SwaggerConfig {
 		return new OpenAPI()
 			.info(info)
 			.addSecurityItem(
-				new io.swagger.v3.oas.models.security.SecurityRequirement().addList("Bearer Authentication"))
+				new io.swagger.v3.oas.models.security.SecurityRequirement().addList("Custom String Authentication"))
 			.components(new io.swagger.v3.oas.models.Components()
-				.addSecuritySchemes("Bearer Authentication", new io.swagger.v3.oas.models.security.SecurityScheme()
-					.type(io.swagger.v3.oas.models.security.SecurityScheme.Type.HTTP)
-					.scheme("bearer")
-					.bearerFormat("JWT")));
+				.addSecuritySchemes("Custom String Authentication",
+					new io.swagger.v3.oas.models.security.SecurityScheme()
+						.type(io.swagger.v3.oas.models.security.SecurityScheme.Type.APIKEY) // API Key 타입 설정
+						.name("Authorization")
+						.in(io.swagger.v3.oas.models.security.SecurityScheme.In.HEADER))); // 헤더로 전달
 	}
 }

@@ -1,8 +1,8 @@
 package com.jangburich.domain.owner.domain.controller;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -10,6 +10,7 @@ import com.jangburich.domain.oauth.domain.CustomOAuthUser;
 import com.jangburich.domain.owner.domain.OwnerCreateReqDTO;
 import com.jangburich.domain.owner.domain.OwnerGetResDTO;
 import com.jangburich.domain.owner.domain.service.OwnerService;
+import com.jangburich.global.GetAuthorization;
 import com.jangburich.global.payload.Message;
 import com.jangburich.global.payload.ResponseCustom;
 
@@ -27,18 +28,19 @@ public class OwnerController {
 
 	@Operation(summary = "사장님 정보 등록", description = "사장님 상세 정보를 등록합니다.")
 	@PostMapping("/register")
-	public ResponseCustom<Message> registerOwner(Authentication authentication, OwnerCreateReqDTO ownerCreateReqDTO) {
-		CustomOAuthUser customOAuthUser = (CustomOAuthUser)authentication.getPrincipal();
-		ownerService.registerOwner(customOAuthUser, ownerCreateReqDTO);
+	public ResponseCustom<Message> registerOwner(
+		@RequestAttribute(value = "authorizationHeader") String authorizationHeader,
+		OwnerCreateReqDTO ownerCreateReqDTO) {
+		ownerService.registerOwner(GetAuthorization.getUserId(authorizationHeader), ownerCreateReqDTO);
 		return ResponseCustom.OK(Message.builder()
-						.message("success")
-				.build());
+			.message("success")
+			.build());
 	}
 
 	@Operation(summary = "사장님 정보 조회", description = "사장님 정보를 조회합니다.")
 	@GetMapping("")
-	public ResponseCustom<OwnerGetResDTO> getOwnerInfo(Authentication authentication) {
-		CustomOAuthUser customOAuthUser = (CustomOAuthUser)authentication.getPrincipal();
-		return ResponseCustom.OK(ownerService.getOwnerInfo(customOAuthUser));
+	public ResponseCustom<OwnerGetResDTO> getOwnerInfo(
+		@RequestAttribute(value = "authorizationHeader") String authorizationHeader) {
+		return ResponseCustom.OK(ownerService.getOwnerInfo(GetAuthorization.getUserId(authorizationHeader)));
 	}
 }

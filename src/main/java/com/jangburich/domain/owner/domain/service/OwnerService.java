@@ -2,13 +2,12 @@ package com.jangburich.domain.owner.domain.service;
 
 import org.springframework.stereotype.Service;
 
-import com.jangburich.domain.oauth.domain.CustomOAuthUser;
 import com.jangburich.domain.owner.domain.Owner;
 import com.jangburich.domain.owner.domain.OwnerCreateReqDTO;
 import com.jangburich.domain.owner.domain.OwnerGetResDTO;
 import com.jangburich.domain.owner.domain.repository.OwnerRepository;
 import com.jangburich.domain.user.domain.User;
-import com.jangburich.domain.user.domain.repository.UserRepository;
+import com.jangburich.domain.user.repository.UserRepository;
 import com.jangburich.global.error.DefaultNullPointerException;
 import com.jangburich.global.payload.ErrorCode;
 
@@ -21,8 +20,8 @@ public class OwnerService {
 	private final OwnerRepository ownerRepository;
 	private final UserRepository userRepository;
 
-	public void registerOwner(CustomOAuthUser customOAuthUser, OwnerCreateReqDTO ownerCreateReqDTO) {
-		User user = userRepository.findByProviderId(customOAuthUser.getUserId())
+	public void registerOwner(String customOAuthUser, OwnerCreateReqDTO ownerCreateReqDTO) {
+		User user = userRepository.findByProviderId(customOAuthUser)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
@@ -37,8 +36,8 @@ public class OwnerService {
 		ownerRepository.save(owner);
 	}
 
-	public OwnerGetResDTO getOwnerInfo(CustomOAuthUser customOAuthUser) {
-		User user = userRepository.findByProviderId(customOAuthUser.getUserId())
+	public OwnerGetResDTO getOwnerInfo(String customOAuthUser) {
+		User user = userRepository.findByProviderId(customOAuthUser)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
