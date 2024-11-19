@@ -14,6 +14,7 @@ import com.jangburich.domain.payment.domain.repository.TeamChargeHistoryReposito
 import com.jangburich.domain.store.domain.Category;
 import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.store.domain.StoreAdditionalInfoCreateRequestDTO;
+import com.jangburich.domain.store.domain.StoreChargeHistoryResponse;
 import com.jangburich.domain.store.domain.StoreCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreGetResponseDTO;
 import com.jangburich.domain.store.domain.StoreTeam;
@@ -209,6 +210,21 @@ public class StoreService {
 		Page<TeamChargeHistoryResponse> chargeHistoryRepositoryAllByTeam = teamChargeHistoryRepository.findAllByTeam(
 			team, pageable);
 
-		return PaymentGroupDetailResponse.create(team.getName(), storeTeam.getPoint(), storeTeam.getRemainPoint(), teamLeader, chargeHistoryRepositoryAllByTeam);
+		return PaymentGroupDetailResponse.create(team.getName(), storeTeam.getPoint(), storeTeam.getRemainPoint(),
+			teamLeader, chargeHistoryRepositoryAllByTeam);
+	}
+
+	public Page<StoreChargeHistoryResponse> getPaymentHistory(String userId, Pageable pageable) {
+		User user = userRepository.findByProviderId(userId)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		Owner owner = ownerRepository.findByUser(user)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		Store store = storeRepository.findByOwner(owner)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		Page<StoreChargeHistoryResponse> historyResponses = teamChargeHistoryRepository.findAllByStore(store, pageable);
+		return historyResponses;
 	}
 }

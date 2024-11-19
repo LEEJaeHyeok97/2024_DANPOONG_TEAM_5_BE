@@ -42,7 +42,7 @@ public class StoreController {
 	private final StoreService storeService;
 
 	@Operation(summary = "카테고리 별 가게 목록 조회", description = "카테고리 별로 가게 목록을 조회합니다.")
-	@GetMapping
+	@GetMapping("/category")
 	public ResponseCustom<Page<SearchStoresResponse>> searchByCategory(
 		Authentication authentication,
 		@RequestParam(required = false, defaultValue = "3") Integer searchRadius,
@@ -94,7 +94,7 @@ public class StoreController {
 	}
 
 	@Operation(summary = "가게 정보 조회", description = "가게 상세 정보를 조회합니다.")
-	@GetMapping("/{storeId}")
+	@GetMapping("")
 	public ResponseCustom<StoreGetResponseDTO> getStoreInfo(Authentication authentication) {
 		CustomOAuthUser customOAuth2User = (CustomOAuthUser)authentication.getPrincipal();
 		return ResponseCustom.OK(storeService.getStoreInfo(customOAuth2User));
@@ -115,5 +115,11 @@ public class StoreController {
 		Pageable pageable) {
 		return ResponseCustom.OK(
 			storeService.getPaymentGroupDetail(AuthenticationParser.parseUserId(authentication), teamId, pageable));
+	}
+
+	@Operation(summary = "결제 내역 조회", description = "가게에서 일어난 결제 내역을 조회합니다.")
+	@GetMapping("/payment_history")
+	public ResponseCustom<?> getPaymentHistory(Authentication authentication, Pageable pageable) {
+		return ResponseCustom.OK(storeService.getPaymentHistory(AuthenticationParser.parseUserId(authentication), pageable));
 	}
 }
