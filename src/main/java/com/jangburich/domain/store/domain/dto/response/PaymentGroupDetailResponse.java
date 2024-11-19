@@ -18,6 +18,7 @@ public class PaymentGroupDetailResponse {
 	private Integer remainPoint;
 	private String teamLeaderName;
 	private String teamLeaderPhoneNum;
+	// TODO 이거 아니고, order 결제 내역으로 변경해야함.
 	private Page<TeamChargeHistoryResponse> historyResponses;
 
 	public static PaymentGroupDetailResponse create(String teamName, Integer point, Integer remainPoint,
