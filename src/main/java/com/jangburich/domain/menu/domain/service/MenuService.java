@@ -10,13 +10,12 @@ import com.jangburich.domain.menu.domain.MenuCreateRequestDTO;
 import com.jangburich.domain.menu.domain.MenuGetResponseDTO;
 import com.jangburich.domain.menu.domain.MenuUpdateRequestDTO;
 import com.jangburich.domain.menu.domain.repository.MenuRepository;
-import com.jangburich.domain.oauth.domain.CustomOAuthUser;
 import com.jangburich.domain.owner.domain.Owner;
 import com.jangburich.domain.owner.domain.repository.OwnerRepository;
 import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.store.domain.repository.StoreRepository;
 import com.jangburich.domain.user.domain.User;
-import com.jangburich.domain.user.domain.repository.UserRepository;
+import com.jangburich.domain.user.repository.UserRepository;
 import com.jangburich.global.error.DefaultNullPointerException;
 import com.jangburich.global.payload.ErrorCode;
 
@@ -31,8 +30,8 @@ public class MenuService {
 	private final StoreRepository storeRepository;
 	private final UserRepository userRepository;
 
-	public void registerMenu(CustomOAuthUser customOAuthUser, MenuCreateRequestDTO menuCreateRequestDTO) {
-		User user = userRepository.findByProviderId(customOAuthUser.getUserId())
+	public void registerMenu(String customOAuthUser, MenuCreateRequestDTO menuCreateRequestDTO) {
+		User user = userRepository.findByProviderId(customOAuthUser)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
@@ -45,10 +44,10 @@ public class MenuService {
 			menuCreateRequestDTO.getImage_url(), menuCreateRequestDTO.getPrice(), store));
 	}
 
-	public void updateMenu(CustomOAuthUser customOAuthUser, Long menuId, MenuUpdateRequestDTO menuUpdateRequestDTO) {
+	public void updateMenu(String customOAuthUser, Long menuId, MenuUpdateRequestDTO menuUpdateRequestDTO) {
 		Menu menu = menuRepository.findById(menuId)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
-		if (!menu.getStore().getOwner().getUser().getProviderId().equals(customOAuthUser.getUserId())) {
+		if (!menu.getStore().getOwner().getUser().getProviderId().equals(customOAuthUser)) {
 			throw new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION);
 		}
 		if (menuUpdateRequestDTO.getName() != null)
@@ -64,17 +63,17 @@ public class MenuService {
 	}
 
 	@Transactional
-	public void deleteMenu(CustomOAuthUser customOAuthUser, Long id) {
+	public void deleteMenu(String customOAuthUser, Long id) {
 		Menu menu = menuRepository.findById(id)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
-		if (!menu.getStore().getOwner().getUser().getProviderId().equals(customOAuthUser.getUserId())) {
+		if (!menu.getStore().getOwner().getUser().getProviderId().equals(customOAuthUser)) {
 			throw new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION);
 		}
 		menuRepository.delete(menu);
 	}
 
-	public List<MenuGetResponseDTO> getMenu(CustomOAuthUser customOAuthUser) {
-		User user = userRepository.findByProviderId(customOAuthUser.getUserId())
+	public List<MenuGetResponseDTO> getMenu(String customOAuthUser) {
+		User user = userRepository.findByProviderId(customOAuthUser)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)

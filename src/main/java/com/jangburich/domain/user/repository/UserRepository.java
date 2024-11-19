@@ -1,4 +1,4 @@
-package com.jangburich.domain.user.domain.repository;
+package com.jangburich.domain.user.repository;
 
 import java.util.Optional;
 

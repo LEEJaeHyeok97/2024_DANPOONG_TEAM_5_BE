@@ -93,6 +93,12 @@ public class Store {
 	@Column(name = "contact_number")
 	private String contactNumber;
 
+	public static Store create(Owner owner) {
+		Store newOwner = new Store();
+		newOwner.setOwner(owner);
+		return newOwner;
+	}
+
 	public static Store of(Owner owner, StoreCreateRequestDTO storeCreateRequestDTO) {
 		Store newStore = new Store();
 		newStore.setOwner(owner);
