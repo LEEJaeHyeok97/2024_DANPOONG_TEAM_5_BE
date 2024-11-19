@@ -34,13 +34,15 @@ public class StoreQueryDslRepositoryImpl implements StoreQueryDslRepository {
         double myCurrentLat = storeSearchCondition.lat();
         double myCurrentLon = storeSearchCondition.lon();
 
+        BooleanExpression categoryCondition = isAllCategory(category);
+
         List<SearchStoresResponse> results = queryFactory
                 .select(new QSearchStoresResponse(store.id, store.name, Expressions.FALSE, store.category,
                         Expressions.constant(1.0), Expressions.constant("open"),
                         store.closeTime.stringValue(), store.contactNumber, store.representativeImage))
                 .from(store)
                 .where(
-                        store.category.eq(category),
+                        categoryCondition,
                         withinSearchRadius(myCurrentLat, myCurrentLon, searchRadius, store.latitude, store.longitude)
                 )
                 .orderBy(store.id.desc())
@@ -52,7 +54,7 @@ public class StoreQueryDslRepositoryImpl implements StoreQueryDslRepository {
                 .select(store.count())
                 .from(store)
                 .where(
-                        store.category.eq(category),
+                        categoryCondition,
                         withinSearchRadius(myCurrentLat, myCurrentLon, searchRadius, store.latitude, store.longitude)
                 );
 
@@ -91,6 +93,10 @@ public class StoreQueryDslRepositoryImpl implements StoreQueryDslRepository {
                 );
 
         return PageableExecutionUtils.getPage(results, pageable, () -> countQuery.fetch().size());
+    }
+
+    private BooleanExpression isAllCategory(Category category) {
+        return category == Category.ALL ? Expressions.TRUE : store.category.eq(category);
     }
 
     // TO DO
