@@ -2,11 +2,9 @@ package com.jangburich.domain.store.domain.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jangburich.domain.oauth.domain.CustomOAuthUser;
 import com.jangburich.domain.owner.domain.Owner;
 import com.jangburich.domain.owner.domain.repository.OwnerRepository;
 import com.jangburich.domain.payment.domain.TeamChargeHistoryResponse;
@@ -29,10 +27,10 @@ import com.jangburich.domain.store.domain.repository.StoreTeamRepository;
 import com.jangburich.domain.team.domain.Team;
 import com.jangburich.domain.team.domain.repository.TeamRepository;
 import com.jangburich.domain.user.domain.User;
-import com.jangburich.domain.user.domain.repository.UserRepository;
+import com.jangburich.domain.user.repository.UserRepository;
+import com.jangburich.global.GetAuthorization;
 import com.jangburich.global.error.DefaultNullPointerException;
 import com.jangburich.global.payload.ErrorCode;
-import com.jangburich.utils.parser.AuthenticationParser;
 
 import lombok.RequiredArgsConstructor;
 
@@ -48,8 +46,8 @@ public class StoreService {
 	private final TeamChargeHistoryRepository teamChargeHistoryRepository;
 
 	@Transactional
-	public void createStore(CustomOAuthUser customOAuth2User, StoreCreateRequestDTO storeCreateRequestDTO) {
-		User user = userRepository.findByProviderId(customOAuth2User.getUserId())
+	public void createStore(String authentication, StoreCreateRequestDTO storeCreateRequestDTO) {
+		User user = userRepository.findByProviderId(authentication)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
@@ -59,9 +57,9 @@ public class StoreService {
 	}
 
 	@Transactional
-	public void createAdditionalInfo(CustomOAuthUser customOAuthUser,
+	public void createAdditionalInfo(String authentication,
 		StoreAdditionalInfoCreateRequestDTO storeAdditionalInfoCreateRequestDTO) {
-		User user = userRepository.findByProviderId(customOAuthUser.getUserId())
+		User user = userRepository.findByProviderId(authentication)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
@@ -143,8 +141,8 @@ public class StoreService {
 		return store;
 	}
 
-	public StoreGetResponseDTO getStoreInfo(CustomOAuthUser customOAuth2User) {
-		User user = userRepository.findByProviderId(customOAuth2User.getUserId())
+	public StoreGetResponseDTO getStoreInfo(String authentication) {
+		User user = userRepository.findByProviderId(authentication)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
@@ -153,7 +151,7 @@ public class StoreService {
 		Store store = storeRepository.findByOwner(owner)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
 
-		if (!store.getOwner().getUser().getProviderId().equals(customOAuth2User.getUserId())) {
+		if (!store.getOwner().getUser().getProviderId().equals(authentication)) {
 			throw new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION);
 		}
 
@@ -173,19 +171,17 @@ public class StoreService {
 		return storeTeamRepository.findAllByStore(store, pageable);
 	}
 
-	public Page<SearchStoresResponse> searchByCategory(final Authentication authentication, final Integer searchRadius,
+	public Page<SearchStoresResponse> searchByCategory(final String authentication, final Integer searchRadius,
 		final Category category, final StoreSearchCondition storeSearchCondition, final Pageable pageable) {
-		String parsed = AuthenticationParser.parseUserId(authentication);
-		User user = userRepository.findByProviderId(parsed)
+		User user = userRepository.findByProviderId(GetAuthorization.getUserId(authentication))
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 		return storeRepository.findStoresByCategory(user.getUserId(), searchRadius, category, storeSearchCondition,
 			pageable);
 	}
 
-	public Page<SearchStoresResponse> searchStores(final Authentication authentication, final String keyword,
+	public Page<SearchStoresResponse> searchStores(final String authentication, final String keyword,
 		final StoreSearchConditionWithType storeSearchConditionWithType, final Pageable pageable) {
-		String parsed = AuthenticationParser.parseUserId(authentication);
-		User user = userRepository.findByProviderId(parsed)
+		User user = userRepository.findByProviderId(GetAuthorization.getUserId(authentication))
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 		return storeRepository.findStores(user.getUserId(), keyword, storeSearchConditionWithType, pageable);
 	}

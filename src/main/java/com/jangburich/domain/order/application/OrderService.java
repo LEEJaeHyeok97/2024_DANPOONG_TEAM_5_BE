@@ -17,7 +17,7 @@ import com.jangburich.domain.store.domain.repository.StoreRepository;
 import com.jangburich.domain.team.domain.Team;
 import com.jangburich.domain.team.domain.repository.TeamRepository;
 import com.jangburich.domain.user.domain.User;
-import com.jangburich.domain.user.domain.repository.UserRepository;
+import com.jangburich.domain.user.repository.UserRepository;
 import com.jangburich.global.payload.Message;
 import java.util.List;
 import java.util.Optional;
