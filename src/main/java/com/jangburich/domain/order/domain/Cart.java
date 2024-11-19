@@ -2,6 +2,8 @@ package com.jangburich.domain.order.domain;
 
 import com.jangburich.domain.common.BaseEntity;
 import com.jangburich.domain.menu.domain.Menu;
+import com.jangburich.domain.store.domain.Store;
+import com.jangburich.domain.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,7 +12,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.util.List;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,4 +38,26 @@ public class Cart extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "menu_id")
     private Menu menu;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id")
+    private Store store;
+
+
+    @Builder
+    public Cart(Integer quantity, Orders orders, Menu menu, User user, Store store) {
+        this.quantity = quantity;
+        this.orders = orders;
+        this.menu = menu;
+        this.user = user;
+        this.store = store;
+    }
+
+    public void updateQuantity(int quantity) {
+        this.quantity += quantity;
+    }
 }
