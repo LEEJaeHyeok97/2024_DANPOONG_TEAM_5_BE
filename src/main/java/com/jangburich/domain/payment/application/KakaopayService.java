@@ -22,6 +22,7 @@ import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.store.domain.StoreTeam;
 import com.jangburich.domain.store.domain.repository.StoreRepository;
 import com.jangburich.domain.store.domain.repository.StoreTeamRepository;
+import com.jangburich.domain.store.exception.StoreNotFoundException;
 import com.jangburich.domain.team.domain.Team;
 import com.jangburich.domain.team.domain.repository.TeamRepository;
 import com.jangburich.global.error.DefaultNullPointerException;
@@ -88,12 +89,13 @@ public class KakaopayService implements PaymentService {
 		readyResponseResponseEntity = template.postForEntity(url, requestEntity, ReadyResponse.class);
 
 		Team team = teamRepository.findById(payRequest.teamId()).orElseThrow(() -> new TeamNotFoundException());
-
+		Store store = storeRepository.findById(payRequest.storeId()).orElseThrow(() -> new StoreNotFoundException());
 		TeamChargeHistory teamChargeHistory = TeamChargeHistory.builder()
 			.transactionId(readyResponseResponseEntity.getBody().tid())
 			.paymentAmount(Integer.valueOf(payRequest.totalAmount()))
 			.paymentChargeStatus(PaymentChargeStatus.PENDING)
 			.team(team)
+			.store(store)
 			.build();
 
 		teamChargeHistoryRepository.save(teamChargeHistory);
@@ -130,7 +132,8 @@ public class KakaopayService implements PaymentService {
 			.orElse(null);
 
 		if (storeTeam != null) {
-			storeTeam.updatePoint(teamChargeHistory.getPaymentAmount());
+			storeTeam.addPoint(teamChargeHistory.getPaymentAmount());
+			storeTeam.addRemainPoint(teamChargeHistory.getPaymentAmount());
 		} else {
 			storeTeamRepository.save(
 				StoreTeam.create(teamChargeHistory.getTeam(), store, teamChargeHistory.getPaymentAmount()));

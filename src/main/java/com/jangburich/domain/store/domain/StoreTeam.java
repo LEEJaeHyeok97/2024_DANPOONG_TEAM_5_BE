@@ -37,8 +37,19 @@ public class StoreTeam extends BaseEntity {
 	@Column(name = "point")
 	private Integer point;
 
-	public void updatePoint(Integer point) {
+	@Column(name = "remain_point")
+	private Integer remainPoint;
+
+	public void addPoint(Integer point) {
 		this.point += point;
+	}
+
+	public void addRemainPoint(Integer point) {
+		this.remainPoint += point;
+	}
+
+	public void subRemainPoint(Integer point) {
+		this.remainPoint -= point;
 	}
 
 	public static StoreTeam create(Team team, Store store, Integer point) {
@@ -46,6 +57,7 @@ public class StoreTeam extends BaseEntity {
 		storeTeam.setTeam(team);
 		storeTeam.setStore(store);
 		storeTeam.setPoint(point);
+		storeTeam.setRemainPoint(point);
 		return storeTeam;
 	}
 }
