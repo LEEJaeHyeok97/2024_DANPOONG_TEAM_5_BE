@@ -12,12 +12,14 @@ import com.jangburich.domain.order.dto.request.AddCartRequest;
 import com.jangburich.domain.order.dto.request.OrderRequest;
 import com.jangburich.domain.order.dto.response.CartResponse;
 import com.jangburich.domain.order.dto.response.GetCartItemsResponse;
+import com.jangburich.domain.point.domain.repository.PointTransaction;
 import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.store.domain.repository.StoreRepository;
+import com.jangburich.domain.store.domain.repository.StoreTeamRepository;
 import com.jangburich.domain.team.domain.Team;
 import com.jangburich.domain.team.domain.repository.TeamRepository;
 import com.jangburich.domain.user.domain.User;
-import com.jangburich.domain.user.repository.UserRepository;
+import com.jangburich.domain.user.domain.repository.UserRepository;
 import com.jangburich.global.payload.Message;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +38,7 @@ public class OrderService {
     private final StoreRepository storeRepository;
     private final OrdersRepository ordersRepository;
     private final TeamRepository teamRepository;
+    private final StoreTeamRepository storeTeamRepository;
 
     @Transactional
     public Message addCart(String userProviderId, AddCartRequest addCartRequest) {
@@ -72,6 +75,7 @@ public class OrderService {
 
         cartRepository.save(newCart);
 
+
         return Message.builder()
                 .message("장바구니에 상품을 추가했습니다.")
                 .build();
@@ -98,6 +102,8 @@ public class OrderService {
 
         int discountAmount = 0;
         CartResponse cartResponse = CartResponse.of(cartItems, discountAmount);
+
+
 
         return cartResponse;
     }

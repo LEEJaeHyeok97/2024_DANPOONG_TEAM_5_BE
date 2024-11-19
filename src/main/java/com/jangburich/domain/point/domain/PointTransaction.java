@@ -15,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -43,4 +44,13 @@ public class PointTransaction extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
     private Store store;
+
+
+    @Builder
+    public PointTransaction(TransactionType transactionType, Team team, User user, Store store) {
+        this.transactionType = transactionType;
+        this.team = team;
+        this.user = user;
+        this.store = store;
+    }
 }
