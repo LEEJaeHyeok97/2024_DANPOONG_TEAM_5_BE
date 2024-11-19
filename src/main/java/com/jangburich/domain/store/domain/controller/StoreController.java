@@ -2,12 +2,6 @@ package com.jangburich.domain.store.domain.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import com.jangburich.domain.store.domain.Category;
-import com.jangburich.domain.store.domain.dto.condition.StoreSearchCondition;
-import com.jangburich.domain.store.domain.dto.condition.StoreSearchConditionWithType;
-import com.jangburich.domain.store.domain.dto.response.SearchStoresResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -20,11 +14,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jangburich.domain.oauth.domain.CustomOAuthUser;
+import com.jangburich.domain.store.domain.Category;
 import com.jangburich.domain.store.domain.StoreAdditionalInfoCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreGetResponseDTO;
 import com.jangburich.domain.store.domain.StoreTeamResponseDTO;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
+import com.jangburich.domain.store.domain.dto.condition.StoreSearchCondition;
+import com.jangburich.domain.store.domain.dto.condition.StoreSearchConditionWithType;
+import com.jangburich.domain.store.domain.dto.response.PaymentGroupDetailResponse;
+import com.jangburich.domain.store.domain.dto.response.SearchStoresResponse;
 import com.jangburich.domain.store.domain.service.StoreService;
 import com.jangburich.global.payload.Message;
 import com.jangburich.global.payload.ResponseCustom;
@@ -45,24 +44,26 @@ public class StoreController {
 	@Operation(summary = "카테고리 별 가게 목록 조회", description = "카테고리 별로 가게 목록을 조회합니다.")
 	@GetMapping
 	public ResponseCustom<Page<SearchStoresResponse>> searchByCategory(
-			Authentication authentication,
-			@RequestParam(required = false, defaultValue = "3") Integer searchRadius,
-			@RequestParam(required = false, defaultValue = "ALL") Category category,
-			@ModelAttribute StoreSearchCondition storeSearchCondition,
-			Pageable pageable
+		Authentication authentication,
+		@RequestParam(required = false, defaultValue = "3") Integer searchRadius,
+		@RequestParam(required = false, defaultValue = "ALL") Category category,
+		@ModelAttribute StoreSearchCondition storeSearchCondition,
+		Pageable pageable
 	) {
-		return ResponseCustom.OK(storeService.searchByCategory(authentication, searchRadius, category, storeSearchCondition, pageable));
+		return ResponseCustom.OK(
+			storeService.searchByCategory(authentication, searchRadius, category, storeSearchCondition, pageable));
 	}
 
 	@Operation(summary = "매장 찾기(검색)", description = "검색어와 매장 유형에 맞는 매장을 검색합니다.")
 	@GetMapping("/search")
 	public ResponseCustom<Page<SearchStoresResponse>> searchStores(
-			Authentication authentication,
-			@RequestParam(required = false, defaultValue = "") String keyword,
-			@ModelAttribute StoreSearchConditionWithType storeSearchConditionWithType,
-			Pageable pageable
+		Authentication authentication,
+		@RequestParam(required = false, defaultValue = "") String keyword,
+		@ModelAttribute StoreSearchConditionWithType storeSearchConditionWithType,
+		Pageable pageable
 	) {
-		return ResponseCustom.OK(storeService.searchStores(authentication, keyword, storeSearchConditionWithType, pageable));
+		return ResponseCustom.OK(
+			storeService.searchStores(authentication, keyword, storeSearchConditionWithType, pageable));
 	}
 
 	@Operation(summary = "가게 등록", description = "신규 파트너 가게를 등록합니다.")
@@ -105,5 +106,14 @@ public class StoreController {
 		Pageable pageable) {
 		return ResponseCustom.OK(
 			storeService.getPaymentGroup(AuthenticationParser.parseUserId(authentication), pageable));
+	}
+
+	@Operation(summary = "결제 그룹 상세 조회", description = "장부 결제 그룹을 상세 조회합니다.")
+	@GetMapping("/payment_group/{teamId}")
+	public ResponseCustom<PaymentGroupDetailResponse> getPaymentGroupDetail(Authentication authentication,
+		@PathVariable Long teamId,
+		Pageable pageable) {
+		return ResponseCustom.OK(
+			storeService.getPaymentGroupDetail(AuthenticationParser.parseUserId(authentication), teamId, pageable));
 	}
 }

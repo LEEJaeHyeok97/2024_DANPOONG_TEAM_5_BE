@@ -130,7 +130,8 @@ public class KakaopayService implements PaymentService {
 			.orElse(null);
 
 		if (storeTeam != null) {
-			storeTeam.updatePoint(teamChargeHistory.getPaymentAmount());
+			storeTeam.addPoint(teamChargeHistory.getPaymentAmount());
+			storeTeam.addRemainPoint(teamChargeHistory.getPaymentAmount());
 		} else {
 			storeTeamRepository.save(
 				StoreTeam.create(teamChargeHistory.getTeam(), store, teamChargeHistory.getPaymentAmount()));
