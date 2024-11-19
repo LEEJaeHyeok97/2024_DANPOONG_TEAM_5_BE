@@ -35,6 +35,8 @@ public class TeamService {
                 .description(registerTeamRequest.description())
                 .teamLeader(new TeamLeader(user.getUserId(), registerTeamRequest.teamLeaderAccountNumber(),
                         registerTeamRequest.bankName()))
+                .secretCode(registerTeamRequest.secretCode())
+                .point(ZERO)
                 .memberLimit(registerTeamRequest.memberLimit())
                 .teamType(TeamType.valueOf(registerTeamRequest.teamType()))
                 .build();
@@ -47,6 +49,32 @@ public class TeamService {
 
         return Message.builder()
                 .message("팀 생성이 완료되었습니다.")
+                .build();
+    }
+
+    @Transactional
+    public Message joinTeam(String userId, String joinCode) {
+        User user = userRepository.findByProviderId(userId)
+                .orElseThrow(() -> new NullPointerException());
+
+        Team team = teamRepository.findBySecretCode(joinCode)
+                .orElseThrow(() -> new IllegalArgumentException("Team not found"));
+
+        team.validateJoinCode(joinCode);
+
+        int currentMemberCount = userTeamRepository.countByTeam(team);
+        team.validateMemberLimit(currentMemberCount);
+
+        if (userTeamRepository.existsByUserAndTeam(user, team)) {
+            throw new IllegalStateException("유저는 이미 해당 팀에 속해 있습니다.");
+        }
+
+        UserTeam userTeam = UserTeam.of(user, team);
+        userTeamRepository.save(userTeam);
+
+
+        return Message.builder()
+                .message("팀에 성공적으로 참여하였습니다.")
                 .build();
     }
 }
