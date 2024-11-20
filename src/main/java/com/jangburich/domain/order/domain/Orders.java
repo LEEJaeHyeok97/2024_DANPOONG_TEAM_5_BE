@@ -6,6 +6,8 @@ import com.jangburich.domain.team.domain.Team;
 import com.jangburich.domain.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -39,12 +41,21 @@ public class Orders extends BaseEntity {
     @JoinColumn(name = "team_id")
     private Team team;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_status")
+    private OrderStatus orderStatus;
+
 
     @Builder
-    public Orders(Store store, User user, Team team) {
+    public Orders(Store store, User user, Team team, OrderStatus orderStatus) {
         this.store = store;
         this.user = user;
         this.team = team;
+        this.orderStatus = orderStatus;
+    }
+
+    public void updateOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
     }
 
     public void validateUser(User user) {

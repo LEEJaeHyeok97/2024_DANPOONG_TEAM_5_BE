@@ -5,6 +5,7 @@ import com.jangburich.domain.common.Status;
 import com.jangburich.domain.menu.domain.Menu;
 import com.jangburich.domain.menu.domain.repository.MenuRepository;
 import com.jangburich.domain.order.domain.Cart;
+import com.jangburich.domain.order.domain.OrderStatus;
 import com.jangburich.domain.order.domain.Orders;
 import com.jangburich.domain.order.domain.repository.CartRepository;
 import com.jangburich.domain.order.domain.repository.OrdersRepository;
@@ -171,6 +172,7 @@ public class OrderService {
                 .store(store)
                 .user(user)
                 .team(team)
+                .orderStatus(OrderStatus.RECEIVED)
                 .build();
         return ordersRepository.save(orders);
     }
@@ -179,6 +181,7 @@ public class OrderService {
         carts.forEach(cart -> cart.updateOrders(orders));
     }
 
+    @Transactional
     public Message useMealTicket(String userProviderId, Long orderId) {
         User user = userRepository.findByProviderId(userProviderId)
                 .orElseThrow(() -> new NullPointerException());
@@ -188,7 +191,7 @@ public class OrderService {
 
         orders.validateUser(user);
 
-        orders.updateStatus(Status.INACTIVE);
+        orders.updateOrderStatus(OrderStatus.TICKET_USED);
 
         return Message.builder()
                 .message("식권을 사용했습니다.")
