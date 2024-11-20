@@ -1,20 +1,12 @@
 package com.jangburich.domain.user.domain;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import com.jangburich.domain.common.BaseEntity;
-import com.jangburich.domain.team.domain.Team;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,43 +18,49 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", updatable = false)
-    private Long userId;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id", updatable = false)
+	private Long userId;
 
-    @Column(name = "provider_id")
-    private String providerId;
+	@Column(name = "provider_id")
+	private String providerId;
 
-    @Column(name = "email")
-    private String email;
+	@Column(name = "email")
+	private String email;
 
-    @Column(name = "phone_number")
-    private String phoneNumber;
+	@Column(name = "phone_number")
+	private String phoneNumber;
 
-    @Column(name = "is_term_accepted")
-    private Boolean isTermAccepted;
+	@Column(name = "is_term_accepted")
+	private Boolean isTermAccepted;
 
-    @Column(name = "nickname", nullable = false, unique = true)
-    private String nickname;
+	@Column(name = "nickname", nullable = false, unique = true)
+	private String nickname;
 
-    @Column(name = "profile_image_url")
-    private String profileImageUrl;
+	@Column(name = "profile_image_url")
+	private String profileImageUrl;
 
-    @Column(name = "character_image_url")
-    private String characterImageUrl;
+	@Column(name = "character_image_url")
+	private String characterImageUrl;
 
-    @Column(name = "role")
-    private String role;
+	@Column(name = "role")
+	private String role;
 
+	@Column(name = "refresh_token")
+	private String refreshToken;
 
-    public static User create(String userId, String nickname, String email, String image, String role) {
-        User newUser = new User();
-        newUser.setProviderId(userId);
-        newUser.setNickname(nickname);
-        newUser.setEmail(email);
-        newUser.setProfileImageUrl(image);
-        newUser.setRole(role);
-        return newUser;
-    }
+	public void updateRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
+	}
+
+	public static User create(String userId, String nickname, String email, String image, String role) {
+		User newUser = new User();
+		newUser.setProviderId(userId);
+		newUser.setNickname(nickname);
+		newUser.setEmail(email);
+		newUser.setProfileImageUrl(image);
+		newUser.setRole(role);
+		return newUser;
+	}
 }
