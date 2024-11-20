@@ -51,7 +51,7 @@ public class OrderService {
         System.out.println("menu.getId() = " + menu.getId());
         System.out.println("user.getUserId() = " + user.getUserId());
 
-        Optional<Cart> optionalCart = cartRepository.findByUserIdAndMenuId(user.getUserId(), menu.getId());
+        Optional<Cart> optionalCart = cartRepository.findByUserIdAndMenuIdAndStatus(user.getUserId(), menu.getId(), Status.ACTIVE);
 
         Store store = storeRepository.findById(addCartRequest.storeId())
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 가게 id 입니다."));
@@ -119,7 +119,7 @@ public class OrderService {
         Team team = teamRepository.findById(orderRequest.teamId())
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 그룹 id 입니다."));
 
-        List<Cart> existingCarts = cartRepository.findAllByUserAndStore(user, store);
+        List<Cart> existingCarts = cartRepository.findAllByUserAndStoreAndStatus(user, store, Status.ACTIVE);
 
         List<Cart> mergedCarts = mergeCarts(existingCarts, orderRequest.items(), user, store);
 
@@ -136,10 +136,14 @@ public class OrderService {
     }
 
     private List<Cart> mergeCarts(List<Cart> existingCarts, List<OrderRequest.OrderItemRequest> items, User user, Store store) {
+        List<Long> orderedMenuIds = items.stream()
+                .map(OrderRequest.OrderItemRequest::menuId)
+                .toList();
+
         for (OrderRequest.OrderItemRequest item : items) {
             Optional<Cart> existingCart = findCartByMenuId(existingCarts, item.menuId());
             if (existingCart.isPresent()) {
-                existingCart.get().updateQuantity(existingCart.get().getQuantity() + item.quantity());
+                existingCart.get().updateQuantity(item.quantity());
                 existingCart.get().updateStatus(Status.INACTIVE);
                 continue;
             }
