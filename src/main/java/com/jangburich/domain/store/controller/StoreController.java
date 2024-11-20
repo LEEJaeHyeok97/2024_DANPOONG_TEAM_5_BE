@@ -28,6 +28,7 @@ import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
 import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
 import com.jangburich.domain.store.dto.response.OrdersDetailResponse;
 import com.jangburich.domain.store.dto.response.OrdersGetResponse;
+import com.jangburich.domain.store.dto.response.OrdersTodayResponse;
 import com.jangburich.domain.store.dto.response.PaymentGroupDetailResponse;
 import com.jangburich.domain.store.dto.response.SearchStoresResponse;
 import com.jangburich.domain.store.service.StoreService;
@@ -118,10 +119,17 @@ public class StoreController {
 
 	@Operation(summary = "지난 주문 조회", description = "가게에 있는 지난 주문을 조회합니다")
 	@GetMapping("/orders/last")
-	public ResponseCustom<List<OrdersGetResponse>> getOrders(Authentication authentication) {
+	public ResponseCustom<List<OrdersGetResponse>> getLastOrders(Authentication authentication) {
 		List<OrdersGetResponse> ordersLast = storeService.getOrdersLast(
 			AuthenticationParser.parseUserId(authentication));
 		return ResponseCustom.OK(ordersLast);
+	}
+
+	@Operation(summary = "오늘 주문 조회", description = "가게에 있는 오늘 주문을 조회합니다")
+	@GetMapping("/orders/today")
+	public ResponseCustom<OrdersTodayResponse> getTodayOrders(Authentication authentication) {
+		return ResponseCustom.OK(storeService.getTodayOrders(
+			AuthenticationParser.parseUserId(authentication)));
 	}
 
 	@Operation(summary = "주문 상세 조회", description = "가게에 있는 주문을 상세 조회합니다")

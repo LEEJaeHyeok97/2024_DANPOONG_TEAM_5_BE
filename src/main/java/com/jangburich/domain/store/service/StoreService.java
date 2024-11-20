@@ -15,6 +15,7 @@ import com.jangburich.domain.menu.domain.Menu;
 import com.jangburich.domain.menu.domain.MenuCreateRequestDTO;
 import com.jangburich.domain.menu.repository.MenuRepository;
 import com.jangburich.domain.order.domain.Cart;
+import com.jangburich.domain.order.domain.OrderStatus;
 import com.jangburich.domain.order.domain.Orders;
 import com.jangburich.domain.order.domain.repository.CartRepository;
 import com.jangburich.domain.order.domain.repository.OrdersRepository;
@@ -35,6 +36,7 @@ import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
 import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
 import com.jangburich.domain.store.dto.response.OrdersDetailResponse;
 import com.jangburich.domain.store.dto.response.OrdersGetResponse;
+import com.jangburich.domain.store.dto.response.OrdersTodayResponse;
 import com.jangburich.domain.store.dto.response.PaymentGroupDetailResponse;
 import com.jangburich.domain.store.dto.response.SearchStoresResponse;
 import com.jangburich.domain.store.exception.OrdersNotFoundException;
@@ -274,10 +276,10 @@ public class StoreService {
 			List<Cart> carts = cartRepository.findAllByOrders(orders);
 			newOrdersGetResponse.setId(orders.getId());
 			newOrdersGetResponse.setMenuNames(carts.size() == 1 ? carts.get(0).getMenu().getName() :
-				carts.get(0).getMenu().getName() + "외 " + (carts.size() - 1) + "개");
+				carts.get(0).getMenu().getName() + " 외 " + (carts.size() - 1) + "개");
 			newOrdersGetResponse.setCount(carts.size());
 			newOrdersGetResponse.setDate(orders.getUpdatedAt());
-			Integer price = 0;
+			int price = 0;
 			for (Cart cart : carts) {
 				price += (cart.getMenu().getPrice() * cart.getQuantity());
 			}
@@ -286,6 +288,49 @@ public class StoreService {
 		}
 
 		return ordersGetResponses;
+	}
+
+	public OrdersTodayResponse getTodayOrders(String userId) {
+		List<OrdersGetResponse> ordersGetResponses = new ArrayList<>();
+
+		User user = userRepository.findByProviderId(userId)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		Owner owner = ownerRepository.findByUser(user)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		Store store = storeRepository.findByOwner(owner)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		LocalDateTime startOfDay = LocalDate.now().atStartOfDay(); // 오늘 시작
+		LocalDateTime endOfDay = LocalDate.now().plusDays(1).atStartOfDay(); // 내일 시작 (오늘의 끝)
+
+		List<Orders> allByStore = ordersRepository.findOrdersByStoreAndTodayDateAndStatus(
+			store.getId(), startOfDay, endOfDay, OrderStatus.TICKET_USED);
+		int totalPrice = 0;
+		for (Orders orders : allByStore) {
+			OrdersGetResponse newOrdersGetResponse = new OrdersGetResponse();
+			List<Cart> carts = cartRepository.findAllByOrders(orders);
+
+			newOrdersGetResponse.setId(orders.getId());
+			newOrdersGetResponse.setMenuNames(carts.size() == 1 ? carts.get(0).getMenu().getName() :
+				carts.get(0).getMenu().getName() + " 외 " + (carts.size() - 1) + "개");
+			newOrdersGetResponse.setCount(carts.size());
+			newOrdersGetResponse.setDate(orders.getUpdatedAt());
+			int price = 0;
+			for (Cart cart : carts) {
+				price += (cart.getMenu().getPrice() * cart.getQuantity());
+			}
+			newOrdersGetResponse.setPrice(price);
+			totalPrice += price;
+			ordersGetResponses.add(newOrdersGetResponse);
+		}
+
+		OrdersTodayResponse ordersTodayResponse = new OrdersTodayResponse();
+		ordersTodayResponse.setOrdersGetResponses(ordersGetResponses);
+		ordersTodayResponse.setTotalPrice(totalPrice);
+
+		return ordersTodayResponse;
 	}
 
 	public OrdersDetailResponse getOrderDetails(String userId, Long orderId) {

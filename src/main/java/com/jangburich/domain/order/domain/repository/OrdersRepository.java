@@ -23,4 +23,16 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
 		@Param("updatedAt") LocalDateTime updatedAt,
 		@Param("orderStatus") String orderStatus);
 
+	@Query("SELECT o FROM Orders o " +
+		"WHERE o.store.id = :storeId " +
+		"AND o.updatedAt >= :startOfDay " +
+		"AND o.updatedAt < :endOfDay " +
+		"AND o.orderStatus = :orderStatus")
+	List<Orders> findOrdersByStoreAndTodayDateAndStatus(
+		@Param("storeId") Long storeId,
+		@Param("startOfDay") LocalDateTime startOfDay,
+		@Param("endOfDay") LocalDateTime endOfDay,
+		@Param("orderStatus") OrderStatus orderStatus);
+
+
 }
