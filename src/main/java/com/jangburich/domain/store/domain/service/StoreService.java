@@ -5,6 +5,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jangburich.domain.menu.domain.Menu;
+import com.jangburich.domain.menu.domain.MenuCreateRequestDTO;
+import com.jangburich.domain.menu.domain.repository.MenuRepository;
 import com.jangburich.domain.owner.domain.Owner;
 import com.jangburich.domain.owner.domain.repository.OwnerRepository;
 import com.jangburich.domain.payment.domain.TeamChargeHistoryResponse;
@@ -43,6 +46,7 @@ public class StoreService {
 	private final StoreTeamRepository storeTeamRepository;
 	private final TeamRepository teamRepository;
 	private final TeamChargeHistoryRepository teamChargeHistoryRepository;
+	private final MenuRepository menuRepository;
 
 	@Transactional
 	public void createStore(String authentication, StoreCreateRequestDTO storeCreateRequestDTO) {
@@ -52,7 +56,12 @@ public class StoreService {
 		Owner owner = ownerRepository.findByUser(user)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
-		storeRepository.save(Store.of(owner, storeCreateRequestDTO));
+		Store store = storeRepository.save(Store.of(owner, storeCreateRequestDTO));
+
+		for (MenuCreateRequestDTO menuCreateRequestDTO : storeCreateRequestDTO.getMenuCreateRequestDTOS()) {
+			menuRepository.save(Menu.create(menuCreateRequestDTO.getName(), menuCreateRequestDTO.getDescription(),
+				menuCreateRequestDTO.getImage_url(), menuCreateRequestDTO.getPrice(), store));
+		}
 	}
 
 	@Transactional

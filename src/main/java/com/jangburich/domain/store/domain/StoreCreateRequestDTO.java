@@ -4,6 +4,8 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
 
+import com.jangburich.domain.menu.domain.MenuCreateRequestDTO;
+
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Getter;
@@ -34,4 +36,11 @@ public class StoreCreateRequestDTO {
 	private List<DayOfWeek> dayOfWeek;
 	private LocalTime openTime;
 	private LocalTime closeTime;
+
+	private Boolean reservationAvailable;
+	private Long maxReservation;
+	private Long minPrepayment;
+	private Long prepaymentDuration;
+
+	private List<MenuCreateRequestDTO> menuCreateRequestDTOS;
 }

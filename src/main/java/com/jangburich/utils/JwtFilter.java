@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.jangburich.domain.oauth.domain.CustomOAuthUser;
@@ -19,6 +20,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@Component
 public class JwtFilter extends OncePerRequestFilter {
 
 	@Value("${test.jwt.permanentUserToken}")
@@ -88,7 +90,6 @@ public class JwtFilter extends OncePerRequestFilter {
 		filterChain.doFilter(request, response);
 	}
 
-	// 고정 토큰용 인증 설정
 	private void setPermanentAuthentication(String userId, String role) {
 		OAuthUserDTO userDTO = new OAuthUserDTO();
 		userDTO.setUserId(userId);
