@@ -1,22 +1,24 @@
-package com.jangburich.domain.menu.domain.controller;
+package com.jangburich.domain.menu.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jangburich.domain.menu.domain.MenuCreateRequestDTO;
 import com.jangburich.domain.menu.domain.MenuGetResponseDTO;
+import com.jangburich.domain.menu.domain.MenuResponse;
 import com.jangburich.domain.menu.domain.MenuUpdateRequestDTO;
-import com.jangburich.domain.menu.domain.service.MenuService;
+import com.jangburich.domain.menu.service.MenuService;
 import com.jangburich.global.payload.Message;
 import com.jangburich.global.payload.ResponseCustom;
 import com.jangburich.utils.parser.AuthenticationParser;
@@ -56,9 +58,9 @@ public class MenuController {
 	}
 
 	@GetMapping("")
-	public ResponseCustom<List<MenuGetResponseDTO>> getMenu(
-		Authentication authentication) {
-		List<MenuGetResponseDTO> menu = menuService.getMenu(AuthenticationParser.parseUserId(authentication));
+	public ResponseCustom<Page<MenuResponse>> getMenu(
+		Authentication authentication, Pageable pageable) {
+		Page<MenuResponse> menu = menuService.getMenu(AuthenticationParser.parseUserId(authentication), pageable);
 		return ResponseCustom.OK(menu);
 	}
 }
