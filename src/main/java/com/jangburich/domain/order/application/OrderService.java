@@ -3,7 +3,7 @@ package com.jangburich.domain.order.application;
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.jangburich.domain.common.Status;
 import com.jangburich.domain.menu.domain.Menu;
-import com.jangburich.domain.menu.repository.MenuRepository;
+import com.jangburich.domain.menu.domain.repository.MenuRepository;
 import com.jangburich.domain.order.domain.Cart;
 import com.jangburich.domain.order.domain.OrderStatus;
 import com.jangburich.domain.order.domain.Orders;
@@ -13,9 +13,10 @@ import com.jangburich.domain.order.dto.request.AddCartRequest;
 import com.jangburich.domain.order.dto.request.OrderRequest;
 import com.jangburich.domain.order.dto.response.CartResponse;
 import com.jangburich.domain.order.dto.response.GetCartItemsResponse;
+import com.jangburich.domain.order.dto.response.OrderResponse;
 import com.jangburich.domain.store.domain.Store;
-import com.jangburich.domain.store.repository.StoreRepository;
-import com.jangburich.domain.store.repository.StoreTeamRepository;
+import com.jangburich.domain.store.domain.repository.StoreRepository;
+import com.jangburich.domain.store.domain.repository.StoreTeamRepository;
 import com.jangburich.domain.team.domain.Team;
 import com.jangburich.domain.team.domain.repository.TeamRepository;
 import com.jangburich.domain.user.domain.User;
@@ -38,7 +39,6 @@ public class OrderService {
     private final StoreRepository storeRepository;
     private final OrdersRepository ordersRepository;
     private final TeamRepository teamRepository;
-    private final StoreTeamRepository storeTeamRepository;
 
     @Transactional
     public Message addCart(String userProviderId, AddCartRequest addCartRequest) {
@@ -48,8 +48,6 @@ public class OrderService {
         Menu menu = menuRepository.findById(addCartRequest.menuId())
                 .orElseThrow(() -> new IllegalArgumentException("등록된 메뉴를 찾을 수 없습니다. "));
 
-        System.out.println("menu.getId() = " + menu.getId());
-        System.out.println("user.getUserId() = " + user.getUserId());
 
         Optional<Cart> optionalCart = cartRepository.findByUserIdAndMenuIdAndStatus(user.getUserId(), menu.getId(), Status.ACTIVE);
 
@@ -109,7 +107,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Message order(String userProviderId, OrderRequest orderRequest) {
+    public OrderResponse order(String userProviderId, OrderRequest orderRequest) {
         User user = userRepository.findByProviderId(userProviderId)
                 .orElseThrow(() -> new NullPointerException());
 
@@ -130,15 +128,19 @@ public class OrderService {
 
         cartRepository.saveAll(mergedCarts);
 
-        return Message.builder()
-                .message("주문이 완료되었습니다.")
-                .build();
+        System.out.println("orders.getId() = " + orders.getId());
+
+        return ordersRepository.findTicket(orders.getId());
     }
 
     private List<Cart> mergeCarts(List<Cart> existingCarts, List<OrderRequest.OrderItemRequest> items, User user, Store store) {
-        List<Long> orderedMenuIds = items.stream()
-                .map(OrderRequest.OrderItemRequest::menuId)
-                .toList();
+        if (existingCarts.isEmpty()) {
+            for (OrderRequest.OrderItemRequest item : items) {
+                Cart newCartAfterOrder = createNewCartAfterOrder(item, user, store);
+                existingCarts.add(newCartAfterOrder);
+            }
+            return existingCarts;
+        }
 
         for (OrderRequest.OrderItemRequest item : items) {
             Optional<Cart> existingCart = findCartByMenuId(existingCarts, item.menuId());
@@ -169,6 +171,22 @@ public class OrderService {
                 .store(store)
                 .orders(null)
                 .build();
+    }
+
+    private Cart createNewCartAfterOrder(OrderRequest.OrderItemRequest item, User user, Store store) {
+        Menu menu = menuRepository.findById(item.menuId())
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 메뉴 ID입니다."));
+        Cart cart = Cart.builder()
+                .quantity(item.quantity())
+                .menu(menu)
+                .user(user)
+                .store(store)
+                .orders(null)
+                .build();
+
+        cart.updateStatus(Status.INACTIVE);
+
+        return cart;
     }
 
     private Orders saveOrder(User user, Store store, Team team, OrderRequest orderRequest) {
