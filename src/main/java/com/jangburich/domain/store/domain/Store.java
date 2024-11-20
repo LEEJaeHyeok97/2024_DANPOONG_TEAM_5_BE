@@ -104,7 +104,6 @@ public class Store {
 		newStore.setOwner(owner);
 		newStore.setName(storeCreateRequestDTO.getName());
 		newStore.setCategory(storeCreateRequestDTO.getCategory());
-		newStore.setRepresentativeImage(storeCreateRequestDTO.getRepresentativeImage());
 		newStore.setIntroduction(storeCreateRequestDTO.getIntroduction());
 		newStore.setLatitude(storeCreateRequestDTO.getLatitude());
 		newStore.setLongitude(storeCreateRequestDTO.getLongitude());
