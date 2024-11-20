@@ -35,7 +35,7 @@ public class TeamController {
 			teamService.registerTeam(AuthenticationParser.parseUserId(authentication), registerTeamRequest));
 	}
 
-	@Operation(summary = "팀 가입", description = "비밀 코드를 입력하여, 팀에 가입한다.")
+	@Operation(summary = "팀 가입", description = "비밀 코드를 입력해 팀에 가입한다.")
 	@PostMapping("/join/{joinCode}")
 	public ResponseCustom<Message> joinTeam(
 		Authentication authentication,
