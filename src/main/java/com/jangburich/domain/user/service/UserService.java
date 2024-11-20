@@ -1,7 +1,6 @@
 package com.jangburich.domain.user.service;
 
-import java.util.Map;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -15,8 +14,10 @@ import com.jangburich.domain.owner.domain.repository.OwnerRepository;
 import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.store.domain.repository.StoreRepository;
 import com.jangburich.domain.user.domain.KakaoApiResponseDTO;
+import com.jangburich.domain.user.domain.TokenResponseDTO;
 import com.jangburich.domain.user.domain.User;
 import com.jangburich.domain.user.repository.UserRepository;
+import com.jangburich.utils.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +28,13 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final OwnerRepository ownerRepository;
 	private final StoreRepository storeRepository;
+	private final JwtUtil jwtUtil;
+
+	@Value("${spring.jwt.access.expiration}")
+	private long accessTokenExpiration;
+
+	@Value("${spring.jwt.refresh.expiration}")
+	private long refreshTokenExpiration;
 
 	public KakaoApiResponseDTO getUserInfo(String accessToken) {
 		String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
@@ -43,28 +51,90 @@ public class UserService {
 	}
 
 	@Transactional
-	public void joinUser(String accessToken) {
-		KakaoApiResponseDTO userInfo = getUserInfo(accessToken);
+	public TokenResponseDTO joinUser(String kakaoaccessToken) {
+		KakaoApiResponseDTO userInfo = getUserInfo(kakaoaccessToken);
 
 		User user = userRepository.findByProviderId("kakao_" + userInfo.getId()).orElse(null);
 		if (user == null) {
-			userRepository.save(User.create("kakao_" + userInfo.getId(), userInfo.getProperties().getNickname(),
+			user = userRepository.save(User.create("kakao_" + userInfo.getId(), userInfo.getProperties().getNickname(),
 				userInfo.getKakaoAccount().getEmail(), userInfo.getProperties().getProfileImage(), "ROLE_USER"));
 		}
+
+		String accessToken = jwtUtil.createAccessToken(user.getProviderId(), user.getRole());
+		String refreshToken = jwtUtil.createRefreshToken();
+
+		user.updateRefreshToken(refreshToken);
+		userRepository.save(user);
+
+		TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
+		tokenResponseDTO.setAccessToken(accessToken);
+		tokenResponseDTO.setRefreshToken(refreshToken);
+		tokenResponseDTO.setAccessTokenExpires(accessTokenExpiration);
+		tokenResponseDTO.setRefreshTokenExpires(refreshTokenExpiration);
+
+		return tokenResponseDTO;
 	}
 
 	@Transactional
-	public void joinOwner(String accessToken) {
-		KakaoApiResponseDTO userInfo = getUserInfo(accessToken);
+	public TokenResponseDTO joinOwner(String kakaoAccessToken) {
+		KakaoApiResponseDTO userInfo = getUserInfo(kakaoAccessToken);
 
 		User user = userRepository.findByProviderId("kakao_" + userInfo.getId()).orElse(null);
 		if (user == null) {
-			User newUser = userRepository.save(
+			user = userRepository.save(
 				User.create("kakao_" + userInfo.getId(), userInfo.getProperties().getNickname(),
 					userInfo.getKakaoAccount().getEmail(), userInfo.getProperties().getProfileImage(), "ROLE_OWNER"));
-			Owner newOwner = ownerRepository.save(Owner.create(newUser));
+			Owner newOwner = ownerRepository.save(Owner.create(user));
 			storeRepository.save(Store.create(newOwner));
 		}
+
+		String accessToken = jwtUtil.createAccessToken(user.getProviderId(), user.getRole());
+		String refreshToken = jwtUtil.createRefreshToken();
+
+		user.updateRefreshToken(refreshToken);
+		userRepository.save(user);
+
+		TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
+		tokenResponseDTO.setAccessToken(accessToken);
+		tokenResponseDTO.setRefreshToken(refreshToken);
+		tokenResponseDTO.setAccessTokenExpires(accessTokenExpiration);
+		tokenResponseDTO.setRefreshTokenExpires(refreshTokenExpiration);
+
+		return tokenResponseDTO;
+	}
+
+	@Transactional
+	public TokenResponseDTO login(String accessToken) {
+		KakaoApiResponseDTO userInfo = getUserInfo(accessToken);
+
+		User user = userRepository.findByProviderId("kakao_" + userInfo.getId())
+			.orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
+
+		String newAccessToken = jwtUtil.createAccessToken(user.getProviderId(), user.getRole());
+		String newRefreshToken = jwtUtil.createRefreshToken();
+
+		user.updateRefreshToken(newRefreshToken);
+		userRepository.save(user);
+
+		TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
+		tokenResponseDTO.setAccessToken(newAccessToken);
+		tokenResponseDTO.setRefreshToken(newRefreshToken);
+		tokenResponseDTO.setAccessTokenExpires(accessTokenExpiration);
+		tokenResponseDTO.setRefreshTokenExpires(refreshTokenExpiration);
+
+		return tokenResponseDTO;
+	}
+
+	@Transactional
+	public String reissueAccessToken(String refreshToken) {
+		User user = userRepository.findByRefreshToken(refreshToken)
+			.orElseThrow(() -> new IllegalArgumentException("유효하지 않은 Refresh Token입니다."));
+
+		if (!jwtUtil.isTokenExpired(refreshToken)) {
+			throw new IllegalArgumentException("Refresh Token이 만료되었습니다.");
+		}
+
+		return jwtUtil.createAccessToken(user.getProviderId(), user.getRole());
 	}
 
 }

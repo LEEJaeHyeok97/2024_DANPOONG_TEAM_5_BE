@@ -1,8 +1,8 @@
 package com.jangburich.domain.payment.presentation;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,8 +14,8 @@ import com.jangburich.domain.payment.dto.response.ApproveResponse;
 import com.jangburich.domain.payment.dto.response.ReadyResponse;
 import com.jangburich.domain.payment.exception.PaymentCancellationException;
 import com.jangburich.domain.payment.exception.PaymentFailedException;
-import com.jangburich.global.GetAuthorization;
 import com.jangburich.global.payload.ResponseCustom;
+import com.jangburich.utils.parser.AuthenticationParser;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,10 +32,10 @@ public class PaymentController {
 	@Operation(summary = "결제 준비", description = "카카오페이 등 결제 수단을 준비한다.")
 	@PostMapping("/ready")
 	public ResponseCustom<ReadyResponse> payReady(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader,
+		Authentication authentication,
 		@RequestBody PayRequest payRequest) {
 		return ResponseCustom.OK(
-			paymentProcessingService.processPayment(GetAuthorization.getUserId(authorizationHeader), payRequest));
+			paymentProcessingService.processPayment(AuthenticationParser.parseUserId(authentication), payRequest));
 	}
 
 	@Operation(summary = "결제 성공", description = "결제 성공")

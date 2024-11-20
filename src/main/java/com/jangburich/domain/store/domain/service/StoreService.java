@@ -28,7 +28,6 @@ import com.jangburich.domain.team.domain.Team;
 import com.jangburich.domain.team.domain.repository.TeamRepository;
 import com.jangburich.domain.user.domain.User;
 import com.jangburich.domain.user.repository.UserRepository;
-import com.jangburich.global.GetAuthorization;
 import com.jangburich.global.error.DefaultNullPointerException;
 import com.jangburich.global.payload.ErrorCode;
 
@@ -173,7 +172,7 @@ public class StoreService {
 
 	public Page<SearchStoresResponse> searchByCategory(final String authentication, final Integer searchRadius,
 		final Category category, final StoreSearchCondition storeSearchCondition, final Pageable pageable) {
-		User user = userRepository.findByProviderId(GetAuthorization.getUserId(authentication))
+		User user = userRepository.findByProviderId(authentication)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 		return storeRepository.findStoresByCategory(user.getUserId(), searchRadius, category, storeSearchCondition,
 			pageable);
@@ -181,7 +180,7 @@ public class StoreService {
 
 	public Page<SearchStoresResponse> searchStores(final String authentication, final String keyword,
 		final StoreSearchConditionWithType storeSearchConditionWithType, final Pageable pageable) {
-		User user = userRepository.findByProviderId(GetAuthorization.getUserId(authentication))
+		User user = userRepository.findByProviderId(authentication)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 		return storeRepository.findStores(user.getUserId(), keyword, storeSearchConditionWithType, pageable);
 	}
