@@ -26,7 +26,7 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    @Operation(summary = "장바구니 담기", description = "장바구니에 물건과 수량을 담습니다.")
+    @Operation(summary = "장바구니 담기", description = "장바구니에 물건과 수량을 저장합니다.")
     @PostMapping("/carts")
     public ResponseCustom<Message> addCart(
             Authentication authentication,
