@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.jangburich.domain.menu.domain.Menu;
 import com.jangburich.domain.menu.domain.MenuCreateRequestDTO;
@@ -31,6 +32,7 @@ import com.jangburich.domain.team.domain.Team;
 import com.jangburich.domain.team.domain.repository.TeamRepository;
 import com.jangburich.domain.user.domain.User;
 import com.jangburich.domain.user.repository.UserRepository;
+import com.jangburich.global.config.s3.S3Service;
 import com.jangburich.global.error.DefaultNullPointerException;
 import com.jangburich.global.payload.ErrorCode;
 
@@ -47,9 +49,10 @@ public class StoreService {
 	private final TeamRepository teamRepository;
 	private final TeamChargeHistoryRepository teamChargeHistoryRepository;
 	private final MenuRepository menuRepository;
+	private final S3Service s3Service;
 
 	@Transactional
-	public void createStore(String authentication, StoreCreateRequestDTO storeCreateRequestDTO) {
+	public void createStore(String authentication, StoreCreateRequestDTO storeCreateRequestDTO, MultipartFile image) {
 		User user = userRepository.findByProviderId(authentication)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
@@ -57,6 +60,8 @@ public class StoreService {
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Store store = storeRepository.save(Store.of(owner, storeCreateRequestDTO));
+
+		store.setRepresentativeImage(s3Service.uploadImageToS3(image));
 
 		for (MenuCreateRequestDTO menuCreateRequestDTO : storeCreateRequestDTO.getMenuCreateRequestDTOS()) {
 			menuRepository.save(Menu.create(menuCreateRequestDTO.getName(), menuCreateRequestDTO.getDescription(),
