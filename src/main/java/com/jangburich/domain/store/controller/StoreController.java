@@ -1,4 +1,6 @@
-package com.jangburich.domain.store.domain.controller;
+package com.jangburich.domain.store.controller;
+
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,11 +24,14 @@ import com.jangburich.domain.store.domain.StoreCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreGetResponseDTO;
 import com.jangburich.domain.store.domain.StoreTeamResponseDTO;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
-import com.jangburich.domain.store.domain.dto.condition.StoreSearchCondition;
-import com.jangburich.domain.store.domain.dto.condition.StoreSearchConditionWithType;
-import com.jangburich.domain.store.domain.dto.response.PaymentGroupDetailResponse;
-import com.jangburich.domain.store.domain.dto.response.SearchStoresResponse;
-import com.jangburich.domain.store.domain.service.StoreService;
+import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
+import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
+import com.jangburich.domain.store.dto.response.OrdersDetailResponse;
+import com.jangburich.domain.store.dto.response.OrdersGetResponse;
+import com.jangburich.domain.store.dto.response.OrdersTodayResponse;
+import com.jangburich.domain.store.dto.response.PaymentGroupDetailResponse;
+import com.jangburich.domain.store.dto.response.SearchStoresResponse;
+import com.jangburich.domain.store.service.StoreService;
 import com.jangburich.global.payload.Message;
 import com.jangburich.global.payload.ResponseCustom;
 import com.jangburich.utils.parser.AuthenticationParser;
@@ -67,21 +72,17 @@ public class StoreController {
 
 	@Operation(summary = "가게 등록", description = "신규 파트너 가게를 등록합니다.")
 	@PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseCustom<Message> createStore(
-		Authentication authentication,
-		@Parameter(name = "image", description = "업로드 사진 데이터")
-		@RequestPart(value = "image") MultipartFile image,
+	public ResponseCustom<Message> createStore(Authentication authentication,
+		@Parameter(name = "image", description = "업로드 사진 데이터") @RequestPart(value = "image") MultipartFile image,
 		@RequestPart(value = "store") StoreCreateRequestDTO storeCreateRequestDTO) {
 
 		storeService.createStore(AuthenticationParser.parseUserId(authentication), storeCreateRequestDTO, image);
 		return ResponseCustom.OK(Message.builder().message("success").build());
 	}
 
-
 	@Operation(summary = "가게 정보 수정", description = "가게 정보를 수정합니다.")
 	@PatchMapping("/update")
-	public ResponseCustom<Message> updateStore(
-		Authentication authentication,
+	public ResponseCustom<Message> updateStore(Authentication authentication,
 		@RequestBody StoreUpdateRequestDTO storeUpdateRequestDTO) {
 		storeService.updateStore(AuthenticationParser.parseUserId(authentication), storeUpdateRequestDTO);
 		return ResponseCustom.OK(Message.builder().message("success").build());
@@ -89,15 +90,13 @@ public class StoreController {
 
 	@Operation(summary = "가게 정보 조회", description = "가게 상세 정보를 조회합니다.")
 	@GetMapping("")
-	public ResponseCustom<StoreGetResponseDTO> getStoreInfo(
-		Authentication authentication) {
+	public ResponseCustom<StoreGetResponseDTO> getStoreInfo(Authentication authentication) {
 		return ResponseCustom.OK(storeService.getStoreInfo(AuthenticationParser.parseUserId(authentication)));
 	}
 
 	@Operation(summary = "결제 그룹 조회", description = "장부 결제 그룹을 조회합니다.")
 	@GetMapping("/payment_group")
-	public ResponseCustom<Page<StoreTeamResponseDTO>> getPaymentGroup(
-		Authentication authentication,
+	public ResponseCustom<Page<StoreTeamResponseDTO>> getPaymentGroup(Authentication authentication,
 		Pageable pageable) {
 		return ResponseCustom.OK(
 			storeService.getPaymentGroup(AuthenticationParser.parseUserId(authentication), pageable));
@@ -105,19 +104,39 @@ public class StoreController {
 
 	@Operation(summary = "결제 그룹 상세 조회", description = "장부 결제 그룹을 상세 조회합니다.")
 	@GetMapping("/payment_group/{teamId}")
-	public ResponseCustom<PaymentGroupDetailResponse> getPaymentGroupDetail(
-		Authentication authentication, @PathVariable Long teamId,
-		Pageable pageable) {
+	public ResponseCustom<PaymentGroupDetailResponse> getPaymentGroupDetail(Authentication authentication,
+		@PathVariable Long teamId, Pageable pageable) {
 		return ResponseCustom.OK(
 			storeService.getPaymentGroupDetail(AuthenticationParser.parseUserId(authentication), teamId, pageable));
 	}
 
 	@Operation(summary = "결제 내역 조회", description = "가게에서 일어난 결제 내역을 조회합니다.")
 	@GetMapping("/payment_history")
-	public ResponseCustom<?> getPaymentHistory(
-		Authentication authentication,
-		Pageable pageable) {
+	public ResponseCustom<?> getPaymentHistory(Authentication authentication, Pageable pageable) {
 		return ResponseCustom.OK(
 			storeService.getPaymentHistory(AuthenticationParser.parseUserId(authentication), pageable));
 	}
+
+	@Operation(summary = "지난 주문 조회", description = "가게에 있는 지난 주문을 조회합니다")
+	@GetMapping("/orders/last")
+	public ResponseCustom<List<OrdersGetResponse>> getLastOrders(Authentication authentication) {
+		List<OrdersGetResponse> ordersLast = storeService.getOrdersLast(
+			AuthenticationParser.parseUserId(authentication));
+		return ResponseCustom.OK(ordersLast);
+	}
+
+	@Operation(summary = "오늘 주문 조회", description = "가게에 있는 오늘 주문을 조회합니다")
+	@GetMapping("/orders/today")
+	public ResponseCustom<OrdersTodayResponse> getTodayOrders(Authentication authentication) {
+		return ResponseCustom.OK(storeService.getTodayOrders(
+			AuthenticationParser.parseUserId(authentication)));
+	}
+
+	@Operation(summary = "주문 상세 조회", description = "가게에 있는 주문을 상세 조회합니다")
+	@GetMapping("/orders/{ordersId}")
+	public ResponseCustom<OrdersDetailResponse> getOrders(Authentication authentication, @RequestParam Long orderId) {
+		return ResponseCustom.OK(
+			storeService.getOrderDetails(AuthenticationParser.parseUserId(authentication), orderId));
+	}
+
 }

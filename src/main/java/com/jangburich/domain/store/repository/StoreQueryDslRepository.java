@@ -1,9 +1,9 @@
-package com.jangburich.domain.store.domain.repository;
+package com.jangburich.domain.store.repository;
 
 import com.jangburich.domain.store.domain.Category;
-import com.jangburich.domain.store.domain.dto.condition.StoreSearchCondition;
-import com.jangburich.domain.store.domain.dto.condition.StoreSearchConditionWithType;
-import com.jangburich.domain.store.domain.dto.response.SearchStoresResponse;
+import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
+import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
+import com.jangburich.domain.store.dto.response.SearchStoresResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

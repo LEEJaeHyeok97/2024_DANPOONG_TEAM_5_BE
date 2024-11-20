@@ -2,6 +2,7 @@ package com.jangburich.domain.order.domain.repository;
 
 import com.jangburich.domain.common.Status;
 import com.jangburich.domain.order.domain.Cart;
+import com.jangburich.domain.order.domain.Orders;
 import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.user.domain.User;
 import java.util.List;
@@ -19,4 +20,6 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     List<Cart> findAllByUserAndStatus(User user, Status status);
 
     List<Cart> findAllByUserAndStoreAndStatus(User user, Store store, Status status);
+
+    List<Cart> findAllByOrders(Orders orders);
 }

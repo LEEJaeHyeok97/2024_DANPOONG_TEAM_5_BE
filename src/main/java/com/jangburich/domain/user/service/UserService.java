@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import com.jangburich.domain.owner.domain.Owner;
 import com.jangburich.domain.owner.domain.repository.OwnerRepository;
 import com.jangburich.domain.store.domain.Store;
-import com.jangburich.domain.store.domain.repository.StoreRepository;
+import com.jangburich.domain.store.repository.StoreRepository;
 import com.jangburich.domain.user.domain.AdditionalInfoCreateDTO;
 import com.jangburich.domain.user.domain.KakaoApiResponseDTO;
 import com.jangburich.domain.user.domain.TokenResponseDTO;
