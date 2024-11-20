@@ -1,5 +1,9 @@
 package com.jangburich.domain.team.application;
 
+import com.jangburich.domain.common.Status;
+import com.jangburich.domain.team.dto.response.MyTeamResponse;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,5 +80,39 @@ public class TeamService {
 		return Message.builder()
 			.message("팀에 성공적으로 참여하였습니다.")
 			.build();
+	}
+
+	public List<MyTeamResponse> getMyTeamByCategory(String userId, String category) {
+		User user = userRepository.findByProviderId(userId)
+				.orElseThrow(() -> new NullPointerException());
+
+		List<Team> teams = teamRepository.findAllByUserAndStatus(user, Status.ACTIVE)
+				.orElseThrow(() -> new IllegalArgumentException("해당하는 팀을 찾을 수 없습니다."));
+
+		List<MyTeamResponse> myTeamResponses = new ArrayList<>();
+
+		for (Team team : teams) {
+			boolean isMeLeader = team.getTeamLeader().getUser_id().equals(user.getUserId());
+
+			int peopleCount = userTeamRepository.countByTeam(team);
+
+			List<String> profileImageUrls = userTeamRepository.findAllByTeam(team).stream()
+					.map(userTeam -> userTeam.getUser().getProfileImageUrl())
+					.toList();
+
+			if ("ALL".equalsIgnoreCase(category) || team.getTeamType().toString().equalsIgnoreCase(category)) {
+				MyTeamResponse response = new MyTeamResponse(
+						team.getName(),
+						team.getTeamType().toString(),
+						false, // isLiked는 임의로 false로 설정
+						peopleCount,
+						isMeLeader,
+						profileImageUrls
+				);
+				myTeamResponses.add(response);
+			}
+		}
+
+		return myTeamResponses;
 	}
 }
