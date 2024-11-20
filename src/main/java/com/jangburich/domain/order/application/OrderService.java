@@ -12,14 +12,13 @@ import com.jangburich.domain.order.dto.request.AddCartRequest;
 import com.jangburich.domain.order.dto.request.OrderRequest;
 import com.jangburich.domain.order.dto.response.CartResponse;
 import com.jangburich.domain.order.dto.response.GetCartItemsResponse;
-import com.jangburich.domain.point.domain.repository.PointTransaction;
 import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.store.domain.repository.StoreRepository;
 import com.jangburich.domain.store.domain.repository.StoreTeamRepository;
 import com.jangburich.domain.team.domain.Team;
 import com.jangburich.domain.team.domain.repository.TeamRepository;
 import com.jangburich.domain.user.domain.User;
-import com.jangburich.domain.user.domain.repository.UserRepository;
+import com.jangburich.domain.user.repository.UserRepository;
 import com.jangburich.global.payload.Message;
 import java.util.List;
 import java.util.Optional;
@@ -46,7 +45,7 @@ public class OrderService {
                 .orElseThrow(() -> new NullPointerException());
 
         Menu menu = menuRepository.findById(addCartRequest.menuId())
-                .orElseThrow(() -> new IllegalArgumentException("등록된 메뉴를 찾을 수 없습니다."));
+                .orElseThrow(() -> new IllegalArgumentException("등록된 메뉴를 찾을 수 없습니다. "));
 
         System.out.println("menu.getId() = " + menu.getId());
         System.out.println("user.getUserId() = " + user.getUserId());
