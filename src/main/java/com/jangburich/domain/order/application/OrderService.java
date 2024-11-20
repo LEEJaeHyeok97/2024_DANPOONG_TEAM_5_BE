@@ -45,7 +45,7 @@ public class OrderService {
                 .orElseThrow(() -> new NullPointerException());
 
         Menu menu = menuRepository.findById(addCartRequest.menuId())
-                .orElseThrow(() -> new IllegalArgumentException("등록된 메뉴를 찾을 수 없습니다. "));
+                .orElseThrow(() -> new IllegalArgumentException("등록된 메뉴를 찾을 수 없습니다."));
 
         System.out.println("menu.getId() = " + menu.getId());
         System.out.println("user.getUserId() = " + user.getUserId());
