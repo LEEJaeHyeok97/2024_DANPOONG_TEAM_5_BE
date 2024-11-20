@@ -12,17 +12,21 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.jangburich.domain.user.domain.AdditionalInfoCreateDTO;
 import com.jangburich.domain.user.domain.KakaoApiResponseDTO;
 import com.jangburich.domain.user.domain.TokenResponseDTO;
 import com.jangburich.domain.user.service.UserService;
+import com.jangburich.global.payload.Message;
 import com.jangburich.global.payload.ResponseCustom;
 import com.jangburich.utils.parser.AuthenticationParser;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -33,29 +37,25 @@ public class UserController {
 	private final UserService userService;
 
 	@PostMapping("/login")
-	public ResponseCustom<TokenResponseDTO> login(
-		@RequestParam String authorizationHeader) {
+	public ResponseCustom<TokenResponseDTO> login(@RequestParam String authorizationHeader) {
 		TokenResponseDTO login = userService.login(authorizationHeader);
 		return ResponseCustom.OK(login);
 	}
 
 	@GetMapping("/user-info")
-	public ResponseEntity<KakaoApiResponseDTO> getUserInfo(
-		Authentication authentication) {
+	public ResponseEntity<KakaoApiResponseDTO> getUserInfo(Authentication authentication) {
 		KakaoApiResponseDTO userInfo = userService.getUserInfo(AuthenticationParser.parseUserId(authentication));
 
 		return ResponseEntity.ok(userInfo);
 	}
 
 	@PostMapping("/join/user")
-	public ResponseCustom<TokenResponseDTO> joinUser(
-		@RequestParam String authorizationHeader) {
+	public ResponseCustom<TokenResponseDTO> joinUser(@RequestParam String authorizationHeader) {
 		return ResponseCustom.OK(userService.joinUser(authorizationHeader));
 	}
 
 	@PostMapping("/join/owner")
-	public ResponseCustom<TokenResponseDTO> joinOwner(
-		@RequestParam String authorizationHeader) {
+	public ResponseCustom<TokenResponseDTO> joinOwner(@RequestParam String authorizationHeader) {
 		return ResponseCustom.OK(userService.joinOwner(authorizationHeader));
 	}
 
@@ -89,6 +89,14 @@ public class UserController {
 
 		// 응답 반환
 		return ResponseEntity.ok(response.getBody());
+	}
+
+	@Operation(summary = "유저 추가정보 저장", description = "유저 추가정보 저장합니다.")
+	@PostMapping("/additionalInfo")
+	public ResponseCustom<?> saveAdditionalInfo(Authentication authentication,
+		@RequestBody AdditionalInfoCreateDTO additionalInfoCreateDTO) {
+		userService.additionalInfo(AuthenticationParser.parseUserId(authentication), additionalInfoCreateDTO);
+		return ResponseCustom.OK(Message.builder().message("success").build());
 	}
 
 }
