@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.jangburich.domain.menu.domain.Menu;
 import com.jangburich.domain.menu.domain.MenuCreateRequestDTO;
-import com.jangburich.domain.menu.domain.repository.MenuRepository;
+import com.jangburich.domain.menu.repository.MenuRepository;
 import com.jangburich.domain.owner.domain.Owner;
 import com.jangburich.domain.owner.domain.repository.OwnerRepository;
 import com.jangburich.domain.payment.domain.TeamChargeHistoryResponse;

@@ -3,7 +3,7 @@ package com.jangburich.domain.order.application;
 import com.amazonaws.services.kms.model.NotFoundException;
 import com.jangburich.domain.common.Status;
 import com.jangburich.domain.menu.domain.Menu;
-import com.jangburich.domain.menu.domain.repository.MenuRepository;
+import com.jangburich.domain.menu.repository.MenuRepository;
 import com.jangburich.domain.order.domain.Cart;
 import com.jangburich.domain.order.domain.OrderStatus;
 import com.jangburich.domain.order.domain.Orders;
