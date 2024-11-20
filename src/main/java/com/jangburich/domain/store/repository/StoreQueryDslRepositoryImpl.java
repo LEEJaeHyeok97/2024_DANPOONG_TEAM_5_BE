@@ -1,12 +1,12 @@
-package com.jangburich.domain.store.domain.repository;
+package com.jangburich.domain.store.repository;
 
 import static com.jangburich.domain.store.domain.QStore.store;
 
 import com.jangburich.domain.store.domain.Category;
-import com.jangburich.domain.store.domain.dto.condition.StoreSearchCondition;
-import com.jangburich.domain.store.domain.dto.condition.StoreSearchConditionWithType;
-import com.jangburich.domain.store.domain.dto.response.QSearchStoresResponse;
-import com.jangburich.domain.store.domain.dto.response.SearchStoresResponse;
+import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
+import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
+import com.jangburich.domain.store.dto.response.QSearchStoresResponse;
+import com.jangburich.domain.store.dto.response.SearchStoresResponse;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;

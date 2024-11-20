@@ -1,7 +1,5 @@
 package com.jangburich.domain.menu.service;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -9,14 +7,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jangburich.domain.menu.domain.Menu;
 import com.jangburich.domain.menu.domain.MenuCreateRequestDTO;
-import com.jangburich.domain.menu.domain.MenuGetResponseDTO;
 import com.jangburich.domain.menu.domain.MenuResponse;
 import com.jangburich.domain.menu.domain.MenuUpdateRequestDTO;
 import com.jangburich.domain.menu.repository.MenuRepository;
 import com.jangburich.domain.owner.domain.Owner;
 import com.jangburich.domain.owner.domain.repository.OwnerRepository;
 import com.jangburich.domain.store.domain.Store;
-import com.jangburich.domain.store.domain.repository.StoreRepository;
+import com.jangburich.domain.store.repository.StoreRepository;
 import com.jangburich.domain.user.domain.User;
 import com.jangburich.domain.user.repository.UserRepository;
 import com.jangburich.global.error.DefaultNullPointerException;
