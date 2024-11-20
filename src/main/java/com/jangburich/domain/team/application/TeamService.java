@@ -4,6 +4,7 @@ import com.jangburich.domain.common.Status;
 import com.jangburich.domain.team.dto.response.MyTeamResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class TeamService {
 
 	private static final int ZERO = 0;
+	private static final String DEFAULT_PROFILE_IMAGE_URL = "https://github.com/user-attachments/assets/56565343-51f4-48b5-bf87-7585011d8de6";
 
 	private final TeamRepository teamRepository;
 	private final UserRepository userRepository;
@@ -84,7 +86,7 @@ public class TeamService {
 
 	public List<MyTeamResponse> getMyTeamByCategory(String userId, String category) {
 		User user = userRepository.findByProviderId(userId)
-				.orElseThrow(() -> new NullPointerException());
+				.orElseThrow(() -> new NullPointerException("사용자를 찾을 수 없습니다."));
 
 		List<Team> teams = teamRepository.findAllByUserAndStatus(user, Status.ACTIVE)
 				.orElseThrow(() -> new IllegalArgumentException("해당하는 팀을 찾을 수 없습니다."));
@@ -97,10 +99,13 @@ public class TeamService {
 			int peopleCount = userTeamRepository.countByTeam(team);
 
 			List<String> profileImageUrls = userTeamRepository.findAllByTeam(team).stream()
-					.map(userTeam -> userTeam.getUser().getProfileImageUrl())
+					.map(userTeam -> Optional.ofNullable(userTeam.getUser().getProfileImageUrl()).orElse(DEFAULT_PROFILE_IMAGE_URL))
 					.toList();
 
-			if ("ALL".equalsIgnoreCase(category) || team.getTeamType().toString().equalsIgnoreCase(category)) {
+			if ("ALL".equalsIgnoreCase(category) ||
+					("LEADER".equalsIgnoreCase(category) && isMeLeader) ||
+					("MEMBER".equalsIgnoreCase(category) && !isMeLeader)) {
+
 				MyTeamResponse response = new MyTeamResponse(
 						team.getName(),
 						team.getTeamType().toString(),
