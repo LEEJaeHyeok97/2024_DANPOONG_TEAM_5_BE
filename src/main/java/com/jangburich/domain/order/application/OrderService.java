@@ -13,6 +13,7 @@ import com.jangburich.domain.order.dto.request.AddCartRequest;
 import com.jangburich.domain.order.dto.request.OrderRequest;
 import com.jangburich.domain.order.dto.response.CartResponse;
 import com.jangburich.domain.order.dto.response.GetCartItemsResponse;
+import com.jangburich.domain.order.dto.response.OrderResponse;
 import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.store.domain.repository.StoreRepository;
 import com.jangburich.domain.store.domain.repository.StoreTeamRepository;
@@ -47,8 +48,6 @@ public class OrderService {
         Menu menu = menuRepository.findById(addCartRequest.menuId())
                 .orElseThrow(() -> new IllegalArgumentException("등록된 메뉴를 찾을 수 없습니다. "));
 
-        System.out.println("menu.getId() = " + menu.getId());
-        System.out.println("user.getUserId() = " + user.getUserId());
 
         Optional<Cart> optionalCart = cartRepository.findByUserIdAndMenuIdAndStatus(user.getUserId(), menu.getId(), Status.ACTIVE);
 
@@ -108,7 +107,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Message order(String userProviderId, OrderRequest orderRequest) {
+    public OrderResponse order(String userProviderId, OrderRequest orderRequest) {
         User user = userRepository.findByProviderId(userProviderId)
                 .orElseThrow(() -> new NullPointerException());
 
@@ -129,9 +128,9 @@ public class OrderService {
 
         cartRepository.saveAll(mergedCarts);
 
-        return Message.builder()
-                .message("주문이 완료되었습니다.")
-                .build();
+        System.out.println("orders.getId() = " + orders.getId());
+
+        return ordersRepository.findTicket(orders.getId());
     }
 
     private List<Cart> mergeCarts(List<Cart> existingCarts, List<OrderRequest.OrderItemRequest> items, User user, Store store) {

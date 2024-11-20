@@ -4,6 +4,7 @@ import com.jangburich.domain.order.application.OrderService;
 import com.jangburich.domain.order.dto.request.AddCartRequest;
 import com.jangburich.domain.order.dto.request.OrderRequest;
 import com.jangburich.domain.order.dto.response.CartResponse;
+import com.jangburich.domain.order.dto.response.OrderResponse;
 import com.jangburich.global.payload.Message;
 import com.jangburich.global.payload.ResponseCustom;
 import com.jangburich.utils.parser.AuthenticationParser;
@@ -45,7 +46,7 @@ public class OrderController {
 
     @Operation(summary = "상품 주문", description = "상품을 주문합니다.")
     @PostMapping
-    public ResponseCustom<Message> order(
+    public ResponseCustom<OrderResponse> order(
             Authentication authentication,
             @RequestBody OrderRequest orderRequest
     ) {
