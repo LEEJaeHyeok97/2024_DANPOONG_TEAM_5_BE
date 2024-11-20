@@ -2,6 +2,7 @@ package com.jangburich.domain.menu.domain.controller;
 
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -16,9 +17,9 @@ import com.jangburich.domain.menu.domain.MenuCreateRequestDTO;
 import com.jangburich.domain.menu.domain.MenuGetResponseDTO;
 import com.jangburich.domain.menu.domain.MenuUpdateRequestDTO;
 import com.jangburich.domain.menu.domain.service.MenuService;
-import com.jangburich.global.GetAuthorization;
 import com.jangburich.global.payload.Message;
 import com.jangburich.global.payload.ResponseCustom;
+import com.jangburich.utils.parser.AuthenticationParser;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -33,31 +34,31 @@ public class MenuController {
 
 	@PostMapping("/register")
 	public ResponseCustom<Message> registerMenu(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader,
+		Authentication authentication,
 		@RequestBody MenuCreateRequestDTO menuCreateRequestDTO) {
-		menuService.registerMenu(GetAuthorization.getUserId(authorizationHeader), menuCreateRequestDTO);
+		menuService.registerMenu(AuthenticationParser.parseUserId(authentication), menuCreateRequestDTO);
 		return ResponseCustom.OK(Message.builder().message("success").build());
 	}
 
 	@PatchMapping("/update/{id}")
 	public ResponseCustom<Message> updateMenu(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader, @PathVariable Long id,
+		Authentication authentication, @PathVariable Long id,
 		@RequestBody MenuUpdateRequestDTO menuUpdateRequestDTO) {
-		menuService.updateMenu(GetAuthorization.getUserId(authorizationHeader), id, menuUpdateRequestDTO);
+		menuService.updateMenu(AuthenticationParser.parseUserId(authentication), id, menuUpdateRequestDTO);
 		return ResponseCustom.OK(Message.builder().message("success").build());
 	}
 
 	@DeleteMapping("/{id}")
 	public ResponseCustom<Message> deleteMenu(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader, @PathVariable Long id) {
-		menuService.deleteMenu(GetAuthorization.getUserId(authorizationHeader), id);
+		Authentication authentication, @PathVariable Long id) {
+		menuService.deleteMenu(AuthenticationParser.parseUserId(authentication), id);
 		return ResponseCustom.OK(Message.builder().message("success").build());
 	}
 
 	@GetMapping("")
 	public ResponseCustom<List<MenuGetResponseDTO>> getMenu(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader) {
-		List<MenuGetResponseDTO> menu = menuService.getMenu(GetAuthorization.getUserId(authorizationHeader));
+		Authentication authentication) {
+		List<MenuGetResponseDTO> menu = menuService.getMenu(AuthenticationParser.parseUserId(authentication));
 		return ResponseCustom.OK(menu);
 	}
 }

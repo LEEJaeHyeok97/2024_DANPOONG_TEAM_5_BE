@@ -12,7 +12,6 @@ import com.jangburich.domain.team.domain.repository.UserTeamRepository;
 import com.jangburich.domain.team.dto.request.RegisterTeamRequest;
 import com.jangburich.domain.user.domain.User;
 import com.jangburich.domain.user.repository.UserRepository;
-import com.jangburich.global.GetAuthorization;
 import com.jangburich.global.payload.Message;
 
 import lombok.RequiredArgsConstructor;
@@ -30,8 +29,7 @@ public class TeamService {
 
 	@Transactional
 	public Message registerTeam(String userId, RegisterTeamRequest registerTeamRequest) {
-
-		User user = userRepository.findByProviderId(GetAuthorization.getUserId(userId))
+		User user = userRepository.findByProviderId(userId)
 			.orElseThrow(() -> new NullPointerException());
 
 		Team team = Team.builder()
@@ -57,7 +55,7 @@ public class TeamService {
 
 	@Transactional
 	public Message joinTeam(String userId, String joinCode) {
-		User user = userRepository.findByProviderId(GetAuthorization.getUserId(userId))
+		User user = userRepository.findByProviderId(userId)
 			.orElseThrow(() -> new NullPointerException());
 
 		Team team = teamRepository.findBySecretCode(joinCode)
