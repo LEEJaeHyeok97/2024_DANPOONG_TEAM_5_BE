@@ -38,7 +38,6 @@ public class OrderService {
     private final StoreRepository storeRepository;
     private final OrdersRepository ordersRepository;
     private final TeamRepository teamRepository;
-    private final StoreTeamRepository storeTeamRepository;
 
     @Transactional
     public Message addCart(String userProviderId, AddCartRequest addCartRequest) {
@@ -136,9 +135,13 @@ public class OrderService {
     }
 
     private List<Cart> mergeCarts(List<Cart> existingCarts, List<OrderRequest.OrderItemRequest> items, User user, Store store) {
-        List<Long> orderedMenuIds = items.stream()
-                .map(OrderRequest.OrderItemRequest::menuId)
-                .toList();
+        if (existingCarts.isEmpty()) {
+            for (OrderRequest.OrderItemRequest item : items) {
+                Cart newCartAfterOrder = createNewCartAfterOrder(item, user, store);
+                existingCarts.add(newCartAfterOrder);
+            }
+            return existingCarts;
+        }
 
         for (OrderRequest.OrderItemRequest item : items) {
             Optional<Cart> existingCart = findCartByMenuId(existingCarts, item.menuId());
@@ -169,6 +172,22 @@ public class OrderService {
                 .store(store)
                 .orders(null)
                 .build();
+    }
+
+    private Cart createNewCartAfterOrder(OrderRequest.OrderItemRequest item, User user, Store store) {
+        Menu menu = menuRepository.findById(item.menuId())
+                .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 메뉴 ID입니다."));
+        Cart cart = Cart.builder()
+                .quantity(item.quantity())
+                .menu(menu)
+                .user(user)
+                .store(store)
+                .orders(null)
+                .build();
+
+        cart.updateStatus(Status.INACTIVE);
+
+        return cart;
     }
 
     private Orders saveOrder(User user, Store store, Team team, OrderRequest orderRequest) {
