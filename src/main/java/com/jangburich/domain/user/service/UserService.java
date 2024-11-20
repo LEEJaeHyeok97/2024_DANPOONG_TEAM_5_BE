@@ -13,10 +13,13 @@ import com.jangburich.domain.owner.domain.Owner;
 import com.jangburich.domain.owner.domain.repository.OwnerRepository;
 import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.store.domain.repository.StoreRepository;
+import com.jangburich.domain.user.domain.AdditionalInfoCreateDTO;
 import com.jangburich.domain.user.domain.KakaoApiResponseDTO;
 import com.jangburich.domain.user.domain.TokenResponseDTO;
 import com.jangburich.domain.user.domain.User;
 import com.jangburich.domain.user.repository.UserRepository;
+import com.jangburich.global.error.DefaultNullPointerException;
+import com.jangburich.global.payload.ErrorCode;
 import com.jangburich.utils.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -81,9 +84,8 @@ public class UserService {
 
 		User user = userRepository.findByProviderId("kakao_" + userInfo.getId()).orElse(null);
 		if (user == null) {
-			user = userRepository.save(
-				User.create("kakao_" + userInfo.getId(), userInfo.getProperties().getNickname(),
-					userInfo.getKakaoAccount().getEmail(), userInfo.getProperties().getProfileImage(), "ROLE_OWNER"));
+			user = userRepository.save(User.create("kakao_" + userInfo.getId(), userInfo.getProperties().getNickname(),
+				userInfo.getKakaoAccount().getEmail(), userInfo.getProperties().getProfileImage(), "ROLE_OWNER"));
 			Owner newOwner = ownerRepository.save(Owner.create(user));
 			storeRepository.save(Store.create(newOwner));
 		}
@@ -135,6 +137,17 @@ public class UserService {
 		}
 
 		return jwtUtil.createAccessToken(user.getProviderId(), user.getRole());
+	}
+
+	@Transactional
+	public void additionalInfo(String userId, AdditionalInfoCreateDTO additionalInfoCreateDTO) {
+		User user = userRepository.findByProviderId(userId)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		user.setName(additionalInfoCreateDTO.getName());
+		user.setPhoneNumber(additionalInfoCreateDTO.getPhoneNum());
+		user.setAgreeAdvertisement(additionalInfoCreateDTO.getAgreeAdvertisement());
+		user.setAgreeMarketing(additionalInfoCreateDTO.getAgreeMarketing());
 	}
 
 }
