@@ -1,10 +1,14 @@
 package com.jangburich.domain.team.presentation;
 
+import com.jangburich.domain.team.dto.response.MyTeamResponse;
+import java.util.List;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jangburich.domain.team.application.TeamService;
@@ -42,5 +46,14 @@ public class TeamController {
 		@PathVariable("joinCode") String joinCode
 	) {
 		return ResponseCustom.OK(teamService.joinTeam(AuthenticationParser.parseUserId(authentication), joinCode));
+	}
+
+	@Operation(summary = "내가 속한 그룹 조회", description = "내가 속한 그룹을 카테고리(전체, 그룹장, 그룹원) 별로 조회한다.")
+	@GetMapping
+	public ResponseCustom<List<MyTeamResponse>> getMyTeamByCategory(
+			Authentication authentication,
+			@RequestParam(required = false, defaultValue = "ALL") String category
+	) {
+		return ResponseCustom.OK(teamService.getMyTeamByCategory(AuthenticationParser.parseUserId(authentication), category));
 	}
 }
