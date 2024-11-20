@@ -22,7 +22,6 @@ public class StoreCreateRequestDTO {
 	@Enumerated(EnumType.STRING)
 	private Category category;
 
-	private String representativeImage;
 	private String introduction;
 	private String contactNumber;
 

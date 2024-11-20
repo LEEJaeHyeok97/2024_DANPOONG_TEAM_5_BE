@@ -2,6 +2,7 @@ package com.jangburich.domain.store.domain.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -12,10 +13,11 @@ import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.jangburich.domain.store.domain.Category;
-import com.jangburich.domain.store.domain.StoreAdditionalInfoCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreGetResponseDTO;
 import com.jangburich.domain.store.domain.StoreTeamResponseDTO;
@@ -30,6 +32,7 @@ import com.jangburich.global.payload.ResponseCustom;
 import com.jangburich.utils.parser.AuthenticationParser;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -63,13 +66,17 @@ public class StoreController {
 	}
 
 	@Operation(summary = "가게 등록", description = "신규 파트너 가게를 등록합니다.")
-	@PostMapping("/create")
+	@PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseCustom<Message> createStore(
 		Authentication authentication,
-		@RequestBody StoreCreateRequestDTO storeCreateRequestDTO) {
-		storeService.createStore(AuthenticationParser.parseUserId(authentication), storeCreateRequestDTO);
+		@Parameter(name = "image", description = "업로드 사진 데이터")
+		@RequestPart(value = "image") MultipartFile image,
+		@RequestPart(value = "store") StoreCreateRequestDTO storeCreateRequestDTO) {
+
+		storeService.createStore(AuthenticationParser.parseUserId(authentication), storeCreateRequestDTO, image);
 		return ResponseCustom.OK(Message.builder().message("success").build());
 	}
+
 
 	@Operation(summary = "가게 정보 수정", description = "가게 정보를 수정합니다.")
 	@PatchMapping("/update")
