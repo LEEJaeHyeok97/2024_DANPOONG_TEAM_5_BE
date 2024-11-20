@@ -48,7 +48,7 @@ public class TeamController {
 		return ResponseCustom.OK(teamService.joinTeam(AuthenticationParser.parseUserId(authentication), joinCode));
 	}
 
-	@Operation(summary = "내가 속한 그룹 조회", description = "내가 속한 그룹을 카테고리(전체, 그룹장, 그룹원) 별로 조회한다.")
+	@Operation(summary = "내가 속한 그룹 조회", description = "내가 속한 그룹을 카테고리(ALL, LEADER, MEMBER) 별로 조회한다.")
 	@GetMapping
 	public ResponseCustom<List<MyTeamResponse>> getMyTeamByCategory(
 			Authentication authentication,
