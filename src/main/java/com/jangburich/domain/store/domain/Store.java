@@ -115,6 +115,10 @@ public class Store {
 		newStore.setOpenTime(storeCreateRequestDTO.getOpenTime());
 		newStore.setCloseTime(storeCreateRequestDTO.getCloseTime());
 		newStore.setContactNumber(storeCreateRequestDTO.getContactNumber());
+		newStore.setReservationAvailable(storeCreateRequestDTO.getReservationAvailable());
+		newStore.setMaxReservation(storeCreateRequestDTO.getMaxReservation());
+		newStore.setMinPrepayment(storeCreateRequestDTO.getMinPrepayment());
+		newStore.setPrepaymentDuration(storeCreateRequestDTO.getPrepaymentDuration());
 		return newStore;
 	}
 }
