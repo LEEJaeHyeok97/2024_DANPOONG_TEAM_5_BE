@@ -1,4 +1,4 @@
-package com.jangburich.domain.store.domain.dto.condition;
+package com.jangburich.domain.store.dto.condition;
 
 public record StoreSearchCondition(
         Double lat,

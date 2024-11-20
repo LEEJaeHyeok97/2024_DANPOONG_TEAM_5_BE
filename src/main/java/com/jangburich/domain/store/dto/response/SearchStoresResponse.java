@@ -1,4 +1,4 @@
-package com.jangburich.domain.store.domain.dto.response;
+package com.jangburich.domain.store.dto.response;
 
 import com.jangburich.domain.store.domain.Category;
 import com.querydsl.core.annotations.QueryProjection;

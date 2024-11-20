@@ -1,4 +1,9 @@
-package com.jangburich.domain.store.domain.service;
+package com.jangburich.domain.store.service;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.jangburich.domain.menu.domain.Menu;
 import com.jangburich.domain.menu.domain.MenuCreateRequestDTO;
 import com.jangburich.domain.menu.repository.MenuRepository;
+import com.jangburich.domain.order.domain.Cart;
+import com.jangburich.domain.order.domain.Orders;
+import com.jangburich.domain.order.domain.repository.CartRepository;
+import com.jangburich.domain.order.domain.repository.OrdersRepository;
 import com.jangburich.domain.owner.domain.Owner;
 import com.jangburich.domain.owner.domain.repository.OwnerRepository;
 import com.jangburich.domain.payment.domain.TeamChargeHistoryResponse;
@@ -22,12 +31,13 @@ import com.jangburich.domain.store.domain.StoreGetResponseDTO;
 import com.jangburich.domain.store.domain.StoreTeam;
 import com.jangburich.domain.store.domain.StoreTeamResponseDTO;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
-import com.jangburich.domain.store.domain.dto.condition.StoreSearchCondition;
-import com.jangburich.domain.store.domain.dto.condition.StoreSearchConditionWithType;
-import com.jangburich.domain.store.domain.dto.response.PaymentGroupDetailResponse;
-import com.jangburich.domain.store.domain.dto.response.SearchStoresResponse;
-import com.jangburich.domain.store.domain.repository.StoreRepository;
-import com.jangburich.domain.store.domain.repository.StoreTeamRepository;
+import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
+import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
+import com.jangburich.domain.store.dto.response.OrdersGetResponse;
+import com.jangburich.domain.store.dto.response.PaymentGroupDetailResponse;
+import com.jangburich.domain.store.dto.response.SearchStoresResponse;
+import com.jangburich.domain.store.repository.StoreRepository;
+import com.jangburich.domain.store.repository.StoreTeamRepository;
 import com.jangburich.domain.team.domain.Team;
 import com.jangburich.domain.team.domain.repository.TeamRepository;
 import com.jangburich.domain.user.domain.User;
@@ -50,6 +60,8 @@ public class StoreService {
 	private final TeamChargeHistoryRepository teamChargeHistoryRepository;
 	private final MenuRepository menuRepository;
 	private final S3Service s3Service;
+	private final OrdersRepository ordersRepository;
+	private final CartRepository cartRepository;
 
 	@Transactional
 	public void createStore(String authentication, StoreCreateRequestDTO storeCreateRequestDTO, MultipartFile image) {
@@ -237,5 +249,39 @@ public class StoreService {
 
 		Page<StoreChargeHistoryResponse> historyResponses = teamChargeHistoryRepository.findAllByStore(store, pageable);
 		return historyResponses;
+	}
+
+	public List<OrdersGetResponse> getOrdersLast(String userId) {
+		List<OrdersGetResponse> ordersGetResponses = new ArrayList<>();
+
+		User user = userRepository.findByProviderId(userId)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		Owner owner = ownerRepository.findByUser(user)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		Store store = storeRepository.findByOwner(owner)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		LocalDateTime todayStart = LocalDate.now().atStartOfDay();
+		List<Orders> allByStore = ordersRepository.findOrdersByStoreAndDateAndStatusNative(store.getId(), todayStart,
+			"TICKET_USED");
+
+		for (Orders orders : allByStore) {
+			OrdersGetResponse newOrdersGetResponse = new OrdersGetResponse();
+			List<Cart> carts = cartRepository.findAllByOrders(orders);
+			newOrdersGetResponse.setId(orders.getId());
+			newOrdersGetResponse.setMenuNames(carts.size() == 1 ? carts.get(0).getMenu().getName() :carts.get(0).getMenu().getName() + "외 " + (carts.size() - 1) + "개");
+			newOrdersGetResponse.setCount(carts.size());
+			newOrdersGetResponse.setDate(orders.getUpdatedAt());
+			Integer price = 0;
+			for (Cart cart : carts) {
+				price += cart.getMenu().getPrice();
+			}
+			newOrdersGetResponse.setPrice(price);
+			ordersGetResponses.add(newOrdersGetResponse);
+		}
+
+		return ordersGetResponses;
 	}
 }
