@@ -33,9 +33,11 @@ import com.jangburich.domain.store.domain.StoreTeamResponseDTO;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
 import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
 import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
+import com.jangburich.domain.store.dto.response.OrdersDetailResponse;
 import com.jangburich.domain.store.dto.response.OrdersGetResponse;
 import com.jangburich.domain.store.dto.response.PaymentGroupDetailResponse;
 import com.jangburich.domain.store.dto.response.SearchStoresResponse;
+import com.jangburich.domain.store.exception.OrdersNotFoundException;
 import com.jangburich.domain.store.repository.StoreRepository;
 import com.jangburich.domain.store.repository.StoreTeamRepository;
 import com.jangburich.domain.team.domain.Team;
@@ -271,17 +273,51 @@ public class StoreService {
 			OrdersGetResponse newOrdersGetResponse = new OrdersGetResponse();
 			List<Cart> carts = cartRepository.findAllByOrders(orders);
 			newOrdersGetResponse.setId(orders.getId());
-			newOrdersGetResponse.setMenuNames(carts.size() == 1 ? carts.get(0).getMenu().getName() :carts.get(0).getMenu().getName() + "외 " + (carts.size() - 1) + "개");
+			newOrdersGetResponse.setMenuNames(carts.size() == 1 ? carts.get(0).getMenu().getName() :
+				carts.get(0).getMenu().getName() + "외 " + (carts.size() - 1) + "개");
 			newOrdersGetResponse.setCount(carts.size());
 			newOrdersGetResponse.setDate(orders.getUpdatedAt());
 			Integer price = 0;
 			for (Cart cart : carts) {
-				price += cart.getMenu().getPrice();
+				price += (cart.getMenu().getPrice() * cart.getQuantity());
 			}
 			newOrdersGetResponse.setPrice(price);
 			ordersGetResponses.add(newOrdersGetResponse);
 		}
 
 		return ordersGetResponses;
+	}
+
+	public OrdersDetailResponse getOrderDetails(String userId, Long orderId) {
+		OrdersDetailResponse ordersDetailResponse = new OrdersDetailResponse();
+
+		userRepository.findByProviderId(userId)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		Orders orders = ordersRepository.findById(orderId).orElseThrow(OrdersNotFoundException::new);
+
+		ordersDetailResponse.setId(orders.getId());
+		ordersDetailResponse.setTeamName(orders.getTeam().getName());
+		ordersDetailResponse.setTeamUserName(orders.getUser().getName());
+
+		List<Cart> carts = cartRepository.findAllByOrders(orders);
+		List<OrdersDetailResponse.Menu> menus = new ArrayList<>();
+		Integer amount = 0;
+		Integer price = 0;
+		for (Cart cart : carts) {
+			OrdersDetailResponse.Menu menu = new OrdersDetailResponse.Menu();
+			menu.setMenuName(cart.getMenu().getName());
+			menu.setAmount(cart.getQuantity());
+			menus.add(menu);
+			amount += cart.getQuantity();
+			price += (cart.getQuantity() * cart.getMenu().getPrice());
+		}
+		ordersDetailResponse.setMenus(menus);
+		ordersDetailResponse.setDateTime(orders.getUpdatedAt());
+		ordersDetailResponse.setAmount(amount);
+		ordersDetailResponse.setTotalPrice(price);
+		ordersDetailResponse.setDiscountPrice(0);
+
+		return ordersDetailResponse;
 	}
 }

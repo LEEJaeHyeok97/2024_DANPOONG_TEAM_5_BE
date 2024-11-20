@@ -26,6 +26,7 @@ import com.jangburich.domain.store.domain.StoreTeamResponseDTO;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
 import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
 import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
+import com.jangburich.domain.store.dto.response.OrdersDetailResponse;
 import com.jangburich.domain.store.dto.response.OrdersGetResponse;
 import com.jangburich.domain.store.dto.response.PaymentGroupDetailResponse;
 import com.jangburich.domain.store.dto.response.SearchStoresResponse;
@@ -122,4 +123,12 @@ public class StoreController {
 			AuthenticationParser.parseUserId(authentication));
 		return ResponseCustom.OK(ordersLast);
 	}
+
+	@Operation(summary = "주문 상세 조회", description = "가게에 있는 주문을 상세 조회합니다")
+	@GetMapping("/orders/{ordersId}")
+	public ResponseCustom<OrdersDetailResponse> getOrders(Authentication authentication, @RequestParam Long orderId) {
+		return ResponseCustom.OK(
+			storeService.getOrderDetails(AuthenticationParser.parseUserId(authentication), orderId));
+	}
+
 }
