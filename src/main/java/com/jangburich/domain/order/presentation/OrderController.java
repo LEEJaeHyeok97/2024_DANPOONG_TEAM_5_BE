@@ -53,7 +53,7 @@ public class OrderController {
     }
 
     @Operation(summary = "식권 사용", description = "식권을 사용합니다.")
-    @PostMapping("/tickets")
+    @PostMapping("/tickets/{orderId}")
     public ResponseCustom<Message> useMealTicket(
             Authentication authentication,
             @PathVariable Long orderId
