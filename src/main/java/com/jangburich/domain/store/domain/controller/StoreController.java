@@ -2,6 +2,7 @@ package com.jangburich.domain.store.domain.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -24,9 +25,9 @@ import com.jangburich.domain.store.domain.dto.condition.StoreSearchConditionWith
 import com.jangburich.domain.store.domain.dto.response.PaymentGroupDetailResponse;
 import com.jangburich.domain.store.domain.dto.response.SearchStoresResponse;
 import com.jangburich.domain.store.domain.service.StoreService;
-import com.jangburich.global.GetAuthorization;
 import com.jangburich.global.payload.Message;
 import com.jangburich.global.payload.ResponseCustom;
+import com.jangburich.utils.parser.AuthenticationParser;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -64,18 +65,18 @@ public class StoreController {
 	@Operation(summary = "가게 등록", description = "신규 파트너 가게를 등록합니다.")
 	@PostMapping("/create")
 	public ResponseCustom<Message> createStore(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader,
+		Authentication authentication,
 		@RequestBody StoreCreateRequestDTO storeCreateRequestDTO) {
-		storeService.createStore(GetAuthorization.getUserId(authorizationHeader), storeCreateRequestDTO);
+		storeService.createStore(AuthenticationParser.parseUserId(authentication), storeCreateRequestDTO);
 		return ResponseCustom.OK(Message.builder().message("success").build());
 	}
 
 	@Operation(summary = "가게 추가정보 저장", description = "예약 가능 여부, 최소 선결제 금액, 선결제 사용 기간을 저장합니다.")
 	@PostMapping("/create/additionalInfo")
 	public ResponseCustom<Message> createAdditionalInfo(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader,
+		Authentication authentication,
 		@RequestBody StoreAdditionalInfoCreateRequestDTO storeAdditionalInfoCreateRequestDTO) {
-		storeService.createAdditionalInfo(GetAuthorization.getUserId(authorizationHeader),
+		storeService.createAdditionalInfo(AuthenticationParser.parseUserId(authentication),
 			storeAdditionalInfoCreateRequestDTO);
 		return ResponseCustom.OK(Message.builder().message("success").build());
 	}
@@ -83,43 +84,43 @@ public class StoreController {
 	@Operation(summary = "가게 정보 수정", description = "가게 정보를 수정합니다.")
 	@PatchMapping("/update")
 	public ResponseCustom<Message> updateStore(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader,
+		Authentication authentication,
 		@RequestBody StoreUpdateRequestDTO storeUpdateRequestDTO) {
-		storeService.updateStore(GetAuthorization.getUserId(authorizationHeader), storeUpdateRequestDTO);
+		storeService.updateStore(AuthenticationParser.parseUserId(authentication), storeUpdateRequestDTO);
 		return ResponseCustom.OK(Message.builder().message("success").build());
 	}
 
 	@Operation(summary = "가게 정보 조회", description = "가게 상세 정보를 조회합니다.")
 	@GetMapping("")
 	public ResponseCustom<StoreGetResponseDTO> getStoreInfo(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader) {
-		return ResponseCustom.OK(storeService.getStoreInfo(GetAuthorization.getUserId(authorizationHeader)));
+		Authentication authentication) {
+		return ResponseCustom.OK(storeService.getStoreInfo(AuthenticationParser.parseUserId(authentication)));
 	}
 
 	@Operation(summary = "결제 그룹 조회", description = "장부 결제 그룹을 조회합니다.")
 	@GetMapping("/payment_group")
 	public ResponseCustom<Page<StoreTeamResponseDTO>> getPaymentGroup(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader,
+		Authentication authentication,
 		Pageable pageable) {
 		return ResponseCustom.OK(
-			storeService.getPaymentGroup(GetAuthorization.getUserId(authorizationHeader), pageable));
+			storeService.getPaymentGroup(AuthenticationParser.parseUserId(authentication), pageable));
 	}
 
 	@Operation(summary = "결제 그룹 상세 조회", description = "장부 결제 그룹을 상세 조회합니다.")
 	@GetMapping("/payment_group/{teamId}")
 	public ResponseCustom<PaymentGroupDetailResponse> getPaymentGroupDetail(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader, @PathVariable Long teamId,
+		Authentication authentication, @PathVariable Long teamId,
 		Pageable pageable) {
 		return ResponseCustom.OK(
-			storeService.getPaymentGroupDetail(GetAuthorization.getUserId(authorizationHeader), teamId, pageable));
+			storeService.getPaymentGroupDetail(AuthenticationParser.parseUserId(authentication), teamId, pageable));
 	}
 
 	@Operation(summary = "결제 내역 조회", description = "가게에서 일어난 결제 내역을 조회합니다.")
 	@GetMapping("/payment_history")
 	public ResponseCustom<?> getPaymentHistory(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader,
+		Authentication authentication,
 		Pageable pageable) {
 		return ResponseCustom.OK(
-			storeService.getPaymentHistory(GetAuthorization.getUserId(authorizationHeader), pageable));
+			storeService.getPaymentHistory(AuthenticationParser.parseUserId(authentication), pageable));
 	}
 }

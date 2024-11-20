@@ -7,20 +7,21 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.jangburich.domain.user.domain.KakaoApiResponseDTO;
+import com.jangburich.domain.user.domain.TokenResponseDTO;
 import com.jangburich.domain.user.service.UserService;
-import com.jangburich.global.payload.Message;
 import com.jangburich.global.payload.ResponseCustom;
+import com.jangburich.utils.parser.AuthenticationParser;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,32 +33,36 @@ public class UserController {
 	private final UserService userService;
 
 	@PostMapping("/login")
-	public ResponseCustom<Map<String, Object>> login(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader) {
-
-		return ResponseCustom.OK(null);
+	public ResponseCustom<TokenResponseDTO> login(
+		@RequestParam String authorizationHeader) {
+		TokenResponseDTO login = userService.login(authorizationHeader);
+		return ResponseCustom.OK(login);
 	}
 
 	@GetMapping("/user-info")
 	public ResponseEntity<KakaoApiResponseDTO> getUserInfo(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader) {
-		KakaoApiResponseDTO userInfo = userService.getUserInfo(authorizationHeader);
+		Authentication authentication) {
+		KakaoApiResponseDTO userInfo = userService.getUserInfo(AuthenticationParser.parseUserId(authentication));
 
 		return ResponseEntity.ok(userInfo);
 	}
 
 	@PostMapping("/join/user")
-	public ResponseCustom<Message> joinUser(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader) {
-		userService.joinUser(authorizationHeader);
-		return ResponseCustom.OK(Message.builder().message("success").build());
+	public ResponseCustom<TokenResponseDTO> joinUser(
+		@RequestParam String authorizationHeader) {
+		return ResponseCustom.OK(userService.joinUser(authorizationHeader));
 	}
 
 	@PostMapping("/join/owner")
-	public ResponseCustom<Message> joinOwner(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader) {
-		userService.joinOwner(authorizationHeader);
-		return ResponseCustom.OK(Message.builder().message("success").build());
+	public ResponseCustom<TokenResponseDTO> joinOwner(
+		@RequestParam String authorizationHeader) {
+		return ResponseCustom.OK(userService.joinOwner(authorizationHeader));
+	}
+
+	@PostMapping("/token/reissue")
+	public ResponseEntity<String> reissueAccessToken(@RequestParam String refreshToken) {
+		String newAccessToken = userService.reissueAccessToken(refreshToken);
+		return ResponseEntity.ok(newAccessToken);
 	}
 
 	@PostMapping("/token")
