@@ -1,4 +1,4 @@
-package com.jangburich.domain.store.domain.dto.response;
+package com.jangburich.domain.store.dto.response;
 
 import org.springframework.data.domain.Page;
 

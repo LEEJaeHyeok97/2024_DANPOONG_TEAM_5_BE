@@ -1,19 +1,19 @@
-package com.jangburich.domain.menu.domain.service;
+package com.jangburich.domain.menu.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jangburich.domain.menu.domain.Menu;
 import com.jangburich.domain.menu.domain.MenuCreateRequestDTO;
-import com.jangburich.domain.menu.domain.MenuGetResponseDTO;
+import com.jangburich.domain.menu.domain.MenuResponse;
 import com.jangburich.domain.menu.domain.MenuUpdateRequestDTO;
-import com.jangburich.domain.menu.domain.repository.MenuRepository;
+import com.jangburich.domain.menu.repository.MenuRepository;
 import com.jangburich.domain.owner.domain.Owner;
 import com.jangburich.domain.owner.domain.repository.OwnerRepository;
 import com.jangburich.domain.store.domain.Store;
-import com.jangburich.domain.store.domain.repository.StoreRepository;
+import com.jangburich.domain.store.repository.StoreRepository;
 import com.jangburich.domain.user.domain.User;
 import com.jangburich.domain.user.repository.UserRepository;
 import com.jangburich.global.error.DefaultNullPointerException;
@@ -72,7 +72,7 @@ public class MenuService {
 		menuRepository.delete(menu);
 	}
 
-	public List<MenuGetResponseDTO> getMenu(String customOAuthUser) {
+	public Page<MenuResponse> getMenu(String customOAuthUser, Pageable pageable) {
 		User user = userRepository.findByProviderId(customOAuthUser)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
@@ -82,10 +82,6 @@ public class MenuService {
 		Store store = storeRepository.findByOwner(owner)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_STORE_ID));
 
-		return menuRepository.findAllByStore(store)
-			.stream()
-			.map(menu -> new MenuGetResponseDTO(menu.getId(), menu.getName(), menu.getDescription(), menu.getImageUrl(),
-				menu.getPrice(), menu.getStore().getId()))
-			.toList();
+		return menuRepository.findAllByStore(store,pageable);
 	}
 }
