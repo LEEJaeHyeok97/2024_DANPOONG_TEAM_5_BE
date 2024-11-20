@@ -38,6 +38,9 @@ public class User extends BaseEntity {
 	@Column(name = "nickname", nullable = false, unique = true)
 	private String nickname;
 
+	@Column(name = "name")
+	private String name;
+
 	@Column(name = "profile_image_url")
 	private String profileImageUrl;
 
@@ -49,6 +52,12 @@ public class User extends BaseEntity {
 
 	@Column(name = "refresh_token")
 	private String refreshToken;
+
+	@Column(name = "agree_marketing")
+	private Boolean agreeMarketing;
+
+	@Column(name = "agree_advertisement")
+	private Boolean agreeAdvertisement;
 
 	public void updateRefreshToken(String refreshToken) {
 		this.refreshToken = refreshToken;
