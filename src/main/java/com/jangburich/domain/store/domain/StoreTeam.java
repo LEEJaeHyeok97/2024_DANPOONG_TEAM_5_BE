@@ -37,8 +37,15 @@ public class StoreTeam extends BaseEntity {
 	@Column(name = "point")
 	private Integer point;
 
+	@Column(name = "personal_allocated_point")
+	private Integer personalAllocatedPoint;
+
 	@Column(name = "remain_point")
 	private Integer remainPoint;
+
+	public void updatePersonalAllocatedPoint(Integer point) {
+		this.personalAllocatedPoint = point;
+	}
 
 	public void addPoint(Integer point) {
 		this.point += point;
