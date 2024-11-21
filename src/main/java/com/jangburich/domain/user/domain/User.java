@@ -62,6 +62,10 @@ public class User extends BaseEntity {
 	@Column(name = "agree_advertisement")
 	private Boolean agreeAdvertisement;
 
+	public void usePoint(Integer point) {
+		this.point -= point;
+	}
+
 	public void updateRefreshToken(String refreshToken) {
 		this.refreshToken = refreshToken;
 	}

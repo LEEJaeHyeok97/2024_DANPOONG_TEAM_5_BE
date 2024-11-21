@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -57,6 +58,15 @@ public class StoreTeam extends BaseEntity {
 
 	public void subRemainPoint(Integer point) {
 		this.remainPoint -= point;
+	}
+
+	@Builder
+	public StoreTeam(Store store, Team team, Integer point, Integer personalAllocatedPoint, Integer remainPoint) {
+		this.store = store;
+		this.team = team;
+		this.point = point;
+		this.personalAllocatedPoint = personalAllocatedPoint;
+		this.remainPoint = remainPoint;
 	}
 
 	public static StoreTeam create(Team team, Store store, Integer point) {

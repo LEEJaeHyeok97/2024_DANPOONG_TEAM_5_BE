@@ -56,6 +56,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class StoreService {
+
 	private final StoreRepository storeRepository;
 	private final OwnerRepository ownerRepository;
 	private final UserRepository userRepository;
