@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.jangburich.domain.user.domain.User;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, UserQueryDslRepository {
 	Optional<User> findByProviderId(String providerId);
 
 	Optional<User> findByRefreshToken(String token);

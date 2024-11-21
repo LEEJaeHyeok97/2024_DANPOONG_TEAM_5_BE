@@ -1,5 +1,6 @@
 package com.jangburich.domain.user.controller;
 
+import com.jangburich.domain.user.dto.response.UserHomeResponse;
 import com.jangburich.domain.user.dto.response.WalletResponse;
 import java.util.Map;
 
@@ -104,5 +105,11 @@ public class UserController {
 	@GetMapping("/wallet")
 	public ResponseCustom<WalletResponse> getMyWallet(Authentication authentication) {
 		return ResponseCustom.OK(userService.getMyWallet(AuthenticationParser.parseUserId(authentication)));
+	}
+
+	@Operation(summary = "유저 홈 화면 조회", description = "유저의 홈 화면을 조회합니다.")
+	@GetMapping("/home")
+	public ResponseCustom<UserHomeResponse> getUserHome(Authentication authentication) {
+		return ResponseCustom.OK(userService.getUserHome(AuthenticationParser.parseUserId(authentication)));
 	}
 }
