@@ -33,6 +33,9 @@ public class PointTransaction extends BaseEntity {
     @Column(name = "transaction_type")
     private TransactionType transactionType;
 
+    @Column(name = "transactioned_point")
+    private Integer transactionedPoint;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
@@ -47,8 +50,10 @@ public class PointTransaction extends BaseEntity {
 
 
     @Builder
-    public PointTransaction(TransactionType transactionType, Team team, User user, Store store) {
+    public PointTransaction(TransactionType transactionType, Integer transactionedPoint, Team team, User user,
+                            Store store) {
         this.transactionType = transactionType;
+        this.transactionedPoint = transactionedPoint;
         this.team = team;
         this.user = user;
         this.store = store;

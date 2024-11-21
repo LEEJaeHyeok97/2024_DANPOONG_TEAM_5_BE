@@ -1,5 +1,11 @@
 package com.jangburich.domain.user.service;
 
+import com.jangburich.domain.point.domain.PointTransaction;
+import com.jangburich.domain.point.domain.repository.PointTransactionRepository;
+import com.jangburich.domain.user.dto.response.PurchaseHistory;
+import com.jangburich.domain.user.dto.response.WalletResponse;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -31,6 +37,7 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final OwnerRepository ownerRepository;
 	private final StoreRepository storeRepository;
+	private final PointTransactionRepository pointTransactionRepository;
 	private final JwtUtil jwtUtil;
 
 	@Value("${spring.jwt.access.expiration}")
@@ -150,4 +157,20 @@ public class UserService {
 		user.setAgreeMarketing(additionalInfoCreateDTO.getAgreeMarketing());
 	}
 
+	public WalletResponse getMyWallet(String userId) {
+		User user = userRepository.findByProviderId(userId)
+				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		List<PointTransaction> transactions = pointTransactionRepository.findByUser(user);
+
+		List<PurchaseHistory> purchaseHistories = transactions.stream()
+				.map(transaction -> new PurchaseHistory(
+						transaction.getCreatedAt().format(DateTimeFormatter.ofPattern("MM.dd")),
+						transaction.getTransactionedPoint(),
+						transaction.getStore() != null ? transaction.getStore().getName() : "지갑 충전",
+						transaction.getTransactionType().name()
+				))
+				.toList();
+		return new WalletResponse(user.getPoint(), purchaseHistories);
+	}
 }

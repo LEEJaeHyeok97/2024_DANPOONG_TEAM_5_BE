@@ -1,5 +1,6 @@
 package com.jangburich.domain.user.controller;
 
+import com.jangburich.domain.user.dto.response.WalletResponse;
 import java.util.Map;
 
 import org.springframework.http.HttpEntity;
@@ -99,4 +100,9 @@ public class UserController {
 		return ResponseCustom.OK(Message.builder().message("success").build());
 	}
 
+	@Operation(summary = "나의 지갑 조회", description = "나의 현재 남아 있는 포인트를 조회합니다.")
+	@GetMapping("/wallet")
+	public ResponseCustom<WalletResponse> getMyWallet(Authentication authentication) {
+		return ResponseCustom.OK(userService.getMyWallet(AuthenticationParser.parseUserId(authentication)));
+	}
 }
