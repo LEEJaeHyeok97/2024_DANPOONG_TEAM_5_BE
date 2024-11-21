@@ -1,10 +1,13 @@
 package com.jangburich.domain.team.application;
 
 import com.jangburich.domain.common.Status;
+import com.jangburich.domain.team.dto.response.MyTeamDetailsResponse;
 import com.jangburich.domain.team.dto.response.MyTeamResponse;
+import com.jangburich.domain.team.dto.response.TeamMemberResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -119,5 +122,38 @@ public class TeamService {
 		}
 
 		return myTeamResponses;
+	}
+
+	public MyTeamDetailsResponse getTeamDetailsById(String userId, Long teamId) {
+		User user = userRepository.findByProviderId(userId)
+				.orElseThrow(() -> new NullPointerException("사용자를 찾을 수 없습니다."));
+
+
+
+		return null;
+	}
+
+	public List<TeamMemberResponse> getTeamMembers(String userId, Long teamId) {
+		User user = userRepository.findByProviderId(userId)
+				.orElseThrow(() -> new NullPointerException("사용자를 찾을 수 없습니다."));
+
+		Team team = teamRepository.findById(teamId)
+				.orElseThrow(() -> new IllegalArgumentException("해당하는 팀을 찾을 수 없습니다."));
+
+		List<UserTeam> userTeams = userTeamRepository.findAllByTeamAndStatus(team, Status.ACTIVE);
+
+		return userTeams.stream()
+				.map(userTeam -> {
+					User teamMember = userTeam.getUser();
+
+					return new TeamMemberResponse(
+							teamMember.getUserId(),
+							teamMember.getName(),
+							teamMember.getUserId().equals(user.getUserId()),
+							team.getTeamLeader().getUser_id().equals(teamMember.getUserId()),
+							Optional.ofNullable(teamMember.getProfileImageUrl()).orElse(DEFAULT_PROFILE_IMAGE_URL)
+					);
+				})
+				.toList();
 	}
 }

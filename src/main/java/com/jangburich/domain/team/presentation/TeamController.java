@@ -1,6 +1,8 @@
 package com.jangburich.domain.team.presentation;
 
+import com.jangburich.domain.team.dto.response.MyTeamDetailsResponse;
 import com.jangburich.domain.team.dto.response.MyTeamResponse;
+import com.jangburich.domain.team.dto.response.TeamMemberResponse;
 import java.util.List;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,5 +57,24 @@ public class TeamController {
 			@RequestParam(required = false, defaultValue = "ALL") String category
 	) {
 		return ResponseCustom.OK(teamService.getMyTeamByCategory(AuthenticationParser.parseUserId(authentication), category));
+	}
+
+	@Operation(summary = "그룹(팀) 상세 조회", description = "내가 속한 팀의 정보를 상세 조회합니다.")
+	@GetMapping("/{teamId}")
+	public ResponseCustom<MyTeamDetailsResponse> getTeamDetailsById(
+			Authentication authentication,
+			@PathVariable Long teamId
+	) {
+		// todo
+		return ResponseCustom.OK(teamService.getTeamDetailsById(AuthenticationParser.parseUserId(authentication), teamId));
+	}
+
+	@Operation(summary = "그룹(팀) 멤버 전체 조회", description = "그룹(팀)에 소속된 모든 멤버를 조회합니다.")
+	@GetMapping("/{teamId}/members")
+	public ResponseCustom<List<TeamMemberResponse>> getTeamMembers(
+			Authentication authentication,
+			@PathVariable Long teamId
+	) {
+		return ResponseCustom.OK(teamService.getTeamMembers(AuthenticationParser.parseUserId(authentication), teamId));
 	}
 }
