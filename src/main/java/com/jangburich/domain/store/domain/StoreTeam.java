@@ -65,6 +65,7 @@ public class StoreTeam extends BaseEntity {
 		storeTeam.setStore(store);
 		storeTeam.setPoint(point);
 		storeTeam.setRemainPoint(point);
+		storeTeam.setPersonalAllocatedPoint(0);
 		return storeTeam;
 	}
 }
