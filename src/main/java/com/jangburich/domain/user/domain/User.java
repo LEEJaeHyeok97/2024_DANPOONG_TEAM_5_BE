@@ -29,6 +29,9 @@ public class User extends BaseEntity {
 	@Column(name = "email")
 	private String email;
 
+	@Column(name = "point")
+	private Integer point;
+
 	@Column(name = "phone_number")
 	private String phoneNumber;
 
@@ -70,6 +73,7 @@ public class User extends BaseEntity {
 		newUser.setEmail(email);
 		newUser.setProfileImageUrl(image);
 		newUser.setRole(role);
+		newUser.setPoint(0);
 		return newUser;
 	}
 }
