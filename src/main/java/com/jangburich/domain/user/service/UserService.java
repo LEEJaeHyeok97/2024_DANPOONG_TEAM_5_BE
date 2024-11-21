@@ -3,6 +3,7 @@ package com.jangburich.domain.user.service;
 import com.jangburich.domain.point.domain.PointTransaction;
 import com.jangburich.domain.point.domain.repository.PointTransactionRepository;
 import com.jangburich.domain.user.dto.response.PurchaseHistory;
+import com.jangburich.domain.user.dto.response.UserHomeResponse;
 import com.jangburich.domain.user.dto.response.WalletResponse;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -172,5 +173,12 @@ public class UserService {
 				))
 				.toList();
 		return new WalletResponse(user.getPoint(), purchaseHistories);
+	}
+
+	public UserHomeResponse getUserHome(String userId) {
+		User user = userRepository.findByProviderId(userId)
+				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+        return userRepository.findUserHomeData(user.getUserId());
 	}
 }
