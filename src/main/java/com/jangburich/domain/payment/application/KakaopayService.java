@@ -17,14 +17,16 @@ import com.jangburich.domain.payment.domain.repository.TeamChargeHistoryReposito
 import com.jangburich.domain.payment.dto.request.PayRequest;
 import com.jangburich.domain.payment.dto.response.ApproveResponse;
 import com.jangburich.domain.payment.dto.response.ReadyResponse;
-import com.jangburich.domain.payment.exception.TeamNotFoundException;
+import com.jangburich.domain.point.domain.PointTransaction;
+import com.jangburich.domain.point.domain.TransactionType;
+import com.jangburich.domain.point.domain.repository.PointTransactionRepository;
 import com.jangburich.domain.store.domain.Store;
-import com.jangburich.domain.store.domain.StoreTeam;
+import com.jangburich.domain.store.exception.StoreNotFoundException;
 import com.jangburich.domain.store.repository.StoreRepository;
 import com.jangburich.domain.store.repository.StoreTeamRepository;
-import com.jangburich.domain.store.exception.StoreNotFoundException;
-import com.jangburich.domain.team.domain.Team;
 import com.jangburich.domain.team.domain.repository.TeamRepository;
+import com.jangburich.domain.user.domain.User;
+import com.jangburich.domain.user.repository.UserRepository;
 import com.jangburich.global.error.DefaultNullPointerException;
 import com.jangburich.global.payload.ErrorCode;
 
@@ -47,15 +49,15 @@ public class KakaopayService implements PaymentService {
 	@Value("${kakaopay.fail-url}")
 	private String failUrl;
 
-	private final TeamRepository teamRepository;
-
-	private final StoreTeamRepository storeTeamRepository;
-
 	private final StoreRepository storeRepository;
+
+	private final UserRepository userRepository;
+
+	private final PointTransactionRepository pointTransactionRepository;
 
 	private ResponseEntity<ReadyResponse> readyResponseResponseEntity;
 	private String userId;
-	private Long storeId;
+	private PayRequest payRequest;
 
 	@Override
 	public String getType() {
@@ -68,7 +70,7 @@ public class KakaopayService implements PaymentService {
 		Map<String, String> parameters = new HashMap<>();
 
 		this.userId = userId;
-		this.storeId = payRequest.storeId();
+		this.payRequest = payRequest;
 
 		parameters.put("cid", "TC0ONETIME");                                    // 가맹점 코드(테스트용)
 		parameters.put("partner_order_id", "1234567890");                       // 주문번호
@@ -83,22 +85,21 @@ public class KakaopayService implements PaymentService {
 
 		HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(parameters, this.getHeaders());
 
+		User user = userRepository.findByProviderId(userId)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
 		RestTemplate template = new RestTemplate();
 		String url = "https://open-api.kakaopay.com/online/v1/payment/ready";
 
 		readyResponseResponseEntity = template.postForEntity(url, requestEntity, ReadyResponse.class);
 
-		Team team = teamRepository.findById(payRequest.teamId()).orElseThrow(() -> new TeamNotFoundException());
-		Store store = storeRepository.findById(payRequest.storeId()).orElseThrow(() -> new StoreNotFoundException());
-		TeamChargeHistory teamChargeHistory = TeamChargeHistory.builder()
-			.transactionId(readyResponseResponseEntity.getBody().tid())
-			.paymentAmount(Integer.valueOf(payRequest.totalAmount()))
-			.paymentChargeStatus(PaymentChargeStatus.PENDING)
-			.team(team)
-			.store(store)
+		PointTransaction pointTransaction = PointTransaction.builder()
+			.user(user)
+			.transactionedPoint(Integer.valueOf(payRequest.totalAmount()))
+			.transactionType(TransactionType.PURCHASE)
 			.build();
 
-		teamChargeHistoryRepository.save(teamChargeHistory);
+		pointTransactionRepository.save(pointTransaction);
 
 		return readyResponseResponseEntity.getBody();
 	}
@@ -120,24 +121,15 @@ public class KakaopayService implements PaymentService {
 		String url = "https://open-api.kakaopay.com/online/v1/payment/approve";
 		ApproveResponse approveResponse = template.postForObject(url, requestEntity, ApproveResponse.class);
 
-		Store store = storeRepository.findById(storeId)
-			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
-
 		TeamChargeHistory teamChargeHistory = teamChargeHistoryRepository.findByTransactionId(
 			readyResponseResponseEntity.getBody().tid()).orElseThrow(() -> new NullPointerException());
 
 		teamChargeHistory.completePaymentChargeStatus();
 
-		StoreTeam storeTeam = storeTeamRepository.findByStoreIdAndTeamId(storeId, teamChargeHistory.getTeam().getId())
-			.orElse(null);
+		User user = userRepository.findByProviderId(userId)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
-		if (storeTeam != null) {
-			storeTeam.addPoint(teamChargeHistory.getPaymentAmount());
-			storeTeam.addRemainPoint(teamChargeHistory.getPaymentAmount());
-		} else {
-			storeTeamRepository.save(
-				StoreTeam.create(teamChargeHistory.getTeam(), store, teamChargeHistory.getPaymentAmount()));
-		}
+		user.setPoint(user.getPoint() + Integer.valueOf(payRequest.totalAmount()));
 
 		return approveResponse;
 	}
