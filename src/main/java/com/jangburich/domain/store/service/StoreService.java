@@ -21,7 +21,6 @@ import com.jangburich.domain.order.domain.repository.CartRepository;
 import com.jangburich.domain.order.domain.repository.OrdersRepository;
 import com.jangburich.domain.owner.domain.Owner;
 import com.jangburich.domain.owner.domain.repository.OwnerRepository;
-import com.jangburich.domain.payment.domain.TeamChargeHistoryResponse;
 import com.jangburich.domain.payment.domain.repository.TeamChargeHistoryRepository;
 import com.jangburich.domain.store.domain.Category;
 import com.jangburich.domain.store.domain.Store;
@@ -29,7 +28,6 @@ import com.jangburich.domain.store.domain.StoreAdditionalInfoCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreChargeHistoryResponse;
 import com.jangburich.domain.store.domain.StoreCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreGetResponseDTO;
-import com.jangburich.domain.store.domain.StoreTeam;
 import com.jangburich.domain.store.domain.StoreTeamResponseDTO;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
 import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
@@ -37,12 +35,10 @@ import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
 import com.jangburich.domain.store.dto.response.OrdersDetailResponse;
 import com.jangburich.domain.store.dto.response.OrdersGetResponse;
 import com.jangburich.domain.store.dto.response.OrdersTodayResponse;
-import com.jangburich.domain.store.dto.response.PaymentGroupDetailResponse;
 import com.jangburich.domain.store.dto.response.SearchStoresResponse;
 import com.jangburich.domain.store.exception.OrdersNotFoundException;
 import com.jangburich.domain.store.repository.StoreRepository;
 import com.jangburich.domain.store.repository.StoreTeamRepository;
-import com.jangburich.domain.team.domain.Team;
 import com.jangburich.domain.team.domain.repository.TeamRepository;
 import com.jangburich.domain.user.domain.User;
 import com.jangburich.domain.user.repository.UserRepository;
@@ -69,7 +65,9 @@ public class StoreService {
 	private final CartRepository cartRepository;
 
 	@Transactional
-	public void createStore(String authentication, StoreCreateRequestDTO storeCreateRequestDTO, MultipartFile image) {
+	public void createStore(String authentication, StoreCreateRequestDTO storeCreateRequestDTO, MultipartFile image,
+		List<MultipartFile> menuImages) {
+		System.out.println("authentication = " + authentication);
 		User user = userRepository.findByProviderId(authentication)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
@@ -80,10 +78,18 @@ public class StoreService {
 
 		store.setRepresentativeImage(s3Service.uploadImageToS3(image));
 
-		for (MenuCreateRequestDTO menuCreateRequestDTO : storeCreateRequestDTO.getMenuCreateRequestDTOS()) {
-			menuRepository.save(Menu.create(menuCreateRequestDTO.getName(), menuCreateRequestDTO.getDescription(),
-				menuCreateRequestDTO.getImage_url(), menuCreateRequestDTO.getPrice(), store));
+		if (menuImages != null && storeCreateRequestDTO.getMenuCreateRequestDTOS() != null) {
+			List<MenuCreateRequestDTO> menus = storeCreateRequestDTO.getMenuCreateRequestDTOS();
+			for (int i = 0; i < menus.size(); i++) {
+				MultipartFile menuImage = menuImages.size() > i ? menuImages.get(i) : null;
+				if (menuImage != null) {
+					String imageUrl = s3Service.uploadImageToS3(menuImage);
+					menuRepository.save(Menu.create(menus.get(i).getName(), menus.get(i).getDescription(),
+						imageUrl, menus.get(i).getPrice(), store));
+				}
+			}
 		}
+
 	}
 
 	@Transactional
