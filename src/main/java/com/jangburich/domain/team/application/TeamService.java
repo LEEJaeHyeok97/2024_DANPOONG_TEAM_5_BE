@@ -7,7 +7,6 @@ import com.jangburich.domain.team.dto.response.TeamMemberResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -128,7 +127,15 @@ public class TeamService {
 		User user = userRepository.findByProviderId(userId)
 				.orElseThrow(() -> new NullPointerException("사용자를 찾을 수 없습니다."));
 
+		Team team = teamRepository.findById(teamId)
+				.orElseThrow(() -> new IllegalArgumentException("해당 팀을 찾을 수 없습니다."));
 
+		if (!team.getTeamLeader().getUser_id().equals(user.getUserId())) {
+			// 일반 구성원
+			teamRepository.findMyTeamDetailsAsMember(user.getUserId(), teamId);
+		}
+		// 팀 리더일 때
+		teamRepository.findMyTeamDetailsAsLeader(user.getUserId(), teamId);
 
 		return null;
 	}
