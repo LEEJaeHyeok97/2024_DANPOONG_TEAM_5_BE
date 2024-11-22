@@ -216,31 +216,31 @@ public class StoreService {
 		return storeRepository.findStores(user.getUserId(), keyword, storeSearchConditionWithType, pageable);
 	}
 
-	public PaymentGroupDetailResponse getPaymentGroupDetail(String userId, Long teamId, Pageable pageable) {
-		User user = userRepository.findByProviderId(userId)
-			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
-
-		Owner owner = ownerRepository.findByUser(user)
-			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
-
-		Store store = storeRepository.findByOwner(owner)
-			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
-
-		Team team = teamRepository.findById(teamId)
-			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
-
-		User teamLeader = userRepository.findById(team.getTeamLeader().getUser_id())
-			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
-
-		StoreTeam storeTeam = storeTeamRepository.findByStoreIdAndTeamId(store.getId(), team.getId())
-			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
-
-		Page<TeamChargeHistoryResponse> chargeHistoryRepositoryAllByTeam = teamChargeHistoryRepository.findAllByTeam(
-			team, pageable);
-
-		return PaymentGroupDetailResponse.create(team.getName(), storeTeam.getPoint(), storeTeam.getRemainPoint(),
-			teamLeader, chargeHistoryRepositoryAllByTeam);
-	}
+	// public PaymentGroupDetailResponse getPaymentGroupDetail(String userId, Long teamId, Pageable pageable) {
+	// 	User user = userRepository.findByProviderId(userId)
+	// 		.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+	//
+	// 	Owner owner = ownerRepository.findByUser(user)
+	// 		.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+	//
+	// 	Store store = storeRepository.findByOwner(owner)
+	// 		.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+	//
+	// 	Team team = teamRepository.findById(teamId)
+	// 		.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
+	//
+	// 	User teamLeader = userRepository.findById(team.getTeamLeader().getUser_id())
+	// 		.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
+	//
+	// 	StoreTeam storeTeam = storeTeamRepository.findByStoreIdAndTeamId(store.getId(), team.getId())
+	// 		.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
+	//
+	// 	Page<TeamChargeHistoryResponse> chargeHistoryRepositoryAllByTeam = teamChargeHistoryRepository.findAllByTeam(
+	// 		team, pageable);
+	//
+	// 	return PaymentGroupDetailResponse.create(team.getName(), storeTeam.getPoint(), storeTeam.getRemainPoint(),
+	// 		teamLeader, chargeHistoryRepositoryAllByTeam);
+	// }
 
 	public Page<StoreChargeHistoryResponse> getPaymentHistory(String userId, Pageable pageable) {
 		User user = userRepository.findByProviderId(userId)
