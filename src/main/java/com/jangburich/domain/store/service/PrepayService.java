@@ -59,7 +59,6 @@ public class PrepayService {
                 .transactionType(TransactionType.PURCHASE)
                 .transactionedPoint(prepayRequest.prepayAmount())
                 .user(user)
-                .team(team)
                 .store(store)
                 .build();
 
