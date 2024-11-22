@@ -65,7 +65,6 @@ public class TeamController {
 			Authentication authentication,
 			@PathVariable Long teamId
 	) {
-		// todo
 		return ResponseCustom.OK(teamService.getTeamDetailsById(AuthenticationParser.parseUserId(authentication), teamId));
 	}
 

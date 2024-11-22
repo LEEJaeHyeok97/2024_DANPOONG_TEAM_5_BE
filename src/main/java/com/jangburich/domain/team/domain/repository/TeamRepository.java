@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface TeamRepository extends JpaRepository<Team, Long> {
+public interface TeamRepository extends JpaRepository<Team, Long>, TeamQueryDslRepository {
     Optional<Team> findBySecretCode(String joinCode);
 
     @Query("SELECT t FROM Team t JOIN UserTeam ut ON ut.team = t WHERE ut.user = :user AND t.status = :status")
