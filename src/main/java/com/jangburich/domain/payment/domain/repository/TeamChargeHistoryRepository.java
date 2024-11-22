@@ -17,7 +17,7 @@ import com.jangburich.domain.team.domain.Team;
 public interface TeamChargeHistoryRepository extends JpaRepository<TeamChargeHistory, Long> {
 	Optional<TeamChargeHistory> findByTransactionId(String tid);
 
-	Page<TeamChargeHistoryResponse> findAllByTeam(Team team, Pageable pageable);
+	// Page<TeamChargeHistoryResponse> findAllByTeam(Team team, Pageable pageable);
 
 	Page<StoreChargeHistoryResponse> findAllByStore(Store store, Pageable pageable);
 }
