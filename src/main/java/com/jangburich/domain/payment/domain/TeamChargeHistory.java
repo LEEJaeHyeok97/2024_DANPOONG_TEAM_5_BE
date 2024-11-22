@@ -3,6 +3,7 @@ package com.jangburich.domain.payment.domain;
 import com.jangburich.domain.common.BaseEntity;
 import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.team.domain.Team;
+import com.jangburich.domain.user.domain.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,8 +41,8 @@ public class TeamChargeHistory extends BaseEntity {
 	private PaymentChargeStatus paymentChargeStatus;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "team_id")
-	private Team team;
+	@JoinColumn(name = "user_id")
+	private User user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "store_id")
@@ -49,11 +50,11 @@ public class TeamChargeHistory extends BaseEntity {
 
 	@Builder
 	public TeamChargeHistory(String transactionId, Integer paymentAmount, PaymentChargeStatus paymentChargeStatus,
-		Team team, Store store) {
+		User user, Store store) {
 		this.transactionId = transactionId;
 		this.paymentAmount = paymentAmount;
 		this.paymentChargeStatus = paymentChargeStatus;
-		this.team = team;
+		this.user = user;
 		this.store = store;
 	}
 
