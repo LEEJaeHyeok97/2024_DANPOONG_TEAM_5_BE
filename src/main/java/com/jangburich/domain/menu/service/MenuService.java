@@ -16,6 +16,7 @@ import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.store.repository.StoreRepository;
 import com.jangburich.domain.user.domain.User;
 import com.jangburich.domain.user.repository.UserRepository;
+import com.jangburich.global.config.s3.S3Service;
 import com.jangburich.global.error.DefaultNullPointerException;
 import com.jangburich.global.payload.ErrorCode;
 
@@ -29,6 +30,7 @@ public class MenuService {
 	private final OwnerRepository ownerRepository;
 	private final StoreRepository storeRepository;
 	private final UserRepository userRepository;
+	private final S3Service s3Service;
 
 	public void registerMenu(String customOAuthUser, MenuCreateRequestDTO menuCreateRequestDTO) {
 		User user = userRepository.findByProviderId(customOAuthUser)
@@ -40,8 +42,8 @@ public class MenuService {
 		Store store = storeRepository.findByOwner(owner)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_STORE_ID));
 
-		menuRepository.save(Menu.create(menuCreateRequestDTO.getName(), menuCreateRequestDTO.getDescription(),
-			menuCreateRequestDTO.getImage_url(), menuCreateRequestDTO.getPrice(), store));
+		// menuRepository.save(Menu.create(menuCreateRequestDTO.getName(), menuCreateRequestDTO.getDescription(),
+		// 	s3Service.uploadImageToS3(menuCreateRequestDTO.getImage()), menuCreateRequestDTO.getPrice(), store));
 	}
 
 	public void updateMenu(String customOAuthUser, Long menuId, MenuUpdateRequestDTO menuUpdateRequestDTO) {
@@ -82,6 +84,6 @@ public class MenuService {
 		Store store = storeRepository.findByOwner(owner)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_STORE_ID));
 
-		return menuRepository.findAllByStore(store,pageable);
+		return menuRepository.findAllByStore(store, pageable);
 	}
 }
