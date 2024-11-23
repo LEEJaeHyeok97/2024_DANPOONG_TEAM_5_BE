@@ -77,26 +77,27 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
                         TransactionType.FOOD_PURCHASE))
                 .fetch();
 
-
         return queryFactory
                 .selectDistinct(new QMyTeamDetailsResponse(
-                        team.id,
-                        team.name,
-                        team.description,
-                        Expressions.constant(30000),
+                        storeTeam.team.id,
+                        storeTeam.team.name,
+                        storeTeam.team.description,
                         Expressions.constant(-1),
-                        Expressions.constant(30000),
-                        Expressions.constant(30000),
+                        storeTeam.remainPoint,
+                        storeTeam.personalAllocatedPoint,
+                        pointTransaction.transactionedPoint.sum(),
                         Expressions.constant(prepayedStores),
                         Expressions.constant(images),
                         Expressions.constant(images.size()),
                         Expressions.constant(todayPayments),
                         Expressions.constant(todayPayments.size())
                 ))
-                .from(team)
-                .leftJoin(storeTeam).on(storeTeam.team.id.eq(teamId))
-                .leftJoin(userTeam).on(userTeam.team.id.eq(teamId))
-                .where(team.id.eq(teamId))
+                .from(storeTeam)
+                .leftJoin(team).on(storeTeam.team.id.eq(teamId))
+                .leftJoin(userTeam).on(userTeam.team.id.eq(storeTeam.team.id))
+                .leftJoin(pointTransaction).on(pointTransaction.transactionType.eq(TransactionType.FOOD_PURCHASE),
+                        pointTransaction.user.userId.eq(userId))
+                .where(storeTeam.team.id.eq(teamId))
                 .fetchOne();
     }
 
@@ -141,23 +142,25 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
 
         return queryFactory
                 .selectDistinct(new QMyTeamDetailsResponse(
-                        team.id,
-                        team.name,
-                        team.description,
-                        Expressions.constant(30000),
+                        storeTeam.team.id,
+                        storeTeam.team.name,
+                        storeTeam.team.description,
+                        storeTeam.point,
+                        storeTeam.remainPoint,
                         Expressions.constant(-1),
-                        Expressions.constant(30000),
-                        Expressions.constant(30000),
+                        pointTransaction.transactionedPoint.sum(),
                         Expressions.constant(prepayedStores),
                         Expressions.constant(images),
                         Expressions.constant(images.size()),
                         Expressions.constant(todayPayments),
                         Expressions.constant(todayPayments.size())
                 ))
-                .from(team)
-                .leftJoin(storeTeam).on(storeTeam.team.id.eq(teamId))
-                .leftJoin(userTeam).on(userTeam.team.id.eq(teamId))
-                .where(team.id.eq(teamId))
+                .from(storeTeam)
+                .leftJoin(team).on(storeTeam.team.id.eq(teamId))
+                .leftJoin(userTeam).on(userTeam.team.id.eq(storeTeam.team.id))
+                .leftJoin(pointTransaction).on(pointTransaction.transactionType.eq(TransactionType.FOOD_PURCHASE),
+                        pointTransaction.user.userId.eq(userId))
+                .where(storeTeam.team.id.eq(teamId))
                 .fetchOne();
     }
 }
