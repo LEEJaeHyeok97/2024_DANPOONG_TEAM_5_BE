@@ -1,5 +1,6 @@
 package com.jangburich.domain.store.service;
 
+import com.jangburich.domain.store.dto.response.StoreSearchDetailsResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -393,4 +394,14 @@ public class StoreService {
 
 		return ordersDetailResponse;
 	}
+
+    public StoreSearchDetailsResponse storeSearchDetails(String userId, Long storeId) {
+		User user = userRepository.findByProviderId(userId)
+				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		StoreSearchDetailsResponse storeSearchDetails = storeRepository.findStoreSearchDetails(user.getUserId(),
+				storeId);
+
+		return storeSearchDetails;
+    }
 }

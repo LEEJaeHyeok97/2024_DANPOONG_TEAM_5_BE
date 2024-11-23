@@ -1,5 +1,6 @@
 package com.jangburich.domain.store.controller;
 
+import com.jangburich.domain.store.dto.response.StoreSearchDetailsResponse;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -7,11 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,14 +18,11 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.jangburich.domain.menu.domain.MenuCreateRequestDTO;
 import com.jangburich.domain.store.domain.Category;
 import com.jangburich.domain.store.domain.StoreCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreGetResponseDTO;
 import com.jangburich.domain.store.domain.StoreTeamResponseDTO;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
-import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
-import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
 import com.jangburich.domain.store.dto.response.OrdersDetailResponse;
 import com.jangburich.domain.store.dto.response.OrdersGetResponse;
 import com.jangburich.domain.store.dto.response.OrdersTodayResponse;
@@ -70,6 +66,16 @@ public class StoreController {
             @RequestParam(required = false, defaultValue = "") String keyword, Pageable pageable) {
         return ResponseCustom.OK(
                 storeService.searchStores(AuthenticationParser.parseUserId(authentication), keyword, pageable));
+    }
+
+    @Operation(summary = "매장 찾기 상세 페이지 조회", description = "매장을 상세 조회합니다.")
+    @GetMapping("/{storeId}")
+    public ResponseCustom<StoreSearchDetailsResponse> storeSearchDetails(
+            Authentication authentication,
+            @PathVariable Long storeId
+    ) {
+        System.out.println("authentication = " + authentication);
+        return ResponseCustom.OK(storeService.storeSearchDetails(AuthenticationParser.parseUserId(authentication), storeId));
     }
 
     @Operation(summary = "가게 등록", description = "신규 파트너 가게를 등록합니다.")
