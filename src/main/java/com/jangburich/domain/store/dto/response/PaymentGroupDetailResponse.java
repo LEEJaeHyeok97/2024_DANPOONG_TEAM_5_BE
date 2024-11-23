@@ -1,8 +1,8 @@
 package com.jangburich.domain.store.dto.response;
 
-import org.springframework.data.domain.Page;
+import java.util.List;
 
-import com.jangburich.domain.payment.domain.TeamChargeHistoryResponse;
+import com.jangburich.domain.order.domain.OrderResponse;
 import com.jangburich.domain.user.domain.User;
 
 import lombok.Getter;
@@ -18,11 +18,10 @@ public class PaymentGroupDetailResponse {
 	private Integer remainPoint;
 	private String teamLeaderName;
 	private String teamLeaderPhoneNum;
-	// TODO 이거 아니고, order 결제 내역으로 변경해야함.
-	private Page<TeamChargeHistoryResponse> historyResponses;
+	private List<OrderResponse> historyResponses;
 
 	public static PaymentGroupDetailResponse create(String teamName, Integer point, Integer remainPoint,
-		User teamLeader, Page<TeamChargeHistoryResponse> historyResponses) {
+		User teamLeader, List<OrderResponse> historyResponses) {
 		PaymentGroupDetailResponse paymentGroupDetailResponse = new PaymentGroupDetailResponse();
 		paymentGroupDetailResponse.setTeamName(teamName);
 		paymentGroupDetailResponse.setPoint(point);

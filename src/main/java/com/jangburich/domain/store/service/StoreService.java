@@ -15,6 +15,7 @@ import com.jangburich.domain.menu.domain.Menu;
 import com.jangburich.domain.menu.domain.MenuCreateRequestDTO;
 import com.jangburich.domain.menu.repository.MenuRepository;
 import com.jangburich.domain.order.domain.Cart;
+import com.jangburich.domain.order.domain.OrderResponse;
 import com.jangburich.domain.order.domain.OrderStatus;
 import com.jangburich.domain.order.domain.Orders;
 import com.jangburich.domain.order.domain.repository.CartRepository;
@@ -22,12 +23,15 @@ import com.jangburich.domain.order.domain.repository.OrdersRepository;
 import com.jangburich.domain.owner.domain.Owner;
 import com.jangburich.domain.owner.domain.repository.OwnerRepository;
 import com.jangburich.domain.payment.domain.repository.TeamChargeHistoryRepository;
+import com.jangburich.domain.point.domain.PointTransaction;
+import com.jangburich.domain.point.domain.repository.PointTransactionRepository;
 import com.jangburich.domain.store.domain.Category;
 import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.store.domain.StoreAdditionalInfoCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreChargeHistoryResponse;
 import com.jangburich.domain.store.domain.StoreCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreGetResponseDTO;
+import com.jangburich.domain.store.domain.StoreTeam;
 import com.jangburich.domain.store.domain.StoreTeamResponseDTO;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
 import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
@@ -35,10 +39,12 @@ import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
 import com.jangburich.domain.store.dto.response.OrdersDetailResponse;
 import com.jangburich.domain.store.dto.response.OrdersGetResponse;
 import com.jangburich.domain.store.dto.response.OrdersTodayResponse;
+import com.jangburich.domain.store.dto.response.PaymentGroupDetailResponse;
 import com.jangburich.domain.store.dto.response.SearchStoresResponse;
 import com.jangburich.domain.store.exception.OrdersNotFoundException;
 import com.jangburich.domain.store.repository.StoreRepository;
 import com.jangburich.domain.store.repository.StoreTeamRepository;
+import com.jangburich.domain.team.domain.Team;
 import com.jangburich.domain.team.domain.repository.TeamRepository;
 import com.jangburich.domain.user.domain.User;
 import com.jangburich.domain.user.repository.UserRepository;
@@ -63,6 +69,7 @@ public class StoreService {
 	private final S3Service s3Service;
 	private final OrdersRepository ordersRepository;
 	private final CartRepository cartRepository;
+	private final PointTransactionRepository pointTransactionRepository;
 
 	@Transactional
 	public void createStore(String authentication, StoreCreateRequestDTO storeCreateRequestDTO, MultipartFile image,
@@ -84,8 +91,8 @@ public class StoreService {
 				MultipartFile menuImage = menuImages.size() > i ? menuImages.get(i) : null;
 				if (menuImage != null) {
 					String imageUrl = s3Service.uploadImageToS3(menuImage);
-					menuRepository.save(Menu.create(menus.get(i).getName(), menus.get(i).getDescription(),
-						imageUrl, menus.get(i).getPrice(), store));
+					menuRepository.save(Menu.create(menus.get(i).getName(), menus.get(i).getDescription(), imageUrl,
+						menus.get(i).getPrice(), store));
 				}
 			}
 		}
@@ -222,31 +229,38 @@ public class StoreService {
 		return storeRepository.findStores(user.getUserId(), keyword, storeSearchConditionWithType, pageable);
 	}
 
-	// public PaymentGroupDetailResponse getPaymentGroupDetail(String userId, Long teamId, Pageable pageable) {
-	// 	User user = userRepository.findByProviderId(userId)
-	// 		.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
-	//
-	// 	Owner owner = ownerRepository.findByUser(user)
-	// 		.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
-	//
-	// 	Store store = storeRepository.findByOwner(owner)
-	// 		.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
-	//
-	// 	Team team = teamRepository.findById(teamId)
-	// 		.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
-	//
-	// 	User teamLeader = userRepository.findById(team.getTeamLeader().getUser_id())
-	// 		.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
-	//
-	// 	StoreTeam storeTeam = storeTeamRepository.findByStoreIdAndTeamId(store.getId(), team.getId())
-	// 		.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
-	//
-	// 	Page<TeamChargeHistoryResponse> chargeHistoryRepositoryAllByTeam = teamChargeHistoryRepository.findAllByTeam(
-	// 		team, pageable);
-	//
-	// 	return PaymentGroupDetailResponse.create(team.getName(), storeTeam.getPoint(), storeTeam.getRemainPoint(),
-	// 		teamLeader, chargeHistoryRepositoryAllByTeam);
-	// }
+	public PaymentGroupDetailResponse getPaymentGroupDetail(String userId, Long teamId, Pageable pageable) {
+		User user = userRepository.findByProviderId(userId)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		Owner owner = ownerRepository.findByUser(user)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		Store store = storeRepository.findByOwner(owner)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+		Team team = teamRepository.findById(teamId)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
+
+		User teamLeader = userRepository.findById(team.getTeamLeader().getUser_id())
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
+
+		StoreTeam storeTeam = storeTeamRepository.findByStoreIdAndTeamId(store.getId(), team.getId())
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
+
+		List<Orders> orders = ordersRepository.findAllByTeam(team);
+
+		List<OrderResponse> orderResponse = orders.stream().map(order -> {
+			int price = 0;
+			for (Cart cart : cartRepository.findAllByOrders(order)) {
+				price += cart.getMenu().getPrice();
+			}
+			return new OrderResponse(order.getUser().getName(), order.getUpdatedAt(), String.valueOf(price));
+		}).toList();
+
+		return PaymentGroupDetailResponse.create(team.getName(), storeTeam.getPoint(), storeTeam.getRemainPoint(),
+			teamLeader, orderResponse);
+	}
 
 	public Page<StoreChargeHistoryResponse> getPaymentHistory(String userId, Pageable pageable) {
 		User user = userRepository.findByProviderId(userId)
@@ -258,8 +272,7 @@ public class StoreService {
 		Store store = storeRepository.findByOwner(owner)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
-		Page<StoreChargeHistoryResponse> historyResponses = teamChargeHistoryRepository.findAllByStore(store, pageable);
-		return historyResponses;
+		return pointTransactionRepository.findAllByStore(store, pageable);
 	}
 
 	public List<OrdersGetResponse> getOrdersLast(String userId) {
@@ -312,8 +325,8 @@ public class StoreService {
 		LocalDateTime startOfDay = LocalDate.now().atStartOfDay(); // 오늘 시작
 		LocalDateTime endOfDay = LocalDate.now().plusDays(1).atStartOfDay(); // 내일 시작 (오늘의 끝)
 
-		List<Orders> allByStore = ordersRepository.findOrdersByStoreAndTodayDateAndStatus(
-			store.getId(), startOfDay, endOfDay, OrderStatus.TICKET_USED);
+		List<Orders> allByStore = ordersRepository.findOrdersByStoreAndTodayDateAndStatus(store.getId(), startOfDay,
+			endOfDay, OrderStatus.TICKET_USED);
 		int totalPrice = 0;
 		for (Orders orders : allByStore) {
 			OrdersGetResponse newOrdersGetResponse = new OrdersGetResponse();

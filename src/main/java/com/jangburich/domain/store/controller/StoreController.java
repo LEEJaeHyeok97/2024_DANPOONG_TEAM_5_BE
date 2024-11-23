@@ -106,13 +106,13 @@ public class StoreController {
 			storeService.getPaymentGroup(AuthenticationParser.parseUserId(authentication), pageable));
 	}
 
-	// @Operation(summary = "결제 그룹 상세 조회", description = "장부 결제 그룹을 상세 조회합니다.")
-	// @GetMapping("/payment_group/{teamId}")
-	// public ResponseCustom<PaymentGroupDetailResponse> getPaymentGroupDetail(Authentication authentication,
-	// 	@PathVariable Long teamId, Pageable pageable) {
-	// 	return ResponseCustom.OK(
-	// 		storeService.getPaymentGroupDetail(AuthenticationParser.parseUserId(authentication), teamId, pageable));
-	// }
+	@Operation(summary = "결제 그룹 상세 조회", description = "장부 결제 그룹을 상세 조회합니다.")
+	@GetMapping("/payment_group/{teamId}")
+	public ResponseCustom<PaymentGroupDetailResponse> getPaymentGroupDetail(Authentication authentication,
+		@PathVariable Long teamId, Pageable pageable) {
+		return ResponseCustom.OK(
+			storeService.getPaymentGroupDetail(AuthenticationParser.parseUserId(authentication), teamId, pageable));
+	}
 
 	@Operation(summary = "결제 내역 조회", description = "가게에서 일어난 결제 내역을 조회합니다.")
 	@GetMapping("/payment_history")
