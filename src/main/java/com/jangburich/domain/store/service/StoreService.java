@@ -23,7 +23,6 @@ import com.jangburich.domain.order.domain.repository.OrdersRepository;
 import com.jangburich.domain.owner.domain.Owner;
 import com.jangburich.domain.owner.domain.repository.OwnerRepository;
 import com.jangburich.domain.payment.domain.repository.TeamChargeHistoryRepository;
-import com.jangburich.domain.point.domain.PointTransaction;
 import com.jangburich.domain.point.domain.repository.PointTransactionRepository;
 import com.jangburich.domain.store.domain.Category;
 import com.jangburich.domain.store.domain.Store;
@@ -74,7 +73,7 @@ public class StoreService {
 	@Transactional
 	public void createStore(String authentication, StoreCreateRequestDTO storeCreateRequestDTO, MultipartFile image,
 		List<MultipartFile> menuImages) {
-		System.out.println("authentication = " + authentication);
+
 		User user = userRepository.findByProviderId(authentication)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
@@ -84,6 +83,16 @@ public class StoreService {
 		Store store = storeRepository.save(Store.of(owner, storeCreateRequestDTO));
 
 		store.setRepresentativeImage(s3Service.uploadImageToS3(image));
+
+		owner.setBusinessName(storeCreateRequestDTO.getBusinessName());
+		owner.setPhoneNumber(storeCreateRequestDTO.getPhoneNumber());
+		owner.setBusinessRegistrationNumber(storeCreateRequestDTO.getBusinessRegistrationNumber());
+		owner.setOpeningDate(storeCreateRequestDTO.getOpeningDate());
+		owner.setName(storeCreateRequestDTO.getBusinessName());
+		user.setName(storeCreateRequestDTO.getBusinessName());
+		user.setAgreeMarketing(storeCreateRequestDTO.getAgreeMarketing());
+		user.setAgreeAdvertisement(storeCreateRequestDTO.getAgreeAdvertise());
+		user.setPhoneNumber(storeCreateRequestDTO.getPhoneNumber());
 
 		if (menuImages != null && storeCreateRequestDTO.getMenuCreateRequestDTOS() != null) {
 			List<MenuCreateRequestDTO> menus = storeCreateRequestDTO.getMenuCreateRequestDTOS();
