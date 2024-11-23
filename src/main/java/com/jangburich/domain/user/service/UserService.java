@@ -54,11 +54,6 @@ public class UserService {
 	private long refreshTokenExpiration;
 
 	public KakaoApiResponseDTO getUserInfo(String accessToken) {
-		User user = userRepository.findByProviderId(accessToken)
-			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
-
-
-
 		String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
 
 		HttpHeaders headers = new HttpHeaders();
@@ -80,7 +75,7 @@ public class UserService {
 	@Transactional
 	public TokenResponseDTO joinUser(String kakaoaccessToken) {
 		KakaoApiResponseDTO userInfo = getUserInfo(kakaoaccessToken);
-
+		System.out.println("userInfo = " + userInfo);
 		User user = userRepository.findByProviderId("kakao_" + userInfo.getId()).orElse(null);
 		if (user == null) {
 			user = userRepository.save(User.create("kakao_" + userInfo.getId(), userInfo.getProperties().getNickname(),
