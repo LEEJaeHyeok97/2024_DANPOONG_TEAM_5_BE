@@ -1,6 +1,7 @@
 package com.jangburich.domain.store.domain;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -16,14 +17,18 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 public class StoreCreateRequestDTO {
-	// detail
-	private String name;
+	private String storeName;
+	private String phoneNumber;
+	private String businessName;
+	private String businessRegistrationNumber;
+	private LocalDate openingDate;
+	private Boolean agreeMarketing;
+	private Boolean agreeAdvertise;
+
+	private String introduction;
 
 	@Enumerated(EnumType.STRING)
 	private Category category;
-
-	private String introduction;
-	private String contactNumber;
 
 	// address
 	private Double latitude;
@@ -36,10 +41,10 @@ public class StoreCreateRequestDTO {
 	private LocalTime openTime;
 	private LocalTime closeTime;
 
-	private Boolean reservationAvailable;
-	private Long maxReservation;
+	private List<MenuCreateRequestDTO> menuCreateRequestDTOS;
+
 	private Long minPrepayment;
 	private Long prepaymentDuration;
-
-	private List<MenuCreateRequestDTO> menuCreateRequestDTOS;
+	private Boolean reservationAvailable;
+	private Long maxReservation;
 }
