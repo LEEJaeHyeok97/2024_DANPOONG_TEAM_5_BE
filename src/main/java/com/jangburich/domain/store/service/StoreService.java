@@ -237,7 +237,7 @@ public class StoreService {
 		return storeRepository.findStores(user.getUserId(), keyword, pageable);
 	}
 
-	public PaymentGroupDetailResponse getPaymentGroupDetail(String userId, Long teamId, Pageable pageable) {
+	public PaymentGroupDetailResponse getPaymentGroupDetail(String userId, Long teamId) {
 		User user = userRepository.findByProviderId(userId)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
@@ -270,7 +270,7 @@ public class StoreService {
 			teamLeader, orderResponse);
 	}
 
-	public Page<StoreChargeHistoryResponse> getPaymentHistory(String userId, Pageable pageable) {
+	public List<StoreChargeHistoryResponse> getPaymentHistory(String userId) {
 		User user = userRepository.findByProviderId(userId)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
@@ -280,7 +280,7 @@ public class StoreService {
 		Store store = storeRepository.findByOwner(owner)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
-		return pointTransactionRepository.findAllByStore(store, pageable);
+		return pointTransactionRepository.findAllByStore(store);
 	}
 
 	public List<OrdersGetResponse> getOrdersLast(String userId) {
