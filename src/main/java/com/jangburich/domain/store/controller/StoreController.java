@@ -76,8 +76,8 @@ public class StoreController {
 	public ResponseCustom<Message> createStore(
 		Authentication authentication,
 		@Parameter(name = "image", description = "업로드 사진 데이터") @RequestPart(value = "image") MultipartFile image,
-		@RequestPart(value = "store") StoreCreateRequestDTO storeCreateRequestDTO,
-		@RequestPart(value = "menuImages", required = false) List<MultipartFile> menuImages) {
+		@Parameter(name = "store", description = "업로드 사진 데이터")@RequestPart(value = "store") StoreCreateRequestDTO storeCreateRequestDTO,
+		@Parameter(name = "menuImages", description = "업로드 사진 데이터")@RequestPart(value = "menuImages", required = false) List<MultipartFile> menuImages) {
 
 		storeService.createStore(AuthenticationParser.parseUserId(authentication), storeCreateRequestDTO, image, menuImages);
 		return ResponseCustom.OK(Message.builder().message("success").build());
