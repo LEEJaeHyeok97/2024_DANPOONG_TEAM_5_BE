@@ -37,7 +37,7 @@ public class StoreQueryDslRepositoryImpl implements StoreQueryDslRepository {
         BooleanExpression categoryCondition = isAllCategory(category);
 
         List<SearchStoresResponse> results = queryFactory
-                .select(new QSearchStoresResponse(store.id, store.name, Expressions.FALSE, store.category,
+                .select(new QSearchStoresResponse(store.id, store.name, store.latitude, store.longitude, Expressions.FALSE, store.category,
                         Expressions.constant(1.0), Expressions.constant("open"),
                         store.closeTime.stringValue(), store.contactNumber, store.representativeImage))
                 .from(store)
@@ -63,20 +63,14 @@ public class StoreQueryDslRepositoryImpl implements StoreQueryDslRepository {
 
     @Override
     public Page<SearchStoresResponse> findStores(Long userId, String keyword,
-                                                 StoreSearchConditionWithType storeSearchConditionWithType,
                                                  Pageable pageable) {
-        Boolean reservable = storeSearchConditionWithType.isReservable();
-        Boolean operational = storeSearchConditionWithType.isOperational();
-        Boolean prepaid = storeSearchConditionWithType.isPrepaid();
-        Boolean postpaid = storeSearchConditionWithType.isPostpaid();
 
         List<SearchStoresResponse> results = queryFactory
-                .select(new QSearchStoresResponse(store.id, store.name, Expressions.FALSE, store.category,
+                .select(new QSearchStoresResponse(store.id, store.name, store.latitude, store.longitude, Expressions.FALSE, store.category,
                         Expressions.constant(1.0), Expressions.constant("open"),
                         store.closeTime.stringValue(), store.contactNumber, store.representativeImage))
                 .from(store)
                 .where(
-                        store.reservationAvailable.eq(reservable),
                         store.name.contains(keyword)
                 )
                 .orderBy(store.id.desc())
@@ -88,7 +82,6 @@ public class StoreQueryDslRepositoryImpl implements StoreQueryDslRepository {
                 .select(store.count())
                 .from(store)
                 .where(
-                        store.reservationAvailable.eq(reservable),
                         store.name.contains(keyword)
                 );
 
