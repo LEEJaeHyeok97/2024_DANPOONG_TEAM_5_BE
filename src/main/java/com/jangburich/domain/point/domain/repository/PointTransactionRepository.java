@@ -15,5 +15,5 @@ import org.springframework.stereotype.Repository;
 public interface PointTransactionRepository extends JpaRepository<PointTransaction, Long> {
     List<PointTransaction> findByUser(User user);
 
-    Page<StoreChargeHistoryResponse> findAllByStore(Store store, Pageable pageable);
+    List<StoreChargeHistoryResponse> findAllByStore(Store store);
 }
