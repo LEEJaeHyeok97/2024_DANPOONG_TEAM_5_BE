@@ -1,12 +1,18 @@
 package com.jangburich.domain.store.repository;
 
+import static com.jangburich.domain.menu.domain.QMenu.menu;
 import static com.jangburich.domain.store.domain.QStore.store;
 
+import com.jangburich.domain.menu.domain.QMenu;
 import com.jangburich.domain.store.domain.Category;
 import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
 import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
 import com.jangburich.domain.store.dto.response.QSearchStoresResponse;
+import com.jangburich.domain.store.dto.response.QStoreMenu;
+import com.jangburich.domain.store.dto.response.QStoreSearchDetailsResponse;
 import com.jangburich.domain.store.dto.response.SearchStoresResponse;
+import com.jangburich.domain.store.dto.response.StoreMenu;
+import com.jangburich.domain.store.dto.response.StoreSearchDetailsResponse;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -86,6 +92,44 @@ public class StoreQueryDslRepositoryImpl implements StoreQueryDslRepository {
                 );
 
         return PageableExecutionUtils.getPage(results, pageable, () -> countQuery.fetch().size());
+    }
+
+    @Override
+    public StoreSearchDetailsResponse findStoreSearchDetails(Long userId, Long storeId) {
+        List<StoreMenu> storeMenus = queryFactory
+                .select(new QStoreMenu(
+                        menu.name,
+                        menu.isSignatureMenu,
+                        menu.description,
+                        menu.price,
+                        menu.imageUrl
+                ))
+                .from(store)
+                .leftJoin(menu).on(store.id.eq(menu.store.id))
+                .where(store.id.eq(storeId))
+                .fetch();
+
+        StoreSearchDetailsResponse storeSearchDetailsResponse = queryFactory
+                .select(new QStoreSearchDetailsResponse(
+                                Expressions.constant("예약 가능"),
+                                Expressions.constant(false),
+                                store.category,
+                                store.address,
+                                Expressions.constant("영업 중"),
+                                store.closeTime.stringValue(),
+                                store.contactNumber,
+                                store.representativeImage,
+                                Expressions.constant(storeMenus)
+                        )
+                )
+                .from(store)
+                .where(store.id.eq(storeId))
+                .fetchOne();
+
+        System.out.println("storeMenus = " + storeMenus.size());
+        System.out.println("storeSearchDetailsResponse = " + storeSearchDetailsResponse);
+
+        return storeSearchDetailsResponse;
     }
 
     private BooleanExpression isAllCategory(Category category) {

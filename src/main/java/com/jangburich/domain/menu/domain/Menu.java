@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import javax.print.attribute.standard.MediaSize.NA;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,6 +39,9 @@ public class Menu extends BaseEntity {
 
 	@Column(name = "price")
 	private Integer price;
+
+	@Column(name = "is_signature_menu")
+	private Boolean isSignatureMenu;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "store_id")
