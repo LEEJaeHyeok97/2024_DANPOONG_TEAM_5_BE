@@ -51,7 +51,7 @@ public class StoreController {
     private final StoreService storeService;
 
     @Operation(summary = "카테고리 별 가게 목록 조회", description = "카테고리 별로 가게 목록을 조회합니다.")
-    @GetMapping("/category")
+    @PostMapping("/category")
     public ResponseCustom<Page<SearchStoresResponse>> searchByCategory(
             Authentication authentication,
             @RequestParam(required = false, defaultValue = "3") Integer searchRadius,
@@ -144,5 +144,4 @@ public class StoreController {
         return ResponseCustom.OK(
                 storeService.getOrderDetails(AuthenticationParser.parseUserId(authentication), orderId));
     }
-
 }
