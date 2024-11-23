@@ -108,7 +108,7 @@ public class StoreController {
 
     @Operation(summary = "결제 그룹 조회", description = "장부 결제 그룹을 조회합니다.")
     @GetMapping("/payment_group")
-    public ResponseCustom<List<StoreTeamResponseDTO>> getPaymentGroup(Authentication authentication) {
+    public ResponseCustom<List<com.jangburich.domain.store.dto.StoreTeamResponse>> getPaymentGroup(Authentication authentication) {
         return ResponseCustom.OK(
                 storeService.getPaymentGroup(AuthenticationParser.parseUserId(authentication)));
     }
