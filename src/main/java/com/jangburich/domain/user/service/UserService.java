@@ -18,16 +18,22 @@ import org.springframework.web.client.RestTemplate;
 
 import com.jangburich.domain.owner.domain.Owner;
 import com.jangburich.domain.owner.domain.repository.OwnerRepository;
+import com.jangburich.domain.point.domain.PointTransaction;
+import com.jangburich.domain.point.domain.repository.PointTransactionRepository;
 import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.store.repository.StoreRepository;
 import com.jangburich.domain.user.domain.AdditionalInfoCreateDTO;
 import com.jangburich.domain.user.domain.KakaoApiResponseDTO;
 import com.jangburich.domain.user.domain.TokenResponseDTO;
 import com.jangburich.domain.user.domain.User;
+import com.jangburich.domain.user.dto.response.PurchaseHistory;
+import com.jangburich.domain.user.dto.response.UserHomeResponse;
+import com.jangburich.domain.user.dto.response.WalletResponse;
 import com.jangburich.domain.user.repository.UserRepository;
 import com.jangburich.global.error.DefaultNullPointerException;
 import com.jangburich.global.payload.ErrorCode;
 import com.jangburich.utils.JwtUtil;
+import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -48,6 +54,11 @@ public class UserService {
 	private long refreshTokenExpiration;
 
 	public KakaoApiResponseDTO getUserInfo(String accessToken) {
+		User user = userRepository.findByProviderId(accessToken)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+
+
+
 		String userInfoUrl = "https://kapi.kakao.com/v2/user/me";
 
 		HttpHeaders headers = new HttpHeaders();
@@ -59,6 +70,11 @@ public class UserService {
 			KakaoApiResponseDTO.class);
 
 		return response.getBody();
+	}
+	public User getUserInfos(String accessToken) {
+
+		return userRepository.findByProviderId(accessToken)
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 	}
 
 	@Transactional
