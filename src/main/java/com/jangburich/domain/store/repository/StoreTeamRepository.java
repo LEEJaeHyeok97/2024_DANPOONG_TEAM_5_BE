@@ -1,6 +1,8 @@
 package com.jangburich.domain.store.repository;
 
 import com.jangburich.domain.team.domain.Team;
+
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -14,7 +16,7 @@ import com.jangburich.domain.store.domain.StoreTeamResponseDTO;
 public interface StoreTeamRepository extends JpaRepository<StoreTeam, Long> {
 	Optional<StoreTeam> findByStoreIdAndTeamId(Long store_id, Long team_id);
 
-	Page<StoreTeamResponseDTO> findAllByStore(Store store, Pageable pageable);
+	List<StoreTeamResponseDTO> findAllByStore(Store store);
 
     Optional<StoreTeam> findByStoreAndTeam(Store store, Team team);
 }
