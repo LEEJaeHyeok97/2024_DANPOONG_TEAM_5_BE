@@ -102,7 +102,7 @@ public class Store {
 	public static Store of(Owner owner, StoreCreateRequestDTO storeCreateRequestDTO) {
 		Store newStore = new Store();
 		newStore.setOwner(owner);
-		newStore.setName(storeCreateRequestDTO.getName());
+		newStore.setName(storeCreateRequestDTO.getStoreName());
 		newStore.setCategory(storeCreateRequestDTO.getCategory());
 		newStore.setIntroduction(storeCreateRequestDTO.getIntroduction());
 		newStore.setLatitude(storeCreateRequestDTO.getLatitude());
@@ -113,7 +113,7 @@ public class Store {
 		newStore.setWorkDays(storeCreateRequestDTO.getDayOfWeek());
 		newStore.setOpenTime(storeCreateRequestDTO.getOpenTime());
 		newStore.setCloseTime(storeCreateRequestDTO.getCloseTime());
-		newStore.setContactNumber(storeCreateRequestDTO.getContactNumber());
+		newStore.setContactNumber(storeCreateRequestDTO.getPhoneNumber());
 		newStore.setReservationAvailable(storeCreateRequestDTO.getReservationAvailable());
 		newStore.setMaxReservation(storeCreateRequestDTO.getMaxReservation());
 		newStore.setMinPrepayment(storeCreateRequestDTO.getMinPrepayment());
