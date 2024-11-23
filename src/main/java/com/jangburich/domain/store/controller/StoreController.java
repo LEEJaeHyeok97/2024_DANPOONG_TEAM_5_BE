@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.jangburich.domain.menu.domain.MenuCreateRequestDTO;
 import com.jangburich.domain.store.domain.Category;
 import com.jangburich.domain.store.domain.StoreCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreGetResponseDTO;
@@ -72,13 +73,16 @@ public class StoreController {
 
 	@Operation(summary = "가게 등록", description = "신규 파트너 가게를 등록합니다.")
 	@PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseCustom<Message> createStore(Authentication authentication,
+	public ResponseCustom<Message> createStore(
+		Authentication authentication,
 		@Parameter(name = "image", description = "업로드 사진 데이터") @RequestPart(value = "image") MultipartFile image,
-		@RequestPart(value = "store") StoreCreateRequestDTO storeCreateRequestDTO) {
+		@RequestPart(value = "store") StoreCreateRequestDTO storeCreateRequestDTO,
+		@RequestPart(value = "menuImages", required = false) List<MultipartFile> menuImages) {
 
-		storeService.createStore(AuthenticationParser.parseUserId(authentication), storeCreateRequestDTO, image);
+		storeService.createStore(AuthenticationParser.parseUserId(authentication), storeCreateRequestDTO, image, menuImages);
 		return ResponseCustom.OK(Message.builder().message("success").build());
 	}
+
 
 	@Operation(summary = "가게 정보 수정", description = "가게 정보를 수정합니다.")
 	@PatchMapping("/update")
