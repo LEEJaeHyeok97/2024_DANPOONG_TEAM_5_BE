@@ -9,7 +9,7 @@ public record MyTeamDetailsResponse(
         String description,
         int totalPrepaidAmount,
         int remainingAmount,
-        int personalRemainingAmount,
+        int personalAllocatedAmount,
         int userUsedAmount,
         List<PrepayedStore> prepayedStores,
         List<String> teamMemberImgUrl,
@@ -20,7 +20,7 @@ public record MyTeamDetailsResponse(
 
     @QueryProjection
     public MyTeamDetailsResponse(Long teamId, String teamName, String description, int totalPrepaidAmount,
-                                 int remainingAmount, int personalRemainingAmount, int userUsedAmount,
+                                 int remainingAmount, int personalAllocatedAmount, int userUsedAmount,
                                  List<PrepayedStore> prepayedStores, List<String> teamMemberImgUrl,
                                  int totalMemberCount,
                                  List<TodayPayment> todayPayments, int totalTodayTransactionCount) {
@@ -29,7 +29,7 @@ public record MyTeamDetailsResponse(
         this.description = description;
         this.totalPrepaidAmount = totalPrepaidAmount;
         this.remainingAmount = remainingAmount;
-        this.personalRemainingAmount = personalRemainingAmount;
+        this.personalAllocatedAmount = personalAllocatedAmount;
         this.userUsedAmount = userUsedAmount;
         this.prepayedStores = prepayedStores;
         this.teamMemberImgUrl = teamMemberImgUrl;
