@@ -8,6 +8,8 @@ import lombok.Builder;
 public record SearchStoresResponse(
         Long storeId,
         String name,
+        Double latitude,
+        Double longitude,
         Boolean isFavorite,
         Category category,
         Double distance,
@@ -18,10 +20,13 @@ public record SearchStoresResponse(
 ) {
 
     @QueryProjection
-    public SearchStoresResponse(Long storeId, String name, Boolean isFavorite, Category category, Double distance,
-                                String businessStatus, String closeTime, String phoneNumber, String imageUrl) {
+    public SearchStoresResponse(Long storeId, String name, Double latitude, Double longitude, Boolean isFavorite,
+                                Category category, Double distance, String businessStatus, String closeTime,
+                                String phoneNumber, String imageUrl) {
         this.storeId = storeId;
         this.name = name;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.isFavorite = isFavorite;
         this.category = category;
         this.distance = distance;
