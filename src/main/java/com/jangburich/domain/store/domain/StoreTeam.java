@@ -89,4 +89,9 @@ public class StoreTeam extends BaseEntity {
 		storeTeam.setPersonalAllocatedPoint(0);
 		return storeTeam;
 	}
+
+	public void recharge(int prepayAmount) {
+		this.point += prepayAmount;
+		this.remainPoint += prepayAmount;
+	}
 }
