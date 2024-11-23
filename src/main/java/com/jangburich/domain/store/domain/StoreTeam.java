@@ -48,6 +48,17 @@ public class StoreTeam extends BaseEntity {
 		this.personalAllocatedPoint = point;
 	}
 
+	public void useRemainPoint(Integer point) {
+		validateRemainPoint(point);
+		this.remainPoint -= point;
+	}
+
+	private void validateRemainPoint(Integer point) {
+		if (remainPoint < point) {
+			throw new IllegalArgumentException("남은 포인트보다 큰 급액은 결제할 수 없습니다. 남은 포인트: " + remainPoint);
+		}
+	}
+
 	public void addPoint(Integer point) {
 		this.point += point;
 	}
