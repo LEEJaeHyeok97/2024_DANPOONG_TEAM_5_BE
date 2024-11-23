@@ -30,9 +30,9 @@ public class StoreQueryDslRepositoryImpl implements StoreQueryDslRepository {
 
     @Override
     public Page<SearchStoresResponse> findStoresByCategory(Long userId, Integer searchRadius, Category category,
-                                                           StoreSearchCondition storeSearchCondition, Pageable pageable) {
-        double myCurrentLat = storeSearchCondition.lat();
-        double myCurrentLon = storeSearchCondition.lon();
+                                                           Double lat, Double lon, Pageable pageable) {
+        double myCurrentLat = lat;
+        double myCurrentLon = lon;
 
         BooleanExpression categoryCondition = isAllCategory(category);
 

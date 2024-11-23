@@ -224,10 +224,10 @@ public class StoreService {
 	}
 
 	public Page<SearchStoresResponse> searchByCategory(final String authentication, final Integer searchRadius,
-		final Category category, final StoreSearchCondition storeSearchCondition, final Pageable pageable) {
+		final Category category, Double lat, Double lon, final Pageable pageable) {
 		User user = userRepository.findByProviderId(authentication)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
-		return storeRepository.findStoresByCategory(user.getUserId(), searchRadius, category, storeSearchCondition,
+		return storeRepository.findStoresByCategory(user.getUserId(), searchRadius, category, lat, lon,
 			pageable);
 	}
 
