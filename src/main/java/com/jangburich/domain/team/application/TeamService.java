@@ -1,15 +1,13 @@
 package com.jangburich.domain.team.application;
 
-import com.jangburich.domain.common.Status;
-import com.jangburich.domain.team.dto.response.MyTeamDetailsResponse;
-import com.jangburich.domain.team.dto.response.MyTeamResponse;
-import com.jangburich.domain.team.dto.response.TeamMemberResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jangburich.domain.common.Status;
 import com.jangburich.domain.team.domain.Team;
 import com.jangburich.domain.team.domain.TeamLeader;
 import com.jangburich.domain.team.domain.TeamType;
@@ -17,6 +15,10 @@ import com.jangburich.domain.team.domain.UserTeam;
 import com.jangburich.domain.team.domain.repository.TeamRepository;
 import com.jangburich.domain.team.domain.repository.UserTeamRepository;
 import com.jangburich.domain.team.dto.request.RegisterTeamRequest;
+import com.jangburich.domain.team.dto.response.MyTeamDetailsResponse;
+import com.jangburich.domain.team.dto.response.MyTeamResponse;
+import com.jangburich.domain.team.dto.response.TeamCodeResponse;
+import com.jangburich.domain.team.dto.response.TeamMemberResponse;
 import com.jangburich.domain.user.domain.User;
 import com.jangburich.domain.user.repository.UserRepository;
 import com.jangburich.global.payload.Message;
@@ -88,10 +90,10 @@ public class TeamService {
 
 	public List<MyTeamResponse> getMyTeamByCategory(String userId, String category) {
 		User user = userRepository.findByProviderId(userId)
-				.orElseThrow(() -> new NullPointerException("사용자를 찾을 수 없습니다."));
+			.orElseThrow(() -> new NullPointerException("사용자를 찾을 수 없습니다."));
 
 		List<Team> teams = teamRepository.findAllByUserAndStatus(user, Status.ACTIVE)
-				.orElseThrow(() -> new IllegalArgumentException("해당하는 팀을 찾을 수 없습니다."));
+			.orElseThrow(() -> new IllegalArgumentException("해당하는 팀을 찾을 수 없습니다."));
 
 		List<MyTeamResponse> myTeamResponses = new ArrayList<>();
 
@@ -101,20 +103,21 @@ public class TeamService {
 			int peopleCount = userTeamRepository.countByTeam(team);
 
 			List<String> profileImageUrls = userTeamRepository.findAllByTeam(team).stream()
-					.map(userTeam -> Optional.ofNullable(userTeam.getUser().getProfileImageUrl()).orElse(DEFAULT_PROFILE_IMAGE_URL))
-					.toList();
+				.map(userTeam -> Optional.ofNullable(userTeam.getUser().getProfileImageUrl())
+					.orElse(DEFAULT_PROFILE_IMAGE_URL))
+				.toList();
 
 			if ("ALL".equalsIgnoreCase(category) ||
-					("LEADER".equalsIgnoreCase(category) && isMeLeader) ||
-					("MEMBER".equalsIgnoreCase(category) && !isMeLeader)) {
+				("LEADER".equalsIgnoreCase(category) && isMeLeader) ||
+				("MEMBER".equalsIgnoreCase(category) && !isMeLeader)) {
 
 				MyTeamResponse response = new MyTeamResponse(
-						team.getName(),
-						team.getTeamType().toString(),
-						false, // isLiked는 임의로 false로 설정
-						peopleCount,
-						isMeLeader,
-						profileImageUrls
+					team.getName(),
+					team.getTeamType().toString(),
+					false, // isLiked는 임의로 false로 설정
+					peopleCount,
+					isMeLeader,
+					profileImageUrls
 				);
 				myTeamResponses.add(response);
 			}
@@ -125,45 +128,68 @@ public class TeamService {
 
 	public MyTeamDetailsResponse getTeamDetailsById(String userId, Long teamId) {
 		User user = userRepository.findByProviderId(userId)
-				.orElseThrow(() -> new NullPointerException("사용자를 찾을 수 없습니다."));
+			.orElseThrow(() -> new NullPointerException("사용자를 찾을 수 없습니다."));
 
 		Team team = teamRepository.findById(teamId)
-				.orElseThrow(() -> new IllegalArgumentException("해당 팀을 찾을 수 없습니다."));
+			.orElseThrow(() -> new IllegalArgumentException("해당 팀을 찾을 수 없습니다."));
 
 		if (!team.getTeamLeader().getUser_id().equals(user.getUserId())) {
 			// 일반 구성원
 			MyTeamDetailsResponse myTeamDetailsAsMember = teamRepository.findMyTeamDetailsAsMember(user.getUserId(),
-					teamId);
+				teamId);
 			return myTeamDetailsAsMember;
 		}
 		// 팀 리더일 때
 		MyTeamDetailsResponse myTeamDetailsAsLeader = teamRepository.findMyTeamDetailsAsLeader(user.getUserId(),
-				teamId);
+			teamId);
 
 		return myTeamDetailsAsLeader;
 	}
 
 	public List<TeamMemberResponse> getTeamMembers(String userId, Long teamId) {
 		User user = userRepository.findByProviderId(userId)
-				.orElseThrow(() -> new NullPointerException("사용자를 찾을 수 없습니다."));
+			.orElseThrow(() -> new NullPointerException("사용자를 찾을 수 없습니다."));
 
 		Team team = teamRepository.findById(teamId)
-				.orElseThrow(() -> new IllegalArgumentException("해당하는 팀을 찾을 수 없습니다."));
+			.orElseThrow(() -> new IllegalArgumentException("해당하는 팀을 찾을 수 없습니다."));
 
 		List<UserTeam> userTeams = userTeamRepository.findAllByTeamAndStatus(team, Status.ACTIVE);
 
 		return userTeams.stream()
-				.map(userTeam -> {
-					User teamMember = userTeam.getUser();
+			.map(userTeam -> {
+				User teamMember = userTeam.getUser();
 
-					return new TeamMemberResponse(
-							teamMember.getUserId(),
-							teamMember.getName(),
-							teamMember.getUserId().equals(user.getUserId()),
-							team.getTeamLeader().getUser_id().equals(teamMember.getUserId()),
-							Optional.ofNullable(teamMember.getProfileImageUrl()).orElse(DEFAULT_PROFILE_IMAGE_URL)
-					);
-				})
-				.toList();
+				return new TeamMemberResponse(
+					teamMember.getUserId(),
+					teamMember.getName(),
+					teamMember.getUserId().equals(user.getUserId()),
+					team.getTeamLeader().getUser_id().equals(teamMember.getUserId()),
+					Optional.ofNullable(teamMember.getProfileImageUrl()).orElse(DEFAULT_PROFILE_IMAGE_URL)
+				);
+			})
+			.toList();
+	}
+
+	public TeamCodeResponse getTeamsWithSecretCode(String secretCode) {
+		Team team = teamRepository.findBySecretCode(secretCode)
+			.orElseThrow(() -> new RuntimeException("시크릿 코드가 존재하지 않습니다."));
+
+		long count = userTeamRepository.findAllByTeam(team).size();
+
+		List<String> profileImages = userTeamRepository.findAllByTeam(team)
+			.stream()
+			.map(userTeam -> userTeam.getUser().getProfileImageUrl())
+			.limit(3)
+			.toList();
+
+		TeamCodeResponse teamCodeResponse = new TeamCodeResponse(
+			team.getName(),
+			team.getCreatedAt(),
+			team.getTeamType(),
+			count,
+			profileImages,
+			team.getStatus());
+
+		return teamCodeResponse;
 	}
 }

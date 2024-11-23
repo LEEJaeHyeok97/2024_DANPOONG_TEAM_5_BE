@@ -1,9 +1,7 @@
 package com.jangburich.domain.team.presentation;
 
-import com.jangburich.domain.team.dto.response.MyTeamDetailsResponse;
-import com.jangburich.domain.team.dto.response.MyTeamResponse;
-import com.jangburich.domain.team.dto.response.TeamMemberResponse;
 import java.util.List;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.jangburich.domain.team.application.TeamService;
 import com.jangburich.domain.team.dto.request.RegisterTeamRequest;
+import com.jangburich.domain.team.dto.response.MyTeamDetailsResponse;
+import com.jangburich.domain.team.dto.response.MyTeamResponse;
+import com.jangburich.domain.team.dto.response.TeamCodeResponse;
+import com.jangburich.domain.team.dto.response.TeamMemberResponse;
 import com.jangburich.global.payload.Message;
 import com.jangburich.global.payload.ResponseCustom;
 import com.jangburich.utils.parser.AuthenticationParser;
@@ -53,27 +55,35 @@ public class TeamController {
 	@Operation(summary = "내가 속한 그룹 조회", description = "내가 속한 그룹을 카테고리(ALL, LEADER, MEMBER) 별로 조회한다.")
 	@GetMapping
 	public ResponseCustom<List<MyTeamResponse>> getMyTeamByCategory(
-			Authentication authentication,
-			@RequestParam(required = false, defaultValue = "ALL") String category
+		Authentication authentication,
+		@RequestParam(required = false, defaultValue = "ALL") String category
 	) {
-		return ResponseCustom.OK(teamService.getMyTeamByCategory(AuthenticationParser.parseUserId(authentication), category));
+		return ResponseCustom.OK(
+			teamService.getMyTeamByCategory(AuthenticationParser.parseUserId(authentication), category));
 	}
 
 	@Operation(summary = "그룹(팀) 상세 조회", description = "내가 속한 팀의 정보를 상세 조회합니다.")
 	@GetMapping("/{teamId}")
 	public ResponseCustom<MyTeamDetailsResponse> getTeamDetailsById(
-			Authentication authentication,
-			@PathVariable Long teamId
+		Authentication authentication,
+		@PathVariable Long teamId
 	) {
-		return ResponseCustom.OK(teamService.getTeamDetailsById(AuthenticationParser.parseUserId(authentication), teamId));
+		return ResponseCustom.OK(
+			teamService.getTeamDetailsById(AuthenticationParser.parseUserId(authentication), teamId));
 	}
 
 	@Operation(summary = "그룹(팀) 멤버 전체 조회", description = "그룹(팀)에 소속된 모든 멤버를 조회합니다.")
 	@GetMapping("/{teamId}/members")
 	public ResponseCustom<List<TeamMemberResponse>> getTeamMembers(
-			Authentication authentication,
-			@PathVariable Long teamId
+		Authentication authentication,
+		@PathVariable Long teamId
 	) {
 		return ResponseCustom.OK(teamService.getTeamMembers(AuthenticationParser.parseUserId(authentication), teamId));
+	}
+
+	@Operation(summary = "그룹(팀) 비밀코드 조회", description = "비밀코드를 입력하면, 그 팀을 조회하는 api 입니다.")
+	@GetMapping("/info/{secretCode}")
+	public ResponseCustom<TeamCodeResponse> getTeamWithSecretCode(@PathVariable String secretCode) {
+		return ResponseCustom.OK(teamService.getTeamsWithSecretCode(secretCode));
 	}
 }
