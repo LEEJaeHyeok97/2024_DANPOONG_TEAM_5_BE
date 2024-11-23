@@ -100,12 +100,17 @@ public class UserService {
 	public TokenResponseDTO joinOwner(String kakaoAccessToken) {
 		KakaoApiResponseDTO userInfo = getUserInfo(kakaoAccessToken);
 
+		TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
+
 		User user = userRepository.findByProviderId("kakao_" + userInfo.getId()).orElse(null);
 		if (user == null) {
 			user = userRepository.save(User.create("kakao_" + userInfo.getId(), userInfo.getProperties().getNickname(),
 				userInfo.getKakaoAccount().getEmail(), userInfo.getProperties().getProfileImage(), "ROLE_OWNER"));
 			Owner newOwner = ownerRepository.save(Owner.create(user));
 			storeRepository.save(Store.create(newOwner));
+			tokenResponseDTO.setAlreadyExists(false);
+		} else {
+			tokenResponseDTO.setAlreadyExists(true);
 		}
 
 		String accessToken = jwtUtil.createAccessToken(user.getProviderId(), user.getRole());
@@ -113,8 +118,6 @@ public class UserService {
 
 		user.updateRefreshToken(refreshToken);
 		userRepository.save(user);
-
-		TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
 		tokenResponseDTO.setAccessToken(accessToken);
 		tokenResponseDTO.setRefreshToken(refreshToken);
 		tokenResponseDTO.setAccessTokenExpires(accessTokenExpiration);
