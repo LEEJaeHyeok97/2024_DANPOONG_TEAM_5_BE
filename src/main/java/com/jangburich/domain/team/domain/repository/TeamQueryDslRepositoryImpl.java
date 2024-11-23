@@ -77,9 +77,6 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
                         TransactionType.PURCHASE))
                 .fetch();
 
-        System.out.println("prepayedStores: " + prepayedStores);
-        System.out.println("images: " + images);
-        System.out.println("todayPayments: " + todayPayments);
 
         return queryFactory
                 .selectDistinct(new QMyTeamDetailsResponse(
@@ -140,10 +137,6 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
                 .where(pointTransaction.createdAt.between(startOfDay, endOfDay), pointTransaction.transactionType.eq(
                         TransactionType.PURCHASE))
                 .fetch();
-
-        System.out.println("prepayedStores: " + prepayedStores);
-        System.out.println("images: " + images);
-        System.out.println("todayPayments: " + todayPayments);
 
 
         return queryFactory
