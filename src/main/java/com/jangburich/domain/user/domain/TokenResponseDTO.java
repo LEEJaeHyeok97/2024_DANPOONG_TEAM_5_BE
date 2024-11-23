@@ -12,4 +12,5 @@ public class TokenResponseDTO {
 	private long accessTokenExpires;
 	private String refreshToken;
 	private long refreshTokenExpires;
+	private Boolean alreadyExists;
 }

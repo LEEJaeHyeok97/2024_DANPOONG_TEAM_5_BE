@@ -129,8 +129,6 @@ public class OrderService {
 
 		cartRepository.saveAll(mergedCarts);
 
-		System.out.println("orders.getId() = " + orders.getId());
-
 		return ordersRepository.findTicket(orders.getId());
 	}
 
