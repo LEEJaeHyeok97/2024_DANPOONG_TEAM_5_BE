@@ -34,6 +34,7 @@ import com.jangburich.domain.store.domain.StoreGetResponseDTO;
 import com.jangburich.domain.store.domain.StoreTeam;
 import com.jangburich.domain.store.domain.StoreTeamResponseDTO;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
+import com.jangburich.domain.store.dto.StoreTeamResponse;
 import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
 import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
 import com.jangburich.domain.store.dto.response.OrdersDetailResponse;
@@ -211,7 +212,7 @@ public class StoreService {
 		return new StoreGetResponseDTO().of(store);
 	}
 
-	public List<StoreTeamResponseDTO> getPaymentGroup(String userId) {
+	public List<StoreTeamResponse> getPaymentGroup(String userId) {
 		User user = userRepository.findByProviderId(userId)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
@@ -221,7 +222,12 @@ public class StoreService {
 		Store store = storeRepository.findByOwner(owner)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
-		return storeTeamRepository.findAllByStore(store);
+		List<StoreTeamResponse> list = storeTeamRepository.findAllByStore(store).stream().map(storeTeamResponseDTO -> {
+			return new StoreTeamResponse(storeTeamResponseDTO.id(), storeTeamResponseDTO.remainPoint(),
+				storeTeamResponseDTO.teamId(), storeTeamResponseDTO.teamName(), storeTeamResponseDTO.teamDescription(),
+				storeTeamResponseDTO.storeId(), storeTeamResponseDTO.updatedAt(), store.getMaxReservation());
+		}).toList();
+		return list;
 	}
 
 	public Page<SearchStoresResponse> searchByCategory(final String authentication, final Integer searchRadius,

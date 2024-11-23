@@ -23,6 +23,12 @@ import com.jangburich.domain.store.domain.StoreCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreGetResponseDTO;
 import com.jangburich.domain.store.domain.StoreTeamResponseDTO;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
+<<<<<<< Updated upstream
+=======
+import com.jangburich.domain.store.dto.StoreTeamResponse;
+import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
+import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
+>>>>>>> Stashed changes
 import com.jangburich.domain.store.dto.response.OrdersDetailResponse;
 import com.jangburich.domain.store.dto.response.OrdersGetResponse;
 import com.jangburich.domain.store.dto.response.OrdersTodayResponse;
@@ -108,7 +114,7 @@ public class StoreController {
 
     @Operation(summary = "결제 그룹 조회", description = "장부 결제 그룹을 조회합니다.")
     @GetMapping("/payment_group")
-    public ResponseCustom<List<StoreTeamResponseDTO>> getPaymentGroup(Authentication authentication) {
+    public ResponseCustom<List<StoreTeamResponse>> getPaymentGroup(Authentication authentication) {
         return ResponseCustom.OK(
                 storeService.getPaymentGroup(AuthenticationParser.parseUserId(authentication)));
     }
