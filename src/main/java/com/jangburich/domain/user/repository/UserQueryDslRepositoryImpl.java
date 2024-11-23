@@ -50,7 +50,6 @@ public class UserQueryDslRepositoryImpl implements UserQueryDslRepository {
                 .orderBy(storeTeam.createdAt.desc())
                 .fetch();
 
-        System.out.println("teamsResponses.size() = " + teamsResponses.size());
 
         UserHomeResponse userHomeResponse = queryFactory.select(new QUserHomeResponse(
                         user.userId,
