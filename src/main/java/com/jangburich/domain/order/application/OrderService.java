@@ -1,8 +1,14 @@
 package com.jangburich.domain.order.application;
 
+import com.jangburich.domain.point.domain.PointTransaction;
+import com.jangburich.domain.point.domain.TransactionType;
+import com.jangburich.domain.point.domain.repository.PointTransactionRepository;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +50,7 @@ public class OrderService {
 	private final OrdersRepository ordersRepository;
 	private final TeamRepository teamRepository;
 	private final StoreTeamRepository storeTeamRepository;
+	private final PointTransactionRepository pointTransactionRepository;
 
 	@Transactional
 	public Message addCart(String userProviderId, AddCartRequest addCartRequest) {
@@ -128,6 +135,48 @@ public class OrderService {
 		associateCartsWithOrder(mergedCarts, orders);
 
 		cartRepository.saveAll(mergedCarts);
+
+		List<Long> menuIds = orderRequest.items()
+				.stream()
+				.map(item -> item.menuId())
+				.collect(Collectors.toList());
+
+		List<Object[]> results = menuRepository.findPricesByMenuIds(menuIds);
+
+		Map<Long, Integer> priceMap = results.stream()
+				.collect(Collectors.toMap(
+						result -> (Long) result[0], // menuId
+						result -> (Integer) result[1] // price
+				));
+
+		int totalAmount = orderRequest.items()
+				.stream()
+				.mapToInt(item -> {
+					Integer price = priceMap.get(item.menuId()); // menuId로 가격 조회
+					if (price == null) {
+						throw new IllegalArgumentException("Invalid menuId: " + item.menuId());
+					}
+					return price * item.quantity(); // 가격 * 수량
+				})
+				.sum();
+
+		PointTransaction pointTransaction = PointTransaction
+				.builder()
+				.transactionType(TransactionType.FOOD_PURCHASE)
+				.transactionedPoint(totalAmount)
+				.team(team)
+				.user(user)
+				.store(store)
+				.build();
+
+		System.out.println("totalAmount = " + totalAmount);
+
+		pointTransactionRepository.save(pointTransaction);
+
+		StoreTeam storeTeam = storeTeamRepository.findByStoreIdAndTeamId(store.getId(), team.getId())
+				.orElseThrow(() -> new IllegalArgumentException("유효하지 않은 가게 id와 팀 id 입니다."));
+
+		storeTeam.useRemainPoint(totalAmount);
 
 		return ordersRepository.findTicket(orders.getId());
 	}

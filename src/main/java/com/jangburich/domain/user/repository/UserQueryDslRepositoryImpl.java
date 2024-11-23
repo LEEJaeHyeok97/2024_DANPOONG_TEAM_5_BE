@@ -35,6 +35,7 @@ public class UserQueryDslRepositoryImpl implements UserQueryDslRepository {
                 .select(new QTeamsResponse(
                         storeTeam.team.id,
                         storeTeam.store.id,
+                        storeTeam.store.representativeImage,
                         Expressions.constant(false),
                         storeTeam.team.name,
                         storeTeam.store.name,
@@ -43,11 +44,13 @@ public class UserQueryDslRepositoryImpl implements UserQueryDslRepository {
                 ))
                 .from(storeTeam)
                 .leftJoin(team).on(team.id.eq(storeTeam.team.id))
-                .leftJoin(userTeam).on(userTeam.team.eq(team))
+                .leftJoin(userTeam).on(storeTeam.team.eq(team))
                 .where(storeTeam.status.eq(Status.ACTIVE),
                         userTeam.user.userId.eq(userId))
                 .orderBy(storeTeam.createdAt.desc())
                 .fetch();
+
+        System.out.println("teamsResponses.size() = " + teamsResponses.size());
 
         UserHomeResponse userHomeResponse = queryFactory.select(new QUserHomeResponse(
                         user.userId,

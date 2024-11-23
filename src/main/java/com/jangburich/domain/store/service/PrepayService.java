@@ -56,7 +56,7 @@ public class PrepayService {
         user.usePoint(prepayRequest.prepayAmount());
         PointTransaction pointTransaction = PointTransaction
                 .builder()
-                .transactionType(TransactionType.PURCHASE)
+                .transactionType(TransactionType.PREPAY)
                 .transactionedPoint(prepayRequest.prepayAmount())
                 .user(user)
                 .store(store)

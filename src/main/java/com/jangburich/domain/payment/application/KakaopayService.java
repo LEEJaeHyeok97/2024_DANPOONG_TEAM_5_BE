@@ -85,7 +85,7 @@ public class KakaopayService implements PaymentService {
 		PointTransaction pointTransaction = PointTransaction.builder()
 			.user(user)
 			.transactionedPoint(Integer.valueOf(payRequest.totalAmount()))
-			.transactionType(TransactionType.PURCHASE)
+			.transactionType(TransactionType.POINT_PURCHASE)
 			.build();
 
 		pointTransactionRepository.save(pointTransaction);
