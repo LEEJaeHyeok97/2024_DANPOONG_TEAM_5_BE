@@ -101,10 +101,9 @@ public class StoreController {
 
     @Operation(summary = "결제 그룹 조회", description = "장부 결제 그룹을 조회합니다.")
     @GetMapping("/payment_group")
-    public ResponseCustom<Page<StoreTeamResponseDTO>> getPaymentGroup(Authentication authentication,
-                                                                      Pageable pageable) {
+    public ResponseCustom<List<StoreTeamResponseDTO>> getPaymentGroup(Authentication authentication) {
         return ResponseCustom.OK(
-                storeService.getPaymentGroup(AuthenticationParser.parseUserId(authentication), pageable));
+                storeService.getPaymentGroup(AuthenticationParser.parseUserId(authentication)));
     }
 
     @Operation(summary = "결제 그룹 상세 조회", description = "장부 결제 그룹을 상세 조회합니다.")

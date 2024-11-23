@@ -210,7 +210,7 @@ public class StoreService {
 		return new StoreGetResponseDTO().of(store);
 	}
 
-	public Page<StoreTeamResponseDTO> getPaymentGroup(String userId, Pageable pageable) {
+	public List<StoreTeamResponseDTO> getPaymentGroup(String userId) {
 		User user = userRepository.findByProviderId(userId)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
@@ -220,7 +220,7 @@ public class StoreService {
 		Store store = storeRepository.findByOwner(owner)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
-		return storeTeamRepository.findAllByStore(store, pageable);
+		return storeTeamRepository.findAllByStore(store);
 	}
 
 	public Page<SearchStoresResponse> searchByCategory(final String authentication, final Integer searchRadius,
