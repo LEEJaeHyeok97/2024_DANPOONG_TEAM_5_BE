@@ -5,6 +5,7 @@ import com.querydsl.core.annotations.QueryProjection;
 public record TeamsResponse(
         Long teamId,
         Long storeId,
+        String storeImgUrl,
         Boolean isLikedAtStore,
         String teamName,
         String storeName,
@@ -13,10 +14,11 @@ public record TeamsResponse(
 ) {
 
     @QueryProjection
-    public TeamsResponse(Long teamId, Long storeId, Boolean isLikedAtStore, String teamName, String storeName,
-                         int totalAmount, int currentAmount) {
+    public TeamsResponse(Long teamId, Long storeId, String storeImgUrl, Boolean isLikedAtStore, String teamName,
+                         String storeName, int totalAmount, int currentAmount) {
         this.teamId = teamId;
         this.storeId = storeId;
+        this.storeImgUrl = storeImgUrl;
         this.isLikedAtStore = isLikedAtStore;
         this.teamName = teamName;
         this.storeName = storeName;

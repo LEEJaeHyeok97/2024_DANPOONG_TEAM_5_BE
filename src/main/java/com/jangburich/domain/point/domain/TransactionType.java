@@ -1,5 +1,5 @@
 package com.jangburich.domain.point.domain;
 
 public enum TransactionType {
-    PURCHASE, REFUND, RECHARGE
+    POINT_PURCHASE, FOOD_PURCHASE, REFUND, RECHARGE, PREPAY
 }

@@ -74,7 +74,7 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
                 .leftJoin(cart).on(cart.store.id.eq(store.id))
                 .leftJoin(menu).on(menu.id.eq(cart.menu.id), cart.status.eq(Status.INACTIVE))
                 .where(pointTransaction.createdAt.between(startOfDay, endOfDay), pointTransaction.transactionType.eq(
-                        TransactionType.PURCHASE))
+                        TransactionType.FOOD_PURCHASE))
                 .fetch();
 
 
@@ -135,7 +135,7 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
                 .leftJoin(cart).on(cart.store.id.eq(store.id))
                 .leftJoin(menu).on(menu.id.eq(cart.menu.id), cart.status.eq(Status.INACTIVE))
                 .where(pointTransaction.createdAt.between(startOfDay, endOfDay), pointTransaction.transactionType.eq(
-                        TransactionType.PURCHASE))
+                        TransactionType.FOOD_PURCHASE))
                 .fetch();
 
 
