@@ -1,12 +1,8 @@
 package com.jangburich.domain.user.service;
 
-import com.jangburich.domain.point.domain.PointTransaction;
-import com.jangburich.domain.point.domain.repository.PointTransactionRepository;
-import com.jangburich.domain.user.dto.response.PurchaseHistory;
-import com.jangburich.domain.user.dto.response.UserHomeResponse;
-import com.jangburich.domain.user.dto.response.WalletResponse;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -33,7 +29,6 @@ import com.jangburich.domain.user.repository.UserRepository;
 import com.jangburich.global.error.DefaultNullPointerException;
 import com.jangburich.global.payload.ErrorCode;
 import com.jangburich.utils.JwtUtil;
-import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -66,6 +61,7 @@ public class UserService {
 
 		return response.getBody();
 	}
+
 	public User getUserInfos(String accessToken) {
 
 		return userRepository.findByProviderId(accessToken)
@@ -75,11 +71,15 @@ public class UserService {
 	@Transactional
 	public TokenResponseDTO joinUser(String kakaoaccessToken) {
 		KakaoApiResponseDTO userInfo = getUserInfo(kakaoaccessToken);
-		System.out.println("userInfo = " + userInfo);
+		TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
+
 		User user = userRepository.findByProviderId("kakao_" + userInfo.getId()).orElse(null);
 		if (user == null) {
 			user = userRepository.save(User.create("kakao_" + userInfo.getId(), userInfo.getProperties().getNickname(),
 				userInfo.getKakaoAccount().getEmail(), userInfo.getProperties().getProfileImage(), "ROLE_USER"));
+			tokenResponseDTO.setAlreadyExists(false);
+		} else {
+			tokenResponseDTO.setAlreadyExists(true);
 		}
 
 		String accessToken = jwtUtil.createAccessToken(user.getProviderId(), user.getRole());
@@ -88,7 +88,6 @@ public class UserService {
 		user.updateRefreshToken(refreshToken);
 		userRepository.save(user);
 
-		TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
 		tokenResponseDTO.setAccessToken(accessToken);
 		tokenResponseDTO.setRefreshToken(refreshToken);
 		tokenResponseDTO.setAccessTokenExpires(accessTokenExpiration);
@@ -171,25 +170,24 @@ public class UserService {
 
 	public WalletResponse getMyWallet(String userId) {
 		User user = userRepository.findByProviderId(userId)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		List<PointTransaction> transactions = pointTransactionRepository.findByUser(user);
 
 		List<PurchaseHistory> purchaseHistories = transactions.stream()
-				.map(transaction -> new PurchaseHistory(
-						transaction.getCreatedAt().format(DateTimeFormatter.ofPattern("MM.dd")),
-						transaction.getTransactionedPoint(),
-						transaction.getStore() != null ? transaction.getStore().getName() : "지갑 충전",
-						transaction.getTransactionType().name()
-				))
-				.toList();
+			.map(transaction -> new PurchaseHistory(
+				transaction.getCreatedAt().format(DateTimeFormatter.ofPattern("MM.dd")),
+				transaction.getTransactionedPoint(),
+				transaction.getStore() != null ? transaction.getStore().getName() : "지갑 충전",
+				transaction.getTransactionType().name()))
+			.toList();
 		return new WalletResponse(user.getPoint(), purchaseHistories);
 	}
 
 	public UserHomeResponse getUserHome(String userId) {
 		User user = userRepository.findByProviderId(userId)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
-        return userRepository.findUserHomeData(user.getUserId());
+		return userRepository.findUserHomeData(user.getUserId());
 	}
 }

@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import com.jangburich.domain.payment.domain.PaymentChargeStatus;
-import com.jangburich.domain.payment.domain.TeamChargeHistory;
 import com.jangburich.domain.payment.domain.repository.TeamChargeHistoryRepository;
 import com.jangburich.domain.payment.dto.request.PayRequest;
 import com.jangburich.domain.payment.dto.response.ApproveResponse;
@@ -20,11 +18,6 @@ import com.jangburich.domain.payment.dto.response.ReadyResponse;
 import com.jangburich.domain.point.domain.PointTransaction;
 import com.jangburich.domain.point.domain.TransactionType;
 import com.jangburich.domain.point.domain.repository.PointTransactionRepository;
-import com.jangburich.domain.store.domain.Store;
-import com.jangburich.domain.store.exception.StoreNotFoundException;
-import com.jangburich.domain.store.repository.StoreRepository;
-import com.jangburich.domain.store.repository.StoreTeamRepository;
-import com.jangburich.domain.team.domain.repository.TeamRepository;
 import com.jangburich.domain.user.domain.User;
 import com.jangburich.domain.user.repository.UserRepository;
 import com.jangburich.global.error.DefaultNullPointerException;
@@ -36,7 +29,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class KakaopayService implements PaymentService {
 
-	private final TeamChargeHistoryRepository teamChargeHistoryRepository;
 	@Value("${kakaopay.secretKey}")
 	private String secretKey;
 
@@ -49,10 +41,7 @@ public class KakaopayService implements PaymentService {
 	@Value("${kakaopay.fail-url}")
 	private String failUrl;
 
-	private final StoreRepository storeRepository;
-
 	private final UserRepository userRepository;
-
 	private final PointTransactionRepository pointTransactionRepository;
 
 	private ResponseEntity<ReadyResponse> readyResponseResponseEntity;
