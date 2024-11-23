@@ -1,6 +1,5 @@
 package com.jangburich.domain.store.service;
 
-import com.jangburich.domain.store.dto.response.StoreSearchDetailsResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,16 +31,14 @@ import com.jangburich.domain.store.domain.StoreChargeHistoryResponse;
 import com.jangburich.domain.store.domain.StoreCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreGetResponseDTO;
 import com.jangburich.domain.store.domain.StoreTeam;
-import com.jangburich.domain.store.domain.StoreTeamResponseDTO;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
 import com.jangburich.domain.store.dto.StoreTeamResponse;
-import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
-import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
 import com.jangburich.domain.store.dto.response.OrdersDetailResponse;
 import com.jangburich.domain.store.dto.response.OrdersGetResponse;
 import com.jangburich.domain.store.dto.response.OrdersTodayResponse;
 import com.jangburich.domain.store.dto.response.PaymentGroupDetailResponse;
 import com.jangburich.domain.store.dto.response.SearchStoresResponse;
+import com.jangburich.domain.store.dto.response.StoreSearchDetailsResponse;
 import com.jangburich.domain.store.exception.OrdersNotFoundException;
 import com.jangburich.domain.store.repository.StoreRepository;
 import com.jangburich.domain.store.repository.StoreTeamRepository;
@@ -222,12 +219,13 @@ public class StoreService {
 		Store store = storeRepository.findByOwner(owner)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
-		List<StoreTeamResponse> list = storeTeamRepository.findAllByStore(store).stream().map(storeTeamResponseDTO -> {
-			return new StoreTeamResponse(storeTeamResponseDTO.id(), storeTeamResponseDTO.remainPoint(),
+		return storeTeamRepository.findAllByStore(store)
+			.stream()
+			.map(storeTeamResponseDTO -> new StoreTeamResponse(storeTeamResponseDTO.id(),
+				storeTeamResponseDTO.remainPoint(),
 				storeTeamResponseDTO.teamId(), storeTeamResponseDTO.teamName(), storeTeamResponseDTO.teamDescription(),
-				storeTeamResponseDTO.storeId(), storeTeamResponseDTO.updatedAt(), store.getMaxReservation());
-		}).toList();
-		return list;
+				storeTeamResponseDTO.storeId(), storeTeamResponseDTO.updatedAt(), store.getMaxReservation()))
+			.toList();
 	}
 
 	public Page<SearchStoresResponse> searchByCategory(final String authentication, final Integer searchRadius,
@@ -238,7 +236,8 @@ public class StoreService {
 			pageable);
 	}
 
-	public Page<SearchStoresResponse> searchStores(final String authentication, final String keyword, final Pageable pageable) {
+	public Page<SearchStoresResponse> searchStores(final String authentication, final String keyword,
+		final Pageable pageable) {
 		User user = userRepository.findByProviderId(authentication)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 		return storeRepository.findStores(user.getUserId(), keyword, pageable);
@@ -401,13 +400,13 @@ public class StoreService {
 		return ordersDetailResponse;
 	}
 
-    public StoreSearchDetailsResponse storeSearchDetails(String userId, Long storeId) {
+	public StoreSearchDetailsResponse storeSearchDetails(String userId, Long storeId) {
 		User user = userRepository.findByProviderId(userId)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		StoreSearchDetailsResponse storeSearchDetails = storeRepository.findStoreSearchDetails(user.getUserId(),
-				storeId);
+			storeId);
 
 		return storeSearchDetails;
-    }
+	}
 }
