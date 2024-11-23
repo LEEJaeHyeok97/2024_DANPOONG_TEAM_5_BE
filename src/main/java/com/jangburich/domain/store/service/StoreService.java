@@ -23,6 +23,8 @@ import com.jangburich.domain.order.domain.repository.OrdersRepository;
 import com.jangburich.domain.owner.domain.Owner;
 import com.jangburich.domain.owner.domain.repository.OwnerRepository;
 import com.jangburich.domain.payment.domain.repository.TeamChargeHistoryRepository;
+import com.jangburich.domain.point.domain.PointTransaction;
+import com.jangburich.domain.point.domain.repository.PointTransactionRepository;
 import com.jangburich.domain.store.domain.Category;
 import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.store.domain.StoreAdditionalInfoCreateRequestDTO;
@@ -67,6 +69,7 @@ public class StoreService {
 	private final S3Service s3Service;
 	private final OrdersRepository ordersRepository;
 	private final CartRepository cartRepository;
+	private final PointTransactionRepository pointTransactionRepository;
 
 	@Transactional
 	public void createStore(String authentication, StoreCreateRequestDTO storeCreateRequestDTO, MultipartFile image,
@@ -269,8 +272,7 @@ public class StoreService {
 		Store store = storeRepository.findByOwner(owner)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
-		Page<StoreChargeHistoryResponse> historyResponses = teamChargeHistoryRepository.findAllByStore(store, pageable);
-		return historyResponses;
+		return pointTransactionRepository.findAllByStore(store, pageable);
 	}
 
 	public List<OrdersGetResponse> getOrdersLast(String userId) {
