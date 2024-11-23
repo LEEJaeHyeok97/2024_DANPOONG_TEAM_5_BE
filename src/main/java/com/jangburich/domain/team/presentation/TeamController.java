@@ -82,7 +82,7 @@ public class TeamController {
 	}
 
 	@Operation(summary = "그룹(팀) 비밀코드 조회", description = "비밀코드를 입력하면, 그 팀을 조회하는 api 입니다.")
-	@GetMapping("/info/{secretCode}")
+	@GetMapping("/info/secretcode/{secretCode}")
 	public ResponseCustom<TeamCodeResponse> getTeamWithSecretCode(@PathVariable String secretCode) {
 		return ResponseCustom.OK(teamService.getTeamsWithSecretCode(secretCode));
 	}
