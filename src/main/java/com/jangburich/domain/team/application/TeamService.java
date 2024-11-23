@@ -49,7 +49,6 @@ public class TeamService {
 				registerTeamRequest.bankName()))
 			.secretCode(registerTeamRequest.secretCode())
 			.point(ZERO)
-			.memberLimit(registerTeamRequest.memberLimit())
 			.teamType(TeamType.valueOf(registerTeamRequest.teamType()))
 			.build();
 
@@ -74,7 +73,6 @@ public class TeamService {
 		team.validateJoinCode(joinCode);
 
 		int currentMemberCount = userTeamRepository.countByTeam(team);
-		team.validateMemberLimit(currentMemberCount);
 
 		if (userTeamRepository.existsByUserAndTeam(user, team)) {
 			throw new IllegalStateException("유저는 이미 해당 팀에 속해 있습니다.");
