@@ -1,5 +1,6 @@
 package com.jangburich.domain.user.controller;
 
+import com.jangburich.domain.user.domain.User;
 import com.jangburich.domain.user.dto.response.UserHomeResponse;
 import com.jangburich.domain.user.dto.response.WalletResponse;
 import java.util.Map;
@@ -45,9 +46,8 @@ public class UserController {
 	}
 
 	@GetMapping("/user-info")
-	public ResponseEntity<KakaoApiResponseDTO> getUserInfo(Authentication authentication) {
-		KakaoApiResponseDTO userInfo = userService.getUserInfo(AuthenticationParser.parseUserId(authentication));
-
+	public ResponseEntity<User> getUserInfo(Authentication authentication) {
+		User userInfo = userService.getUserInfos(AuthenticationParser.parseUserId(authentication));
 		return ResponseEntity.ok(userInfo);
 	}
 
