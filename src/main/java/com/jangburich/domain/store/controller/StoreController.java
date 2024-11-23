@@ -108,26 +108,24 @@ public class StoreController {
 
     @Operation(summary = "결제 그룹 조회", description = "장부 결제 그룹을 조회합니다.")
     @GetMapping("/payment_group")
-    public ResponseCustom<Page<StoreTeamResponseDTO>> getPaymentGroup(Authentication authentication,
-                                                                      Pageable pageable) {
+    public ResponseCustom<List<StoreTeamResponseDTO>> getPaymentGroup(Authentication authentication) {
         return ResponseCustom.OK(
-                storeService.getPaymentGroup(AuthenticationParser.parseUserId(authentication), pageable));
+                storeService.getPaymentGroup(AuthenticationParser.parseUserId(authentication)));
     }
 
     @Operation(summary = "결제 그룹 상세 조회", description = "장부 결제 그룹을 상세 조회합니다.")
     @GetMapping("/payment_group/{teamId}")
     public ResponseCustom<PaymentGroupDetailResponse> getPaymentGroupDetail(Authentication authentication,
-                                                                            @PathVariable Long teamId,
-                                                                            Pageable pageable) {
+                                                                            @PathVariable Long teamId) {
         return ResponseCustom.OK(
-                storeService.getPaymentGroupDetail(AuthenticationParser.parseUserId(authentication), teamId, pageable));
+                storeService.getPaymentGroupDetail(AuthenticationParser.parseUserId(authentication), teamId));
     }
 
     @Operation(summary = "결제 내역 조회", description = "가게에서 일어난 결제 내역을 조회합니다.")
     @GetMapping("/payment_history")
-    public ResponseCustom<?> getPaymentHistory(Authentication authentication, Pageable pageable) {
+    public ResponseCustom<?> getPaymentHistory(Authentication authentication) {
         return ResponseCustom.OK(
-                storeService.getPaymentHistory(AuthenticationParser.parseUserId(authentication), pageable));
+                storeService.getPaymentHistory(AuthenticationParser.parseUserId(authentication)));
     }
 
     @Operation(summary = "지난 주문 조회", description = "가게에 있는 지난 주문을 조회합니다")
