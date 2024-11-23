@@ -15,6 +15,7 @@ import com.jangburich.domain.user.repository.UserRepository;
 import com.jangburich.global.error.DefaultNullPointerException;
 import com.jangburich.global.payload.ErrorCode;
 import com.jangburich.global.payload.Message;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,7 +65,7 @@ public class PrepayService {
 
         pointTransactionRepository.save(pointTransaction);
 
-        StoreTeam storeTeam = StoreTeam
+        StoreTeam buildedStoreTeam = StoreTeam
                 .builder()
                 .team(team)
                 .store(store)
@@ -73,7 +74,14 @@ public class PrepayService {
                 .remainPoint(prepayRequest.prepayAmount())
                 .build();
 
-        storeTeamRepository.save(storeTeam);
+        Optional<StoreTeam> storeAndTeam = storeTeamRepository.findByStoreAndTeam(store, team);
+
+        if (storeAndTeam.isEmpty()) {
+            storeTeamRepository.save(buildedStoreTeam);
+        }
+
+        StoreTeam storeTeam = storeAndTeam.get();
+        storeTeam.recharge(prepayRequest.prepayAmount());
 
         return Message.builder()
                 .message("매장 선결제가 완료되었습니다.")

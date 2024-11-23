@@ -41,9 +41,6 @@ public class Team extends BaseEntity {
     @Column(name = "point")
     private Integer point;
 
-    @Column(name = "member_limit")
-    private Integer memberLimit;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "team_type")
     private TeamType teamType;
@@ -58,22 +55,15 @@ public class Team extends BaseEntity {
         }
     }
 
-    public void validateMemberLimit(int currentMemberCount) {
-        if (currentMemberCount >= this.memberLimit) {
-            throw new IllegalStateException("멤버 제한을 초과합니다.");
-        }
-    }
-
 
     @Builder
     public Team(String name, String description, String secretCode, TeamLeader teamLeader, Integer point,
-                Integer memberLimit, TeamType teamType) {
+                TeamType teamType) {
         this.name = name;
         this.description = description;
         this.secretCode = secretCode;
         this.teamLeader = teamLeader;
         this.point = point;
-        this.memberLimit = memberLimit;
         this.teamType = teamType;
     }
 }

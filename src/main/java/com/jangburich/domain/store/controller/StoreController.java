@@ -48,99 +48,101 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/store")
 public class StoreController {
 
-	private final StoreService storeService;
+    private final StoreService storeService;
 
-	@Operation(summary = "카테고리 별 가게 목록 조회", description = "카테고리 별로 가게 목록을 조회합니다.")
-	@GetMapping("/category")
-	public ResponseCustom<Page<SearchStoresResponse>> searchByCategory(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader,
-		@RequestParam(required = false, defaultValue = "3") Integer searchRadius,
-		@RequestParam(required = false, defaultValue = "ALL") Category category,
-		@ModelAttribute StoreSearchCondition storeSearchCondition, Pageable pageable) {
-		return ResponseCustom.OK(
-			storeService.searchByCategory(authorizationHeader, searchRadius, category, storeSearchCondition, pageable));
-	}
+    @Operation(summary = "카테고리 별 가게 목록 조회", description = "카테고리 별로 가게 목록을 조회합니다.")
+    @GetMapping("/category")
+    public ResponseCustom<Page<SearchStoresResponse>> searchByCategory(
+            Authentication authentication,
+            @RequestParam(required = false, defaultValue = "3") Integer searchRadius,
+            @RequestParam(required = false, defaultValue = "ALL") Category category,
+            @ModelAttribute StoreSearchCondition storeSearchCondition, Pageable pageable) {
+        return ResponseCustom.OK(
+                storeService.searchByCategory(AuthenticationParser.parseUserId(authentication), searchRadius, category, storeSearchCondition,
+                        pageable));
+    }
 
-	@Operation(summary = "매장 찾기(검색)", description = "검색어와 매장 유형에 맞는 매장을 검색합니다.")
-	@GetMapping("/search")
-	public ResponseCustom<Page<SearchStoresResponse>> searchStores(
-		@RequestAttribute(value = "authorizationHeader") String authorizationHeader,
-		@RequestParam(required = false, defaultValue = "") String keyword,
-		@ModelAttribute StoreSearchConditionWithType storeSearchConditionWithType, Pageable pageable) {
-		return ResponseCustom.OK(
-			storeService.searchStores(authorizationHeader, keyword, storeSearchConditionWithType, pageable));
-	}
+    @Operation(summary = "매장 찾기(검색)", description = "검색어와 매장 유형에 맞는 매장을 검색합니다.")
+    @GetMapping("/search")
+    public ResponseCustom<Page<SearchStoresResponse>> searchStores(
+            Authentication authentication,
+            @RequestParam(required = false, defaultValue = "") String keyword, Pageable pageable) {
+        return ResponseCustom.OK(
+                storeService.searchStores(AuthenticationParser.parseUserId(authentication), keyword, pageable));
+    }
 
-	@Operation(summary = "가게 등록", description = "신규 파트너 가게를 등록합니다.")
-	@PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-	public ResponseCustom<Message> createStore(
-		Authentication authentication,
-		@Parameter(name = "image", description = "업로드 사진 데이터") @RequestPart(value = "image") MultipartFile image,
-		@RequestPart(value = "store") StoreCreateRequestDTO storeCreateRequestDTO,
-		@RequestPart(value = "menuImages", required = false) List<MultipartFile> menuImages) {
+    @Operation(summary = "가게 등록", description = "신규 파트너 가게를 등록합니다.")
+    @PostMapping(value = "/create", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseCustom<Message> createStore(
+            Authentication authentication,
+            @Parameter(name = "image", description = "업로드 사진 데이터") @RequestPart(value = "image") MultipartFile image,
+            @RequestPart(value = "store") StoreCreateRequestDTO storeCreateRequestDTO,
+            @RequestPart(value = "menuImages", required = false) List<MultipartFile> menuImages) {
 
-		storeService.createStore(AuthenticationParser.parseUserId(authentication), storeCreateRequestDTO, image, menuImages);
-		return ResponseCustom.OK(Message.builder().message("success").build());
-	}
+        storeService.createStore(AuthenticationParser.parseUserId(authentication), storeCreateRequestDTO, image,
+                menuImages);
+        return ResponseCustom.OK(Message.builder().message("success").build());
+    }
 
 
-	@Operation(summary = "가게 정보 수정", description = "가게 정보를 수정합니다.")
-	@PatchMapping("/update")
-	public ResponseCustom<Message> updateStore(Authentication authentication,
-		@RequestBody StoreUpdateRequestDTO storeUpdateRequestDTO) {
-		storeService.updateStore(AuthenticationParser.parseUserId(authentication), storeUpdateRequestDTO);
-		return ResponseCustom.OK(Message.builder().message("success").build());
-	}
+    @Operation(summary = "가게 정보 수정", description = "가게 정보를 수정합니다.")
+    @PatchMapping("/update")
+    public ResponseCustom<Message> updateStore(Authentication authentication,
+                                               @RequestBody StoreUpdateRequestDTO storeUpdateRequestDTO) {
+        storeService.updateStore(AuthenticationParser.parseUserId(authentication), storeUpdateRequestDTO);
+        return ResponseCustom.OK(Message.builder().message("success").build());
+    }
 
-	@Operation(summary = "가게 정보 조회", description = "가게 상세 정보를 조회합니다.")
-	@GetMapping("")
-	public ResponseCustom<StoreGetResponseDTO> getStoreInfo(Authentication authentication) {
-		return ResponseCustom.OK(storeService.getStoreInfo(AuthenticationParser.parseUserId(authentication)));
-	}
+    @Operation(summary = "가게 정보 조회", description = "가게 상세 정보를 조회합니다.")
+    @GetMapping("")
+    public ResponseCustom<StoreGetResponseDTO> getStoreInfo(Authentication authentication) {
+        return ResponseCustom.OK(storeService.getStoreInfo(AuthenticationParser.parseUserId(authentication)));
+    }
 
-	@Operation(summary = "결제 그룹 조회", description = "장부 결제 그룹을 조회합니다.")
-	@GetMapping("/payment_group")
-	public ResponseCustom<Page<StoreTeamResponseDTO>> getPaymentGroup(Authentication authentication,
-		Pageable pageable) {
-		return ResponseCustom.OK(
-			storeService.getPaymentGroup(AuthenticationParser.parseUserId(authentication), pageable));
-	}
+    @Operation(summary = "결제 그룹 조회", description = "장부 결제 그룹을 조회합니다.")
+    @GetMapping("/payment_group")
+    public ResponseCustom<Page<StoreTeamResponseDTO>> getPaymentGroup(Authentication authentication,
+                                                                      Pageable pageable) {
+        return ResponseCustom.OK(
+                storeService.getPaymentGroup(AuthenticationParser.parseUserId(authentication), pageable));
+    }
 
-	@Operation(summary = "결제 그룹 상세 조회", description = "장부 결제 그룹을 상세 조회합니다.")
-	@GetMapping("/payment_group/{teamId}")
-	public ResponseCustom<PaymentGroupDetailResponse> getPaymentGroupDetail(Authentication authentication,
-		@PathVariable Long teamId, Pageable pageable) {
-		return ResponseCustom.OK(
-			storeService.getPaymentGroupDetail(AuthenticationParser.parseUserId(authentication), teamId, pageable));
-	}
+    @Operation(summary = "결제 그룹 상세 조회", description = "장부 결제 그룹을 상세 조회합니다.")
+    @GetMapping("/payment_group/{teamId}")
+    public ResponseCustom<PaymentGroupDetailResponse> getPaymentGroupDetail(Authentication authentication,
+                                                                            @PathVariable Long teamId,
+                                                                            Pageable pageable) {
+        return ResponseCustom.OK(
+                storeService.getPaymentGroupDetail(AuthenticationParser.parseUserId(authentication), teamId, pageable));
+    }
 
-	@Operation(summary = "결제 내역 조회", description = "가게에서 일어난 결제 내역을 조회합니다.")
-	@GetMapping("/payment_history")
-	public ResponseCustom<?> getPaymentHistory(Authentication authentication, Pageable pageable) {
-		return ResponseCustom.OK(
-			storeService.getPaymentHistory(AuthenticationParser.parseUserId(authentication), pageable));
-	}
+    @Operation(summary = "결제 내역 조회", description = "가게에서 일어난 결제 내역을 조회합니다.")
+    @GetMapping("/payment_history")
+    public ResponseCustom<?> getPaymentHistory(Authentication authentication, Pageable pageable) {
+        return ResponseCustom.OK(
+                storeService.getPaymentHistory(AuthenticationParser.parseUserId(authentication), pageable));
+    }
 
-	@Operation(summary = "지난 주문 조회", description = "가게에 있는 지난 주문을 조회합니다")
-	@GetMapping("/orders/last")
-	public ResponseCustom<List<OrdersGetResponse>> getLastOrders(Authentication authentication) {
-		List<OrdersGetResponse> ordersLast = storeService.getOrdersLast(
-			AuthenticationParser.parseUserId(authentication));
-		return ResponseCustom.OK(ordersLast);
-	}
+    @Operation(summary = "지난 주문 조회", description = "가게에 있는 지난 주문을 조회합니다")
+    @GetMapping("/orders/last")
+    public ResponseCustom<List<OrdersGetResponse>> getLastOrders(Authentication authentication) {
+        List<OrdersGetResponse> ordersLast = storeService.getOrdersLast(
+                AuthenticationParser.parseUserId(authentication));
+        return ResponseCustom.OK(ordersLast);
+    }
 
-	@Operation(summary = "오늘 주문 조회", description = "가게에 있는 오늘 주문을 조회합니다")
-	@GetMapping("/orders/today")
-	public ResponseCustom<OrdersTodayResponse> getTodayOrders(Authentication authentication) {
-		return ResponseCustom.OK(storeService.getTodayOrders(
-			AuthenticationParser.parseUserId(authentication)));
-	}
+    @Operation(summary = "오늘 주문 조회", description = "가게에 있는 오늘 주문을 조회합니다")
+    @GetMapping("/orders/today")
+    public ResponseCustom<OrdersTodayResponse> getTodayOrders(Authentication authentication) {
+        return ResponseCustom.OK(storeService.getTodayOrders(
+                AuthenticationParser.parseUserId(authentication)));
+    }
 
-	@Operation(summary = "주문 상세 조회", description = "가게에 있는 주문을 상세 조회합니다")
-	@GetMapping("/orders/{ordersId}")
-	public ResponseCustom<OrdersDetailResponse> getOrders(Authentication authentication, @RequestParam Long orderId) {
-		return ResponseCustom.OK(
-			storeService.getOrderDetails(AuthenticationParser.parseUserId(authentication), orderId));
-	}
+    @Operation(summary = "주문 상세 조회", description = "가게에 있는 주문을 상세 조회합니다")
+    @GetMapping("/orders/{ordersId}")
+    public ResponseCustom<OrdersDetailResponse> getOrders(Authentication authentication, @RequestParam Long orderId) {
+        return ResponseCustom.OK(
+                storeService.getOrderDetails(AuthenticationParser.parseUserId(authentication), orderId));
+    }
 
 }
