@@ -231,11 +231,10 @@ public class StoreService {
 			pageable);
 	}
 
-	public Page<SearchStoresResponse> searchStores(final String authentication, final String keyword,
-		final StoreSearchConditionWithType storeSearchConditionWithType, final Pageable pageable) {
+	public Page<SearchStoresResponse> searchStores(final String authentication, final String keyword, final Pageable pageable) {
 		User user = userRepository.findByProviderId(authentication)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
-		return storeRepository.findStores(user.getUserId(), keyword, storeSearchConditionWithType, pageable);
+		return storeRepository.findStores(user.getUserId(), keyword, pageable);
 	}
 
 	public PaymentGroupDetailResponse getPaymentGroupDetail(String userId, Long teamId, Pageable pageable) {
