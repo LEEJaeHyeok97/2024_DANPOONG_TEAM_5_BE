@@ -56,8 +56,7 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
 
         List<String> images = queryFactory
                 .select(user.profileImageUrl)
-                .from(user)
-                .leftJoin(userTeam).on(userTeam.team.id.eq(teamId))
+                .from(userTeam)
                 .where(userTeam.team.id.eq(teamId))
                 .fetch();
 
@@ -118,8 +117,7 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
 
         List<String> images = queryFactory
                 .select(user.profileImageUrl)
-                .from(user)
-                .leftJoin(userTeam).on(userTeam.team.id.eq(teamId))
+                .from(userTeam)
                 .where(userTeam.team.id.eq(teamId))
                 .fetch();
 
