@@ -56,9 +56,10 @@ public class StoreController {
             Authentication authentication,
             @RequestParam(required = false, defaultValue = "3") Integer searchRadius,
             @RequestParam(required = false, defaultValue = "ALL") Category category,
-            @ModelAttribute StoreSearchCondition storeSearchCondition, Pageable pageable) {
+            Double lat,
+            Double lon, Pageable pageable) {
         return ResponseCustom.OK(
-                storeService.searchByCategory(AuthenticationParser.parseUserId(authentication), searchRadius, category, storeSearchCondition,
+                storeService.searchByCategory(AuthenticationParser.parseUserId(authentication), searchRadius, category, lat, lon,
                         pageable));
     }
 
