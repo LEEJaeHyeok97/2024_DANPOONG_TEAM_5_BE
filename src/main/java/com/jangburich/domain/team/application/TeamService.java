@@ -132,12 +132,15 @@ public class TeamService {
 
 		if (!team.getTeamLeader().getUser_id().equals(user.getUserId())) {
 			// 일반 구성원
-			teamRepository.findMyTeamDetailsAsMember(user.getUserId(), teamId);
+			MyTeamDetailsResponse myTeamDetailsAsMember = teamRepository.findMyTeamDetailsAsMember(user.getUserId(),
+					teamId);
+			return myTeamDetailsAsMember;
 		}
 		// 팀 리더일 때
-		teamRepository.findMyTeamDetailsAsLeader(user.getUserId(), teamId);
+		MyTeamDetailsResponse myTeamDetailsAsLeader = teamRepository.findMyTeamDetailsAsLeader(user.getUserId(),
+				teamId);
 
-		return null;
+		return myTeamDetailsAsLeader;
 	}
 
 	public List<TeamMemberResponse> getTeamMembers(String userId, Long teamId) {
