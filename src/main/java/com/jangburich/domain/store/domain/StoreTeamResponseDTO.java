@@ -8,18 +8,18 @@ import lombok.Builder;
 
 @Builder
 public record StoreTeamResponseDTO(
-	Long id,
-	Integer remainPoint,
-	Long teamId,
-	String teamName,
-	String teamDescription,
-	Long storeId,
-	LocalDateTime updatedAt
+		Long id,
+		Integer remainPoint,
+		Long teamId,
+		String teamName,
+		String teamDescription,
+		Long storeId,
+		LocalDateTime updatedAt
 
 ) {
 	@QueryProjection
 	public StoreTeamResponseDTO(Long id, Integer remainPoint, Long teamId, String teamName, String teamDescription,
-		Long storeId, LocalDateTime updatedAt) {
+								Long storeId, LocalDateTime updatedAt) {
 		this.id = id;
 		this.remainPoint = remainPoint;
 		this.teamId = teamId;

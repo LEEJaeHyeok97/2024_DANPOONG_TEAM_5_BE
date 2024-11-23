@@ -1,5 +1,6 @@
 package com.jangburich.domain.store.service;
 
+import com.jangburich.domain.store.dto.StoreTeamResponse;
 import com.jangburich.domain.store.dto.response.StoreSearchDetailsResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,7 +35,6 @@ import com.jangburich.domain.store.domain.StoreGetResponseDTO;
 import com.jangburich.domain.store.domain.StoreTeam;
 import com.jangburich.domain.store.domain.StoreTeamResponseDTO;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
-import com.jangburich.domain.store.dto.StoreTeamResponse;
 import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
 import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
 import com.jangburich.domain.store.dto.response.OrdersDetailResponse;
@@ -212,21 +212,19 @@ public class StoreService {
 		return new StoreGetResponseDTO().of(store);
 	}
 
-	public List<StoreTeamResponse> getPaymentGroup(String userId) {
+	public List<com.jangburich.domain.store.dto.StoreTeamResponse> getPaymentGroup(String userId) {
 		User user = userRepository.findByProviderId(userId)
-			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
-			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Store store = storeRepository.findByOwner(owner)
-			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
-		List<StoreTeamResponse> list = storeTeamRepository.findAllByStore(store).stream().map(storeTeamResponseDTO -> {
-			return new StoreTeamResponse(storeTeamResponseDTO.id(), storeTeamResponseDTO.remainPoint(),
+		List<com.jangburich.domain.store.dto.StoreTeamResponse> list = storeTeamRepository.findAllByStore(store).stream().map(storeTeamResponseDTO -> new StoreTeamResponse(storeTeamResponseDTO.id(), storeTeamResponseDTO.remainPoint(),
 				storeTeamResponseDTO.teamId(), storeTeamResponseDTO.teamName(), storeTeamResponseDTO.teamDescription(),
-				storeTeamResponseDTO.storeId(), storeTeamResponseDTO.updatedAt(), store.getMaxReservation());
-		}).toList();
+				storeTeamResponseDTO.storeId(), storeTeamResponseDTO.updatedAt(), store.getMaxReservation())).toList();
 		return list;
 	}
 
