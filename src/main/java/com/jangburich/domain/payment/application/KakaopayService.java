@@ -121,14 +121,8 @@ public class KakaopayService implements PaymentService {
 		String url = "https://open-api.kakaopay.com/online/v1/payment/approve";
 		ApproveResponse approveResponse = template.postForObject(url, requestEntity, ApproveResponse.class);
 
-		TeamChargeHistory teamChargeHistory = teamChargeHistoryRepository.findByTransactionId(
-			readyResponseResponseEntity.getBody().tid()).orElseThrow(() -> new NullPointerException());
-
-		teamChargeHistory.completePaymentChargeStatus();
-
 		User user = userRepository.findByProviderId(userId)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
-
 		user.setPoint(user.getPoint() + Integer.valueOf(payRequest.totalAmount()));
 
 		return approveResponse;
