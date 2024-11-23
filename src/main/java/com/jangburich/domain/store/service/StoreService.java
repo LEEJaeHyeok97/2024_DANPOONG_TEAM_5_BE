@@ -1,5 +1,7 @@
 package com.jangburich.domain.store.service;
 
+import com.jangburich.domain.store.dto.StoreTeamResponse;
+import com.jangburich.domain.store.dto.response.StoreSearchDetailsResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,6 +35,8 @@ import com.jangburich.domain.store.domain.StoreGetResponseDTO;
 import com.jangburich.domain.store.domain.StoreTeam;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
 import com.jangburich.domain.store.dto.StoreTeamResponse;
+import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
+import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
 import com.jangburich.domain.store.dto.response.OrdersDetailResponse;
 import com.jangburich.domain.store.dto.response.OrdersGetResponse;
 import com.jangburich.domain.store.dto.response.OrdersTodayResponse;
@@ -209,15 +213,15 @@ public class StoreService {
 		return new StoreGetResponseDTO().of(store);
 	}
 
-	public List<StoreTeamResponse> getPaymentGroup(String userId) {
+	public List<com.jangburich.domain.store.dto.StoreTeamResponse> getPaymentGroup(String userId) {
 		User user = userRepository.findByProviderId(userId)
-			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
-			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Store store = storeRepository.findByOwner(owner)
-			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		return storeTeamRepository.findAllByStore(store)
 			.stream()
