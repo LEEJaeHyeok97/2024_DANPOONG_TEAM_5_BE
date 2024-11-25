@@ -75,13 +75,13 @@ public class StoreService {
 
 	@Transactional
 	public void createStore(String authentication, StoreCreateRequestDTO storeCreateRequestDTO, MultipartFile image,
-							List<MultipartFile> menuImages) {
+		List<MultipartFile> menuImages) {
 
 		User user = userRepository.findByProviderId(authentication)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Store store = storeRepository.save(Store.of(owner, storeCreateRequestDTO));
 
@@ -104,7 +104,7 @@ public class StoreService {
 				if (menuImage != null) {
 					String imageUrl = s3Service.uploadImageToS3(menuImage);
 					menuRepository.save(Menu.create(menus.get(i).getName(), menus.get(i).getDescription(), imageUrl,
-							menus.get(i).getPrice(), store));
+						menus.get(i).getPrice(), store));
 				}
 			}
 		}
@@ -113,15 +113,15 @@ public class StoreService {
 
 	@Transactional
 	public void createAdditionalInfo(String authentication,
-									 StoreAdditionalInfoCreateRequestDTO storeAdditionalInfoCreateRequestDTO) {
+		StoreAdditionalInfoCreateRequestDTO storeAdditionalInfoCreateRequestDTO) {
 		User user = userRepository.findByProviderId(authentication)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Store store = storeRepository.findByOwner(owner)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		store.setReservationAvailable(storeAdditionalInfoCreateRequestDTO.getReservationAvailable());
 		store.setMinPrepayment(storeAdditionalInfoCreateRequestDTO.getMinPrepayment());
@@ -134,13 +134,13 @@ public class StoreService {
 	@Transactional
 	public void updateStore(String userId, StoreUpdateRequestDTO storeUpdateRequestDTO) {
 		User user = userRepository.findByProviderId(userId)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Store store = storeRepository.findByOwner(owner)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		if (!store.getOwner().getUser().getProviderId().equals(userId)) {
 			throw new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION);
@@ -198,13 +198,13 @@ public class StoreService {
 
 	public StoreGetResponseDTO getStoreInfo(String authentication) {
 		User user = userRepository.findByProviderId(authentication)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Store store = storeRepository.findByOwner(owner)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
 
 		if (!store.getOwner().getUser().getProviderId().equals(authentication)) {
 			throw new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION);
@@ -224,47 +224,47 @@ public class StoreService {
 				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		return storeTeamRepository.findAllByStore(store)
-				.stream()
-				.map(storeTeamResponseDTO -> new StoreTeamResponse(storeTeamResponseDTO.id(),
-						storeTeamResponseDTO.remainPoint(),
-						storeTeamResponseDTO.teamId(), storeTeamResponseDTO.teamName(), storeTeamResponseDTO.teamDescription(),
-						storeTeamResponseDTO.storeId(), storeTeamResponseDTO.updatedAt(), store.getMaxReservation()))
-				.toList();
+			.stream()
+			.map(storeTeamResponseDTO -> new StoreTeamResponse(storeTeamResponseDTO.id(),
+				storeTeamResponseDTO.remainPoint(),
+				storeTeamResponseDTO.teamId(), storeTeamResponseDTO.teamName(), storeTeamResponseDTO.teamDescription(),
+				storeTeamResponseDTO.storeId(), storeTeamResponseDTO.updatedAt(), store.getMaxReservation()))
+			.toList();
 	}
 
 	public Page<SearchStoresResponse> searchByCategory(final String authentication, final Integer searchRadius,
-													   final Category category, Double lat, Double lon, final Pageable pageable) {
+		final Category category, Double lat, Double lon, final Pageable pageable) {
 		User user = userRepository.findByProviderId(authentication)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 		return storeRepository.findStoresByCategory(user.getUserId(), searchRadius, category, lat, lon,
-				pageable);
+			pageable);
 	}
 
 	public Page<SearchStoresResponse> searchStores(final String authentication, final String keyword,
-												   final Pageable pageable) {
+		final Pageable pageable) {
 		User user = userRepository.findByProviderId(authentication)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 		return storeRepository.findStores(user.getUserId(), keyword, pageable);
 	}
 
 	public PaymentGroupDetailResponse getPaymentGroupDetail(String userId, Long teamId) {
 		User user = userRepository.findByProviderId(userId)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Store store = storeRepository.findByOwner(owner)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Team team = teamRepository.findById(teamId)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
 
 		User teamLeader = userRepository.findById(team.getTeamLeader().getUser_id())
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
 
 		StoreTeam storeTeam = storeTeamRepository.findByStoreIdAndTeamId(store.getId(), team.getId())
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_PARAMETER));
 
 		List<Orders> orders = ordersRepository.findAllByTeam(team);
 
@@ -277,18 +277,18 @@ public class StoreService {
 		}).toList();
 
 		return PaymentGroupDetailResponse.create(team.getName(), storeTeam.getPoint(), storeTeam.getRemainPoint(),
-				teamLeader, orderResponse);
+			teamLeader, orderResponse);
 	}
 
 	public List<StoreChargeHistoryResponse> getPaymentHistory(String userId) {
 		User user = userRepository.findByProviderId(userId)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Store store = storeRepository.findByOwner(owner)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		return pointTransactionRepository.findAllByStore(store);
 	}
@@ -297,24 +297,24 @@ public class StoreService {
 		List<OrdersGetResponse> ordersGetResponses = new ArrayList<>();
 
 		User user = userRepository.findByProviderId(userId)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Store store = storeRepository.findByOwner(owner)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		LocalDateTime todayStart = LocalDate.now().atStartOfDay();
 		List<Orders> allByStore = ordersRepository.findOrdersByStoreAndDateAndStatusNative(store.getId(), todayStart,
-				"TICKET_USED");
+			"TICKET_USED");
 
 		for (Orders orders : allByStore) {
 			OrdersGetResponse newOrdersGetResponse = new OrdersGetResponse();
 			List<Cart> carts = cartRepository.findAllByOrders(orders);
 			newOrdersGetResponse.setId(orders.getId());
 			newOrdersGetResponse.setMenuNames(carts.size() == 1 ? carts.get(0).getMenu().getName() :
-					carts.get(0).getMenu().getName() + " 외 " + (carts.size() - 1) + "개");
+				carts.get(0).getMenu().getName() + " 외 " + (carts.size() - 1) + "개");
 			newOrdersGetResponse.setCount(carts.size());
 			newOrdersGetResponse.setDate(orders.getUpdatedAt());
 			int price = 0;
@@ -332,19 +332,19 @@ public class StoreService {
 		List<OrdersGetResponse> ordersGetResponses = new ArrayList<>();
 
 		User user = userRepository.findByProviderId(userId)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Store store = storeRepository.findByOwner(owner)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		LocalDateTime startOfDay = LocalDate.now().atStartOfDay(); // 오늘 시작
 		LocalDateTime endOfDay = LocalDate.now().plusDays(1).atStartOfDay(); // 내일 시작 (오늘의 끝)
 
 		List<Orders> allByStore = ordersRepository.findOrdersByStoreAndTodayDateAndStatus(store.getId(), startOfDay,
-				endOfDay, OrderStatus.TICKET_USED);
+			endOfDay, OrderStatus.TICKET_USED);
 		int totalPrice = 0;
 		for (Orders orders : allByStore) {
 			OrdersGetResponse newOrdersGetResponse = new OrdersGetResponse();
@@ -352,7 +352,7 @@ public class StoreService {
 
 			newOrdersGetResponse.setId(orders.getId());
 			newOrdersGetResponse.setMenuNames(carts.size() == 1 ? carts.get(0).getMenu().getName() :
-					carts.get(0).getMenu().getName() + " 외 " + (carts.size() - 1) + "개");
+				carts.get(0).getMenu().getName() + " 외 " + (carts.size() - 1) + "개");
 			newOrdersGetResponse.setCount(carts.size());
 			newOrdersGetResponse.setDate(orders.getUpdatedAt());
 			int price = 0;
@@ -375,7 +375,7 @@ public class StoreService {
 		OrdersDetailResponse ordersDetailResponse = new OrdersDetailResponse();
 
 		userRepository.findByProviderId(userId)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Orders orders = ordersRepository.findById(orderId).orElseThrow(OrdersNotFoundException::new);
 
@@ -406,10 +406,10 @@ public class StoreService {
 
 	public StoreSearchDetailsResponse storeSearchDetails(String userId, Long storeId) {
 		User user = userRepository.findByProviderId(userId)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		StoreSearchDetailsResponse storeSearchDetails = storeRepository.findStoreSearchDetails(user.getUserId(),
-				storeId);
+			storeId);
 
 		return storeSearchDetails;
 	}
