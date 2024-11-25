@@ -77,7 +77,7 @@ public class PrepayService {
         Optional<StoreTeam> storeAndTeam = storeTeamRepository.findByStoreAndTeam(store, team);
 
         if (storeAndTeam.isEmpty()) {
-            storeTeamRepository.save(buildedStoreTeam);
+            storeAndTeam = Optional.of(storeTeamRepository.save(buildedStoreTeam));
         }
 
         StoreTeam storeTeam = storeAndTeam.get();
