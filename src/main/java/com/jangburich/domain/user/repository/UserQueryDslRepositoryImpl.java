@@ -32,7 +32,7 @@ public class UserQueryDslRepositoryImpl implements UserQueryDslRepository {
         String formattedDate = currentDate.format(formatter);
 
         List<TeamsResponse> teamsResponses = queryFactory
-                .select(new QTeamsResponse(
+                .selectDistinct(new QTeamsResponse(
                         storeTeam.team.id,
                         storeTeam.store.id,
                         storeTeam.store.representativeImage,
