@@ -80,4 +80,10 @@ public class User extends BaseEntity {
 		newUser.setPoint(0);
 		return newUser;
 	}
+
+	public void validateHasPointWithPrepayAmount(int prepayAmount, Integer point) {
+		if (prepayAmount > point) {
+			throw new IllegalArgumentException("보유하고 있는 금액이 선결제 하려는 금액보다 적습니다.");
+		}
+	}
 }
