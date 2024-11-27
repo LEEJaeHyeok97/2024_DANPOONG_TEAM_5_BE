@@ -86,11 +86,18 @@ jobs:
             echo "${{ secrets.DOCKERHUB_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
           '
 
+      - name: Stop existing Redis process
+        run: |
+          if pgrep redis-server; then
+            sudo systemctl stop redis || echo "Redis service not managed by systemctl"
+            pkill redis-server || echo "No Redis process to kill"
+          fi
+
       - name: Deploy with Docker Compose
         run: |
           ssh ubuntu@ip-172-31-3-107 '
-            cd /home/ubuntu/
             sudo docker-compose down
+            sudo docker ps -a | grep redis && sudo docker rm -f $(docker ps -aq --filter "name=redis")
             sudo docker-compose pull
             sudo docker-compose up -d
           '
