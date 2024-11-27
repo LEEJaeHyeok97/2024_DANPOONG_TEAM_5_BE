@@ -1,8 +1,11 @@
 package com.jangburich.domain.store.domain;
 
 import java.time.DayOfWeek;
-import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import com.jangburich.domain.menu.domain.MenuResponse;
 
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -31,16 +34,19 @@ public class StoreGetResponseDTO {
 	private Double longitude;
 	private String address;
 	private String location;
-	private List<DayOfWeek> dayOfWeek;
-	private LocalTime openTime;
-	private LocalTime closeTime;
+	private String dayOfWeek;
+	private String openTime;
+	private String closeTime;
+	private List<MenuResponse> menuResponses;
+
+	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
 	public StoreGetResponseDTO(Long id, String ownerId, String name, Category category, String representativeImage,
 		Boolean reservationAvailable, Long maxReservation, Long minPrepayment, Long prepaymentDuration,
 		String introduction,
-		Double latitude, Double longitude, String address, String location, List<DayOfWeek> dayOfWeek,
-		LocalTime openTime,
-		LocalTime closeTime) {
+		Double latitude, Double longitude, String address, String location, String dayOfWeek,
+		String openTime,
+		String closeTime, List<MenuResponse> menuResponses) {
 		this.id = id;
 		this.ownerId = ownerId;
 		this.name = name;
@@ -58,9 +64,27 @@ public class StoreGetResponseDTO {
 		this.dayOfWeek = dayOfWeek;
 		this.openTime = openTime;
 		this.closeTime = closeTime;
+		this.menuResponses = menuResponses;
 	}
 
-	public StoreGetResponseDTO of(Store store) {
+	private String convertDayOfWeekToKorean(DayOfWeek dayOfWeek) {
+		return switch (dayOfWeek) {
+			case MONDAY -> "월";
+			case TUESDAY -> "화";
+			case WEDNESDAY -> "수";
+			case THURSDAY -> "목";
+			case FRIDAY -> "금";
+			case SATURDAY -> "토";
+			case SUNDAY -> "일";
+			default -> throw new IllegalArgumentException("Invalid DayOfWeek");
+		};
+	}
+
+	public StoreGetResponseDTO of(Store store, List<MenuResponse> menuResponses) {
+		String dayOfWeekString = store.getWorkDays().stream()
+			.map(this::convertDayOfWeekToKorean)
+			.collect(Collectors.joining(", "));
+
 		return new StoreGetResponseDTO(
 			store.getId(),
 			store.getOwner().getUser().getProviderId(),
@@ -76,9 +100,10 @@ public class StoreGetResponseDTO {
 			store.getLongitude(),
 			store.getAddress(),
 			store.getLocation(),
-			store.getWorkDays(),
-			store.getOpenTime(),
-			store.getCloseTime()
+			dayOfWeekString,
+			store.getOpenTime().format(TIME_FORMATTER),
+			store.getCloseTime().format(TIME_FORMATTER),
+			menuResponses
 		);
 	}
 }

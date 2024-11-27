@@ -1,5 +1,7 @@
 package com.jangburich.domain.menu.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -74,7 +76,7 @@ public class MenuService {
 		menuRepository.delete(menu);
 	}
 
-	public Page<MenuResponse> getMenu(String customOAuthUser, Pageable pageable) {
+	public List<MenuResponse> getMenu(String customOAuthUser) {
 		User user = userRepository.findByProviderId(customOAuthUser)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
@@ -84,6 +86,6 @@ public class MenuService {
 		Store store = storeRepository.findByOwner(owner)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_STORE_ID));
 
-		return menuRepository.findAllByStore(store, pageable);
+		return menuRepository.findAllByStore(store);
 	}
 }
