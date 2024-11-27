@@ -65,18 +65,18 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      # Docker Compose 파일을 EC2로 복사
-      - name: Copy docker-compose.yml to EC2
-        run: scp /Users/rookie/IdeaProjects/2024_DANPOONG_TEAM_5_BE/docker-compose.yml ec2-user@3.36.98.64:~/app/docker-compose.yml
+      # 1. 최신 이미지를 풀받습니다
+      - name: docker pull
+        run: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/jangburich2
 
-      # 최신 Docker 이미지 Pull
-      - name: Pull the latest Docker image on EC2
-        run: ssh ec2-user@3.36.98.64 "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/jangburich2"
+      # 2. 기존의 컨테이너를 중지시킵니다
+      - name: docker-compose down
+        run: sudo docker-compose down
 
-      # Docker Compose 실행
-      - name: Start services with docker-compose
-        run: ssh ec2-user@3.36.98.64 "cd ~/app && docker-compose up -d --build"
+      # 3. 최신 이미지를 컨테이너화하여 실행시킵니다
+      - name: docker-compose up
+        run: sudo docker-compose up -d
 
-      # Docker 시스템 청소
-      - name: Cleanup old Docker images
-        run: ssh ec2-user@3.36.98.64 "docker system prune -f"
+      # 4. 미사용 이미지를 정리합니다
+      - name: delete old docker image
+        run: sudo docker system prune -f
