@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   # Spring Boot 애플리케이션을 빌드하여 도커허브에 푸시하는 과정
-  docker-compose:
+  build-docker-image:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -61,30 +61,22 @@ jobs:
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/jangburich2
 
   run-docker-image-on-ec2:
-    needs: docker-compose
+    needs: build-docker-image
     runs-on: self-hosted
 
     steps:
       # 1. 최신 이미지를 풀받습니다
       - name: docker pull
-        run: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/jangburich2:latest
+        run: sudo docker-compose pull
 
       # 2. 기존의 컨테이너를 중지시킵니다
-      - name: Stop existing Docker containers if running
-        run: |
-          cd ~/app  # docker-compose.yml 파일이 있는 디렉토리로 이동
-          if sudo docker ps -q | grep .; then
-            sudo docker-compose down
-          else
-            echo "No running containers to stop."
-          fi
+      - name: docker-compose down
+        run: sudo docker-compose down
 
-      # 3. docker-compose 실행
-      - name: Restart services with docker-compose
-        run: |
-          cd ~/app
-          sudo docker-compose up -d --build
+      # 3. 최신 이미지를 기반으로 컨테이너를 빌드하고 실행합니다
+      - name: docker-compose up
+        run: sudo docker-compose up -d --build
 
-      # 4. 사용하지 않는 이미지 제거
-      - name: Remove unused Docker images
+      # 4. 미사용 이미지를 정리합니다
+      - name: delete old docker images
         run: sudo docker image prune -f
