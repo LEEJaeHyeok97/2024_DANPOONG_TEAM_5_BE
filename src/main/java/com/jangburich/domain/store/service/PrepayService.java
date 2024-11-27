@@ -42,17 +42,9 @@ public class PrepayService {
         Store store = storeRepository.findById(prepayRequest.storeId())
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 가게 id 입니다."));
 
-        if (!team.getTeamLeader().getUser_id().equals(user.getUserId())) {
-            return Message.builder()
-                    .message("팀의 리더가 아닌 사람은 선결제를 할 수 없습니다.")
-                    .build();
-        }
+        team.validateIsTeamLeader(team.getTeamLeader().getUser_id(), user.getUserId());
 
-        if (prepayRequest.prepayAmount() > user.getPoint()) {
-            return Message.builder()
-                    .message("보유하고 있는 금액이 선결제 하려는 금액보다 적습니다.")
-                    .build();
-        }
+        user.validateHasPointWithPrepayAmount(prepayRequest.prepayAmount(), user.getPoint());
 
         user.usePoint(prepayRequest.prepayAmount());
         PointTransaction pointTransaction = PointTransaction
