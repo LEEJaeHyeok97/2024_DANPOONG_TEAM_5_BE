@@ -1,7 +1,6 @@
 package com.jangburich.domain.store.service;
 
-import com.jangburich.domain.store.dto.StoreTeamResponse;
-import com.jangburich.domain.store.dto.response.StoreSearchDetailsResponse;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.jangburich.domain.menu.domain.Menu;
 import com.jangburich.domain.menu.domain.MenuCreateRequestDTO;
+import com.jangburich.domain.menu.domain.MenuResponse;
 import com.jangburich.domain.menu.repository.MenuRepository;
 import com.jangburich.domain.order.domain.Cart;
 import com.jangburich.domain.order.domain.OrderResponse;
@@ -35,8 +35,6 @@ import com.jangburich.domain.store.domain.StoreGetResponseDTO;
 import com.jangburich.domain.store.domain.StoreTeam;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
 import com.jangburich.domain.store.dto.StoreTeamResponse;
-import com.jangburich.domain.store.dto.condition.StoreSearchCondition;
-import com.jangburich.domain.store.dto.condition.StoreSearchConditionWithType;
 import com.jangburich.domain.store.dto.response.OrdersDetailResponse;
 import com.jangburich.domain.store.dto.response.OrdersGetResponse;
 import com.jangburich.domain.store.dto.response.OrdersTodayResponse;
@@ -53,6 +51,7 @@ import com.jangburich.domain.user.repository.UserRepository;
 import com.jangburich.global.config.s3.S3Service;
 import com.jangburich.global.error.DefaultNullPointerException;
 import com.jangburich.global.payload.ErrorCode;
+import com.jangburich.utils.DayOfWeekConverter;
 
 import lombok.RequiredArgsConstructor;
 
@@ -83,7 +82,9 @@ public class StoreService {
 		Owner owner = ownerRepository.findByUser(user)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
-		Store store = storeRepository.save(Store.of(owner, storeCreateRequestDTO));
+		List<DayOfWeek> dayOfWeekList = DayOfWeekConverter.convertStringToDayOfWeekList(storeCreateRequestDTO.getDayOfWeek());
+
+		Store store = storeRepository.save(Store.of(owner, storeCreateRequestDTO, dayOfWeekList));
 
 		store.setRepresentativeImage(s3Service.uploadImageToS3(image));
 
@@ -108,7 +109,6 @@ public class StoreService {
 				}
 			}
 		}
-
 	}
 
 	@Transactional
@@ -210,18 +210,20 @@ public class StoreService {
 			throw new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION);
 		}
 
-		return new StoreGetResponseDTO().of(store);
+		List<MenuResponse> menus = menuRepository.findAllByStore(store);
+
+		return new StoreGetResponseDTO().of(store, menus);
 	}
 
 	public List<com.jangburich.domain.store.dto.StoreTeamResponse> getPaymentGroup(String userId) {
 		User user = userRepository.findByProviderId(userId)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Owner owner = ownerRepository.findByUser(user)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		Store store = storeRepository.findByOwner(owner)
-				.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
+			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
 		return storeTeamRepository.findAllByStore(store)
 			.stream()
@@ -273,10 +275,11 @@ public class StoreService {
 			for (Cart cart : cartRepository.findAllByOrders(order)) {
 				price += cart.getMenu().getPrice();
 			}
-			return new OrderResponse(order.getUser().getName(), order.getUpdatedAt(), String.valueOf(price));
+			return new OrderResponse(order.getId(), order.getUser().getName(), order.getUpdatedAt(),
+				String.valueOf(price));
 		}).toList();
 
-		return PaymentGroupDetailResponse.create(team.getName(), storeTeam.getPoint(), storeTeam.getRemainPoint(),
+		return PaymentGroupDetailResponse.create(team, storeTeam.getPoint(), storeTeam.getRemainPoint(),
 			teamLeader, orderResponse);
 	}
 
