@@ -1,8 +1,6 @@
 services:
-  api-server:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
+  app:
+    image: rookie97/jangburich2:latest
     ports:
       - 8080:8080
     depends_on:

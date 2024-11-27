@@ -65,18 +65,46 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      # 1. 최신 이미지를 풀받습니다
+      - uses: actions/checkout@v3
+
+      - name: Setup SSH key
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Add EC2 to known_hosts
+        run: |
+          ssh-keyscan -H ip-172-31-3-107 >> ~/.ssh/known_hosts
+
+      - name: Copy docker-compose.yml to EC2
+        run: |
+          scp docker-compose.yml ubuntu@ip-172-31-3-107:/home/ubuntu/
+
+      - name: Login to Docker Hub on EC2
+        run: |
+          ssh ubuntu@ip-172-31-3-107 '
+            echo "${{ secrets.DOCKERHUB_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          '
+
+      - name: Stop existing Redis process
+        run: |
+          if pgrep redis-server; then
+            sudo systemctl stop redis || echo "Redis service not managed by systemctl"
+            pkill redis-server || echo "No Redis process to kill"
+          fi
+          
+        # 0. 최신 이미지를 풀받습니다
       - name: docker pull
         run: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/jangburich2
-
-      # 2. 기존의 컨테이너를 중지시킵니다
-      - name: docker stop container
-        run: sudo docker stop $(sudo docker ps -q) 2>/dev/null || true
-
-      # 3. 최신 이미지를 컨테이너화하여 실행시킵니다
-      - name: docker run new container
-        run: sudo docker run --name jangburich2 --rm -d -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/jangburich2
-
-      # 4. 미사용 이미지를 정리합니다
-      - name: delete old docker image
-        run: sudo docker system prune -f
+          
+        # 1. docker-compose 종료
+      - name: docker-compose down
+        run: sudo docker-compose down
+          
+        # 2. docker-compose 실행
+      - name: docker-compose up
+        run: sudo docker-compose up -d
+          
+        # 3. 안쓰는 이미지 제거
+      - name: Remove unused Docker images
+        run: sudo docker image prune -f
