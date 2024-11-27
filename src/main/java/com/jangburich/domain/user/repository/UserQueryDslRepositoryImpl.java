@@ -33,8 +33,11 @@ public class UserQueryDslRepositoryImpl implements UserQueryDslRepository {
 
         List<TeamsResponse> teamsResponses = queryFactory
                 .selectDistinct(new QTeamsResponse(
-                        storeTeam.team.id,
+                        userTeam.team.id,
                         storeTeam.store.id,
+                        Expressions.numberTemplate(Integer.class,
+                                "DATEDIFF({0}, CURRENT_DATE)",
+                                storeTeam.prepaidExpirationDate),
                         storeTeam.store.representativeImage,
                         Expressions.constant(false),
                         storeTeam.team.name,
@@ -42,14 +45,13 @@ public class UserQueryDslRepositoryImpl implements UserQueryDslRepository {
                         storeTeam.point,
                         storeTeam.remainPoint
                 ))
-                .from(storeTeam)
-                .leftJoin(team).on(team.id.eq(storeTeam.team.id))
-                .leftJoin(userTeam).on(storeTeam.team.eq(team))
+                .from(userTeam)
+                .leftJoin(team).on(team.id.eq(userTeam.team.id))
+                .leftJoin(storeTeam).on(storeTeam.team.eq(team))
                 .where(storeTeam.status.eq(Status.ACTIVE),
                         userTeam.user.userId.eq(userId))
                 .orderBy(storeTeam.createdAt.desc())
                 .fetch();
-
 
         UserHomeResponse userHomeResponse = queryFactory.select(new QUserHomeResponse(
                         user.userId,

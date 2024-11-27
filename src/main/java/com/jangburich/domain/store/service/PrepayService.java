@@ -15,6 +15,7 @@ import com.jangburich.domain.user.repository.UserRepository;
 import com.jangburich.global.error.DefaultNullPointerException;
 import com.jangburich.global.payload.ErrorCode;
 import com.jangburich.global.payload.Message;
+import java.time.LocalDate;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -57,6 +58,8 @@ public class PrepayService {
 
         pointTransactionRepository.save(pointTransaction);
 
+        LocalDate expirationDate = LocalDate.now().plusDays(store.getPrepaymentDuration());
+
         StoreTeam buildedStoreTeam = StoreTeam
                 .builder()
                 .team(team)
@@ -64,6 +67,7 @@ public class PrepayService {
                 .point(prepayRequest.prepayAmount())
                 .personalAllocatedPoint(prepayRequest.personalAllocatedAmount())
                 .remainPoint(prepayRequest.prepayAmount())
+                .prepaidExpirationDate(expirationDate)
                 .build();
 
         Optional<StoreTeam> storeAndTeam = storeTeamRepository.findByStoreAndTeam(store, team);

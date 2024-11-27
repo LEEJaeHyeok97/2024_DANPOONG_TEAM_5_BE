@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,6 +45,9 @@ public class StoreTeam extends BaseEntity {
 	@Column(name = "remain_point")
 	private Integer remainPoint;
 
+	@Column(name = "prepaid_expiration_date")
+	private LocalDate prepaidExpirationDate;
+
 	public void updatePersonalAllocatedPoint(Integer point) {
 		this.personalAllocatedPoint = point;
 	}
@@ -71,13 +75,16 @@ public class StoreTeam extends BaseEntity {
 		this.remainPoint -= point;
 	}
 
+
 	@Builder
-	public StoreTeam(Store store, Team team, Integer point, Integer personalAllocatedPoint, Integer remainPoint) {
+	public StoreTeam(Store store, Team team, Integer point, Integer personalAllocatedPoint, Integer remainPoint,
+					 LocalDate prepaidExpirationDate) {
 		this.store = store;
 		this.team = team;
 		this.point = point;
 		this.personalAllocatedPoint = personalAllocatedPoint;
 		this.remainPoint = remainPoint;
+		this.prepaidExpirationDate = prepaidExpirationDate;
 	}
 
 	public static StoreTeam create(Team team, Store store, Integer point) {
