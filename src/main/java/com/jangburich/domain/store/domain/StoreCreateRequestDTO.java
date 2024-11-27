@@ -1,8 +1,8 @@
 package com.jangburich.domain.store.domain;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.jangburich.domain.menu.domain.MenuCreateRequestDTO;
@@ -17,6 +17,7 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 public class StoreCreateRequestDTO {
+
 	private String storeName;
 	private String phoneNumber;
 	private String businessName;
@@ -30,16 +31,14 @@ public class StoreCreateRequestDTO {
 	@Enumerated(EnumType.STRING)
 	private Category category;
 
-	// address
 	private Double latitude;
 	private Double longitude;
 	private String address;
 	private String location;
 
-	// business hour
-	private List<DayOfWeek> dayOfWeek;
-	private LocalTime openTime;
-	private LocalTime closeTime;
+	private String dayOfWeek;
+	private String openTime;
+	private String closeTime;
 
 	private List<MenuCreateRequestDTO> menuCreateRequestDTOS;
 
@@ -47,4 +46,17 @@ public class StoreCreateRequestDTO {
 	private Long prepaymentDuration;
 	private Boolean reservationAvailable;
 	private Long maxReservation;
+
+	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
+	public void setOpenTime(LocalTime openTime) {
+		this.openTime = openTime != null ? openTime.format(TIME_FORMATTER) : null;
+	}
+
+	public void setCloseTime(LocalTime closeTime) {
+		this.closeTime = closeTime != null ? closeTime.format(TIME_FORMATTER) : null;
+	}
 }
+
+
+
