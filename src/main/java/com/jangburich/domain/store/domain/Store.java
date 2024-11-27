@@ -2,6 +2,7 @@ package com.jangburich.domain.store.domain;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -99,7 +100,9 @@ public class Store {
 		return newOwner;
 	}
 
-	public static Store of(Owner owner, StoreCreateRequestDTO storeCreateRequestDTO) {
+	public static Store of(Owner owner, StoreCreateRequestDTO storeCreateRequestDTO, List<DayOfWeek> dayOfWeeks) {
+		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
 		Store newStore = new Store();
 		newStore.setOwner(owner);
 		newStore.setName(storeCreateRequestDTO.getStoreName());
@@ -108,11 +111,18 @@ public class Store {
 		newStore.setLatitude(storeCreateRequestDTO.getLatitude());
 		newStore.setLongitude(storeCreateRequestDTO.getLongitude());
 		newStore.setAddress(storeCreateRequestDTO.getAddress());
-		newStore.setAddress(storeCreateRequestDTO.getAddress());
 		newStore.setLocation(storeCreateRequestDTO.getLocation());
-		newStore.setWorkDays(storeCreateRequestDTO.getDayOfWeek());
-		newStore.setOpenTime(storeCreateRequestDTO.getOpenTime());
-		newStore.setCloseTime(storeCreateRequestDTO.getCloseTime());
+		newStore.setWorkDays(dayOfWeeks);
+		newStore.setOpenTime(
+			storeCreateRequestDTO.getOpenTime() != null
+				? LocalTime.parse(storeCreateRequestDTO.getOpenTime(), timeFormatter)
+				: null
+		);
+		newStore.setCloseTime(
+			storeCreateRequestDTO.getCloseTime() != null
+				? LocalTime.parse(storeCreateRequestDTO.getCloseTime(), timeFormatter)
+				: null
+		);
 		newStore.setContactNumber(storeCreateRequestDTO.getPhoneNumber());
 		newStore.setReservationAvailable(storeCreateRequestDTO.getReservationAvailable());
 		newStore.setMaxReservation(storeCreateRequestDTO.getMaxReservation());
