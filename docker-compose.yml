@@ -1,8 +1,6 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
+    image: ${DOCKER_IMAGE_NAME}  # 환경 변수로 이미지 이름 지정
     ports:
       - 8080:8080
     depends_on:
