@@ -65,22 +65,30 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      # 1. 최신 이미지를 풀받습니다
-      - name: docker pull
-        run: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/jangburich2
+      # 0. 필요한 디렉토리 생성
+      - name: Create target directory if it does not exist
+        run: mkdir -p ~/app
+
+      # 1. docker-compose.yml 복사
+      - name: Copy docker-compose.yml to EC2
+        run: scp docker-compose.yml ec2-user@3.36.98.64:~/app/docker-compose.yml
 
       # 2. 기존의 컨테이너를 중지시킵니다
-      - name: docker-compose down
+      - name: Stop existing Docker containers if running
         run: |
+          cd ~/app
           if sudo docker ps -q | grep .; then
             sudo docker-compose down
           else
             echo "No running containers to stop."
           fi
-      # 3. 최신 이미지를 컨테이너화하여 실행시킵니다
-      - name: docker-compose up
-        run: sudo docker-compose up -d
 
-      # 4. 미사용 이미지를 정리합니다
-      - name: delete old docker image
-        run: sudo docker system prune -f
+      # 3. docker-compose 실행
+      - name: Restart services with docker-compose
+        run: |
+          cd ~/app
+          sudo docker-compose up -d --build
+
+      # 4. 사용하지 않는 이미지 제거
+      - name: Remove unused Docker images
+        run: sudo docker image prune -f
