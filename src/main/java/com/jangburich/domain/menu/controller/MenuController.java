@@ -3,7 +3,6 @@ package com.jangburich.domain.menu.controller;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jangburich.domain.menu.domain.MenuCreateRequestDTO;
-import com.jangburich.domain.menu.domain.MenuGetResponseDTO;
 import com.jangburich.domain.menu.domain.MenuResponse;
 import com.jangburich.domain.menu.domain.MenuUpdateRequestDTO;
 import com.jangburich.domain.menu.service.MenuService;
@@ -58,9 +56,8 @@ public class MenuController {
 	}
 
 	@GetMapping("")
-	public ResponseCustom<Page<MenuResponse>> getMenu(
-		Authentication authentication, Pageable pageable) {
-		Page<MenuResponse> menu = menuService.getMenu(AuthenticationParser.parseUserId(authentication), pageable);
+	public ResponseCustom<List<MenuResponse>> getMenu(Authentication authentication) {
+		List<MenuResponse> menu = menuService.getMenu(AuthenticationParser.parseUserId(authentication));
 		return ResponseCustom.OK(menu);
 	}
 }
