@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   # Spring Boot 애플리케이션을 빌드하여 도커허브에 푸시하는 과정
-  build-docker-image:
+  docker-compose:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -60,23 +60,19 @@ jobs:
       - name: docker Hub push
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/jangburich2
 
-  deploy-using-docker-compose:
-    needs: build-docker-image
+  run-docker-image-on-ec2:
+    needs: docker-compose
     runs-on: self-hosted
 
     steps:
-      # 0. 필요한 디렉토리 생성
-      - name: Create target directory if it does not exist
-        run: mkdir -p ~/app
-
-      # 1. docker-compose.yml 복사
-      - name: Copy docker-compose.yml to EC2
-        run: scp docker-compose.yml ec2-user@3.36.98.64:~/app/docker-compose.yml
+      # 1. 최신 이미지를 풀받습니다
+      - name: docker pull
+        run: sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/jangburich2:latest
 
       # 2. 기존의 컨테이너를 중지시킵니다
       - name: Stop existing Docker containers if running
         run: |
-          cd ~/app
+          cd ~/app  # docker-compose.yml 파일이 있는 디렉토리로 이동
           if sudo docker ps -q | grep .; then
             sudo docker-compose down
           else
