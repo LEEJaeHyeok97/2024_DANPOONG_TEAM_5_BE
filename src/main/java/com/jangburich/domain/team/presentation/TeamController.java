@@ -1,6 +1,7 @@
 package com.jangburich.domain.team.presentation;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ import com.jangburich.domain.team.dto.response.MyTeamDetailsResponse;
 import com.jangburich.domain.team.dto.response.MyTeamResponse;
 import com.jangburich.domain.team.dto.response.TeamCodeResponse;
 import com.jangburich.domain.team.dto.response.TeamMemberResponse;
+import com.jangburich.domain.team.dto.response.TeamSecretCodeResponse;
 import com.jangburich.global.payload.Message;
 import com.jangburich.global.payload.ResponseCustom;
 import com.jangburich.utils.parser.AuthenticationParser;
@@ -35,7 +37,7 @@ public class TeamController {
 
 	@Operation(summary = "팀 생성", description = "팀을 생성한다. 팀 리더는 생성자")
 	@PostMapping
-	public ResponseCustom<Message> registerTeam(
+	public ResponseCustom<TeamSecretCodeResponse> registerTeam(
 		Authentication authentication,
 		@RequestBody RegisterTeamRequest registerTeamRequest
 	) {

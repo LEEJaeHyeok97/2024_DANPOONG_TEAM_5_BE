@@ -95,7 +95,6 @@ public class PrepayService {
 		storeTeam.setPersonalAllocatedPoint(prepayRequest.personalAllocatedAmount());
 		storeTeam.recharge(prepayRequest.prepayAmount());
 
-
 		return Message.builder()
 			.message("매장 선결제가 완료되었습니다.")
 			.build();
