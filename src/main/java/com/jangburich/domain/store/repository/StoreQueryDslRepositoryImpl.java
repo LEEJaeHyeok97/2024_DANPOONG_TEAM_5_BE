@@ -107,6 +107,7 @@ public class StoreQueryDslRepositoryImpl implements StoreQueryDslRepository {
                 .from(store)
                 .leftJoin(menu).on(store.id.eq(menu.store.id))
                 .where(store.id.eq(storeId))
+                .orderBy(menu.isSignatureMenu.desc(), menu.name.desc())
                 .fetch();
 
         StoreSearchDetailsResponse storeSearchDetailsResponse = queryFactory
@@ -125,9 +126,6 @@ public class StoreQueryDslRepositoryImpl implements StoreQueryDslRepository {
                 .from(store)
                 .where(store.id.eq(storeId))
                 .fetchOne();
-
-        System.out.println("storeMenus = " + storeMenus.size());
-        System.out.println("storeSearchDetailsResponse = " + storeSearchDetailsResponse);
 
         return storeSearchDetailsResponse;
     }
