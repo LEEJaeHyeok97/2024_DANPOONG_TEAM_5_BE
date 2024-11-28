@@ -21,13 +21,13 @@ import org.springframework.web.multipart.MultipartFile;
 import com.jangburich.domain.store.domain.Category;
 import com.jangburich.domain.store.domain.StoreCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreGetResponseDTO;
-import com.jangburich.domain.store.domain.StoreTeamResponseDTO;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
 import com.jangburich.domain.store.dto.response.OrdersDetailResponse;
 import com.jangburich.domain.store.dto.response.OrdersGetResponse;
 import com.jangburich.domain.store.dto.response.OrdersTodayResponse;
 import com.jangburich.domain.store.dto.response.PaymentGroupDetailResponse;
 import com.jangburich.domain.store.dto.response.SearchStoresResponse;
+import com.jangburich.domain.store.dto.response.StoreTeamResponse;
 import com.jangburich.domain.store.service.StoreService;
 import com.jangburich.global.payload.Message;
 import com.jangburich.global.payload.ResponseCustom;
@@ -107,7 +107,7 @@ public class StoreController {
 
     @Operation(summary = "결제 그룹 조회", description = "장부 결제 그룹을 조회합니다.")
     @GetMapping("/payment_group")
-    public ResponseCustom<List<com.jangburich.domain.store.dto.StoreTeamResponse>> getPaymentGroup(Authentication authentication) {
+    public ResponseCustom<List<StoreTeamResponse>> getPaymentGroup(Authentication authentication) {
         return ResponseCustom.OK(
                 storeService.getPaymentGroup(AuthenticationParser.parseUserId(authentication)));
     }

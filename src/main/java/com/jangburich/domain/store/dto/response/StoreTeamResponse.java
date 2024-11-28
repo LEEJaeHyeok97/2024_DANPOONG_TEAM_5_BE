@@ -1,4 +1,4 @@
-package com.jangburich.domain.store.dto;
+package com.jangburich.domain.store.dto.response;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
