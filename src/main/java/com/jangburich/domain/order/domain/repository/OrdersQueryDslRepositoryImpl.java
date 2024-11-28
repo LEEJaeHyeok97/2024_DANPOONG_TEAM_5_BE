@@ -4,6 +4,7 @@ import static com.jangburich.domain.menu.domain.QMenu.menu;
 import static com.jangburich.domain.order.domain.QCart.cart;
 import static com.jangburich.domain.order.domain.QOrders.orders;
 
+import com.jangburich.domain.common.Status;
 import com.jangburich.domain.order.dto.response.OrderItemResponse;
 import com.jangburich.domain.order.dto.response.OrderResponse;
 import com.jangburich.domain.order.dto.response.QOrderItemResponse;
@@ -30,7 +31,8 @@ public class OrdersQueryDslRepositoryImpl implements OrdersQueryDslRepository {
                 .from(cart)
                 .leftJoin(orders).on(cart.orders.id.eq(ordersId))
                 .leftJoin(menu).on(cart.menu.id.eq(menu.id))
-                .where((cart.orders.id.eq(ordersId)))
+                .where((cart.orders.id.eq(ordersId)),
+                        cart.status.eq(Status.ACTIVE))
                 .fetch();
 
         int totalPrice = orderItemResponses.stream()

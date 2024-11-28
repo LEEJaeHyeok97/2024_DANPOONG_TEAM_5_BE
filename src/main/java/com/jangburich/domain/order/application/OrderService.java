@@ -60,6 +60,9 @@ public class OrderService {
 		Menu menu = menuRepository.findById(addCartRequest.menuId())
 			.orElseThrow(() -> new IllegalArgumentException("등록된 메뉴를 찾을 수 없습니다. "));
 
+		List<Cart> allByUserAndStatus = cartRepository.findAllByUserAndStatus(user, Status.ACTIVE);
+		Cart.validateHasAnotherStoreItem(user, addCartRequest, allByUserAndStatus);
+
 		Optional<Cart> optionalCart = cartRepository.findByUserIdAndMenuIdAndStatus(user.getUserId(), menu.getId(),
 			Status.ACTIVE);
 
@@ -126,16 +129,6 @@ public class OrderService {
 		Team team = teamRepository.findById(orderRequest.teamId())
 			.orElseThrow(() -> new IllegalArgumentException("유효하지 않은 그룹 id 입니다."));
 
-		List<Cart> existingCarts = cartRepository.findAllByUserAndStoreAndStatus(user, store, Status.ACTIVE);
-
-		List<Cart> mergedCarts = mergeCarts(existingCarts, orderRequest.items(), user, store);
-
-		Orders orders = saveOrder(user, store, team, orderRequest);
-
-		associateCartsWithOrder(mergedCarts, orders);
-
-		cartRepository.saveAll(mergedCarts);
-
 		List<Long> menuIds = orderRequest.items()
 				.stream()
 				.map(item -> item.menuId())
@@ -169,8 +162,6 @@ public class OrderService {
 				.store(store)
 				.build();
 
-		System.out.println("totalAmount = " + totalAmount);
-
 		pointTransactionRepository.save(pointTransaction);
 
 		StoreTeam storeTeam = storeTeamRepository.findByStoreIdAndTeamId(store.getId(), team.getId())
@@ -178,64 +169,63 @@ public class OrderService {
 
 		storeTeam.useRemainPoint(totalAmount);
 
-		return ordersRepository.findTicket(orders.getId());
+		Orders orders = saveOrder(user, store, team, orderRequest);
+
+		List<Cart> allByUserAndStatus = cartRepository.findAllByUserAndStatus(user, Status.ACTIVE);
+		System.out.println("allByUserAndStatus = " + allByUserAndStatus);
+
+		syncCart(orderRequest, allByUserAndStatus, orders, user);
+		OrderResponse ticket = ordersRepository.findTicket(orders.getId());
+
+		List<Cart> cartsForStatusManage = cartRepository.findAllByUserAndStatus(user, Status.ACTIVE);
+
+		cartsForStatusManage.stream()
+				.forEach(cart -> cart.updateStatus(Status.INACTIVE));
+
+		return ticket;
 	}
 
-	private List<Cart> mergeCarts(List<Cart> existingCarts, List<OrderRequest.OrderItemRequest> items, User user,
-		Store store) {
-		if (existingCarts.isEmpty()) {
-			for (OrderRequest.OrderItemRequest item : items) {
-				Cart newCartAfterOrder = createNewCartAfterOrder(item, user, store);
-				existingCarts.add(newCartAfterOrder);
+	private void syncCart(OrderRequest orderRequest, List<Cart> carts, Orders orders, User user) {
+		if (carts.isEmpty()) {
+			for (OrderRequest.OrderItemRequest orderItemRequest : orderRequest.items()) {
+				Menu menu = menuRepository.findById(orderItemRequest.menuId())
+						.orElseThrow(() -> new IllegalArgumentException("해당 메뉴를 찾을 수 없습니다."));
+
+				Cart newCart = Cart.builder()
+						.quantity(orderItemRequest.quantity())
+						.orders(orders)
+						.menu(menu)
+						.user(user)
+						.store(orders.getStore())
+						.build();
+
+				cartRepository.save(newCart);
+				cartRepository.flush();
 			}
-			return existingCarts;
-		}
+		} else {
+			for (Cart cart : carts) {
+			for (OrderRequest.OrderItemRequest orderItemRequest : orderRequest.items()) {
+				if (orderItemRequest.menuId().equals(cart.getMenu().getId())) {
+					cart.updateQuantity(orderItemRequest.quantity());
+					cart.updateOrders(orders);
+				} else {
+					Menu menu = menuRepository.findById(orderItemRequest.menuId())
+							.orElseThrow(() -> new IllegalArgumentException("해당 메뉴를 찾을 수 없습니다."));
 
-		for (OrderRequest.OrderItemRequest item : items) {
-			Optional<Cart> existingCart = findCartByMenuId(existingCarts, item.menuId());
-			if (existingCart.isPresent()) {
-				existingCart.get().updateQuantity(item.quantity());
-				existingCart.get().updateStatus(Status.INACTIVE);
-				continue;
+					Cart newCart = Cart.builder()
+							.quantity(orderItemRequest.quantity())
+							.orders(orders)
+							.menu(menu)
+							.user(user)
+							.store(cart.getStore())
+							.build();
+
+					cartRepository.save(newCart);
+				}
 			}
-			Cart newCart = createNewCart(item, user, store);
-			existingCarts.add(newCart);
+
 		}
-		return existingCarts;
-	}
-
-	private Optional<Cart> findCartByMenuId(List<Cart> carts, Long menuId) {
-		return carts.stream()
-			.filter(cart -> cart.getMenu().getId().equals(menuId))
-			.findFirst();
-	}
-
-	private Cart createNewCart(OrderRequest.OrderItemRequest item, User user, Store store) {
-		Menu menu = menuRepository.findById(item.menuId())
-			.orElseThrow(() -> new IllegalArgumentException("유효하지 않은 메뉴 ID입니다."));
-		return Cart.builder()
-			.quantity(item.quantity())
-			.menu(menu)
-			.user(user)
-			.store(store)
-			.orders(null)
-			.build();
-	}
-
-	private Cart createNewCartAfterOrder(OrderRequest.OrderItemRequest item, User user, Store store) {
-		Menu menu = menuRepository.findById(item.menuId())
-			.orElseThrow(() -> new IllegalArgumentException("유효하지 않은 메뉴 ID입니다."));
-		Cart cart = Cart.builder()
-			.quantity(item.quantity())
-			.menu(menu)
-			.user(user)
-			.store(store)
-			.orders(null)
-			.build();
-
-		cart.updateStatus(Status.INACTIVE);
-
-		return cart;
+		}
 	}
 
 	private Orders saveOrder(User user, Store store, Team team, OrderRequest orderRequest) {
@@ -246,10 +236,6 @@ public class OrderService {
 			.orderStatus(OrderStatus.RECEIVED)
 			.build();
 		return ordersRepository.save(orders);
-	}
-
-	private void associateCartsWithOrder(List<Cart> carts, Orders orders) {
-		carts.forEach(cart -> cart.updateOrders(orders));
 	}
 
 	@Transactional
@@ -278,5 +264,19 @@ public class OrderService {
 		return Message.builder()
 			.message("식권을 사용했습니다.")
 			.build();
+	}
+
+	@Transactional
+	public Message removeCart(String userProviderId) {
+		User user = userRepository.findByProviderId(userProviderId)
+				.orElseThrow(() -> new NullPointerException());
+
+		List<Cart> allByUserAndStatus = cartRepository.findAllByUserAndStatus(user, Status.ACTIVE);
+
+		cartRepository.deleteAll(allByUserAndStatus);
+
+		return Message.builder()
+				.message("장바구니를 비웠습니다.")
+				.build();
 	}
 }

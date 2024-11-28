@@ -2,6 +2,7 @@ package com.jangburich.domain.order.domain;
 
 import com.jangburich.domain.common.BaseEntity;
 import com.jangburich.domain.menu.domain.Menu;
+import com.jangburich.domain.order.dto.request.AddCartRequest;
 import com.jangburich.domain.store.domain.Store;
 import com.jangburich.domain.user.domain.User;
 import jakarta.persistence.Column;
@@ -55,6 +56,15 @@ public class Cart extends BaseEntity {
         this.menu = menu;
         this.user = user;
         this.store = store;
+    }
+
+    public static void validateHasAnotherStoreItem(User user, AddCartRequest addCartRequest,
+                                                   List<Cart> allByUserAndStatus) {
+        for (Cart cart : allByUserAndStatus) {
+            if (!cart.getStore().getId().equals(addCartRequest.storeId())) {
+                throw new IllegalArgumentException("서로 다른 가게의 물건을 장바구니에 함께 담을 수 없습니다.");
+            }
+        }
     }
 
     public void updateQuantity(int quantity) {
