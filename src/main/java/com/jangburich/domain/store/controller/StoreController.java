@@ -68,13 +68,12 @@ public class StoreController {
                 storeService.searchStores(AuthenticationParser.parseUserId(authentication), keyword, pageable));
     }
 
-    @Operation(summary = "매장 찾기 상세 페이지 조회", description = "매장을 상세 조회합니다.")
+    @Operation(summary = "매장 상세 페이지 조회", description = "매장을 상세 조회합니다.")
     @GetMapping("/{storeId}")
     public ResponseCustom<StoreSearchDetailsResponse> storeSearchDetails(
             Authentication authentication,
             @PathVariable Long storeId
     ) {
-        System.out.println("authentication = " + authentication);
         return ResponseCustom.OK(storeService.storeSearchDetails(AuthenticationParser.parseUserId(authentication), storeId));
     }
 
