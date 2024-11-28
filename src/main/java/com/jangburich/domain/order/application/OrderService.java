@@ -265,4 +265,18 @@ public class OrderService {
 			.message("식권을 사용했습니다.")
 			.build();
 	}
+
+	@Transactional
+	public Message removeCart(String userProviderId) {
+		User user = userRepository.findByProviderId(userProviderId)
+				.orElseThrow(() -> new NullPointerException());
+
+		List<Cart> allByUserAndStatus = cartRepository.findAllByUserAndStatus(user, Status.ACTIVE);
+
+		cartRepository.deleteAll(allByUserAndStatus);
+
+		return Message.builder()
+				.message("장바구니를 비웠습니다.")
+				.build();
+	}
 }
