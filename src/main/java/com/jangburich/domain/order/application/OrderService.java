@@ -60,6 +60,9 @@ public class OrderService {
 		Menu menu = menuRepository.findById(addCartRequest.menuId())
 			.orElseThrow(() -> new IllegalArgumentException("등록된 메뉴를 찾을 수 없습니다. "));
 
+		List<Cart> allByUserAndStatus = cartRepository.findAllByUserAndStatus(user, Status.ACTIVE);
+		Cart.validateHasAnotherStoreItem(user, addCartRequest, allByUserAndStatus);
+
 		Optional<Cart> optionalCart = cartRepository.findByUserIdAndMenuIdAndStatus(user.getUserId(), menu.getId(),
 			Status.ACTIVE);
 
