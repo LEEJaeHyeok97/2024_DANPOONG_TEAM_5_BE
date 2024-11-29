@@ -181,8 +181,8 @@ public class UserService {
 			.map(transaction -> new PurchaseHistory(
 				transaction.getCreatedAt().format(DateTimeFormatter.ofPattern("MM.dd")),
 				transaction.getTransactionedPoint(),
-				transaction.getStore() != null ? transaction.getStore().getName() : "지갑 충전",
-				transaction.getTransactionType().name()))
+				transaction.getStore() != null ? transaction.getStore().getName() : "알 수 없음",
+				transaction.getTransactionType().getDisplayName()))
 			.toList();
 		return new WalletResponse(user.getPoint(), purchaseHistories);
 	}
