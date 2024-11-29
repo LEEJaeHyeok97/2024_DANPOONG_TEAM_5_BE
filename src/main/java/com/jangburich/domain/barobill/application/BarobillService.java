@@ -6,6 +6,7 @@ import com.baroservice.ws.InvoiceParty;
 import com.baroservice.ws.TaxInvoice;
 import com.baroservice.ws.TaxInvoiceTradeLineItem;
 import com.jangburich.domain.barobill.dto.request.GetCertificateRegistURLRequest;
+import com.jangburich.domain.barobill.dto.request.RegistAndReverseIssueTaxInvoiceRequest;
 import com.jangburich.domain.barobill.dto.request.RegistCorpRequest;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -48,33 +49,34 @@ public class BarobillService {
     }
 
     @Transactional
-    public void registAndReverseIssueTaxInvoice() {
+    public void registAndReverseIssueTaxInvoice(
+            RegistAndReverseIssueTaxInvoiceRequest registAndReverseIssueTaxInvoiceRequest) {
         // 공급자, 공급받는자의 관리번호 채번
         String invoicerMgtNum = "000001-R";
         String invoiceeMgtNum = "000001-E";
 
         // 공급자, 공급받는자의 바로빌 아이디 불러오기
-        String invoicerBarobillID = "barobill";
-        String invoiceeBarobillID = "barobill";
+        String invoicerBarobillID = registAndReverseIssueTaxInvoiceRequest.invoicerBarobillID();
+        String invoiceeBarobillID = registAndReverseIssueTaxInvoiceRequest.invoiceeBarobillID();
 
         // 세금계산서 내용을 담은 클래스(또는 구조체) 생성
         TaxInvoice taxInvoice = new TaxInvoice();
 
         /**/
-        taxInvoice.setIssueDirection(1);
+        taxInvoice.setIssueDirection(2);
         taxInvoice.setTaxInvoiceType(1);
 
         taxInvoice.setModifyCode("");
 
         taxInvoice.setTaxType(1);
         taxInvoice.setTaxCalcType(1);
-        taxInvoice.setPurposeType(2);
+        taxInvoice.setPurposeType(1);
 
-        taxInvoice.setWriteDate("");
+        taxInvoice.setWriteDate("20241129");
 
-        taxInvoice.setAmountTotal("");
-        taxInvoice.setTaxTotal("");
-        taxInvoice.setTotalAmount("");
+        taxInvoice.setAmountTotal("100");
+        taxInvoice.setTaxTotal("100");
+        taxInvoice.setTotalAmount("200");
         taxInvoice.setCash("");
         taxInvoice.setChkBill("");
         taxInvoice.setNote("");
@@ -94,15 +96,15 @@ public class BarobillService {
 
         // 공급자 정보
         taxInvoice.setInvoicerParty(new InvoiceParty());
-        taxInvoice.getInvoicerParty().setMgtNum("");
+        taxInvoice.getInvoicerParty().setMgtNum(invoicerMgtNum);
         taxInvoice.getInvoicerParty().setCorpNum("");
         taxInvoice.getInvoicerParty().setTaxRegID("");
-        taxInvoice.getInvoicerParty().setCorpName("");
+        taxInvoice.getInvoicerParty().setCorpName("partisbutchershop");
         taxInvoice.getInvoicerParty().setCEOName("");
         taxInvoice.getInvoicerParty().setAddr("");
-        taxInvoice.getInvoicerParty().setBizType("");
-        taxInvoice.getInvoicerParty().setBizClass("");
-        taxInvoice.getInvoicerParty().setContactID("");
+        taxInvoice.getInvoicerParty().setBizType("한식");
+        taxInvoice.getInvoicerParty().setBizClass("음식점업");
+        taxInvoice.getInvoicerParty().setContactID(invoicerBarobillID);
         taxInvoice.getInvoicerParty().setContactName("");
         taxInvoice.getInvoicerParty().setTEL("");
         taxInvoice.getInvoicerParty().setHP("");
@@ -110,14 +112,15 @@ public class BarobillService {
 
         //공급받는자 정보
         taxInvoice.setInvoiceeParty(new InvoiceParty());
+        taxInvoice.getInvoiceeParty().setMgtNum(invoiceeMgtNum);
         taxInvoice.getInvoiceeParty().setCorpNum("");
         taxInvoice.getInvoiceeParty().setTaxRegID("");
-        taxInvoice.getInvoiceeParty().setCorpName("");
+        taxInvoice.getInvoiceeParty().setCorpName("Jangburich");
         taxInvoice.getInvoiceeParty().setCEOName("");
         taxInvoice.getInvoiceeParty().setAddr("");
         taxInvoice.getInvoiceeParty().setBizType("");
         taxInvoice.getInvoiceeParty().setBizClass("");
-        taxInvoice.getInvoiceeParty().setContactID("");
+        taxInvoice.getInvoiceeParty().setContactID(invoiceeBarobillID);
         taxInvoice.getInvoiceeParty().setContactName("");
         taxInvoice.getInvoiceeParty().setTEL("");
         taxInvoice.getInvoiceeParty().setHP("");
@@ -153,5 +156,17 @@ public class BarobillService {
 
         taxInvoice.getTaxInvoiceTradeLineItems().getTaxInvoiceTradeLineItem().add(taxInvoiceTradeLineItem);
 
+        int result = barobillApiService.taxInvoice.registAndReverseIssueTaxInvoice(CERT_KEY, "", taxInvoice,
+                false,
+                false, "");
+
+        if (result < 0) { // API 호출 실패
+            // 오류코드 내용에 따라 파라메터를 수정하여 다시 실행해주세요.
+            String errMessage = barobillApiService.taxInvoice.getErrString(CERT_KEY, result);
+            System.out.println(errMessage);
+        } else { // 성공
+            // 파트너 프로그램의 후 처리
+            System.out.println("성공");
+        }
     }
 }
