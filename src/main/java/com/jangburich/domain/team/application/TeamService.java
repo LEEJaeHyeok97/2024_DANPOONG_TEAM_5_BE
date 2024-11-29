@@ -3,6 +3,7 @@ package com.jangburich.domain.team.application;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import com.jangburich.domain.team.dto.response.MyTeamDetailsResponse;
 import com.jangburich.domain.team.dto.response.MyTeamResponse;
 import com.jangburich.domain.team.dto.response.TeamCodeResponse;
 import com.jangburich.domain.team.dto.response.TeamMemberResponse;
+import com.jangburich.domain.team.dto.response.TeamSecretCodeResponse;
 import com.jangburich.domain.user.domain.User;
 import com.jangburich.domain.user.repository.UserRepository;
 import com.jangburich.global.payload.Message;
@@ -38,7 +40,7 @@ public class TeamService {
 	private final UserTeamRepository userTeamRepository;
 
 	@Transactional
-	public Message registerTeam(String userId, RegisterTeamRequest registerTeamRequest) {
+	public TeamSecretCodeResponse registerTeam(String userId, RegisterTeamRequest registerTeamRequest) {
 		User user = userRepository.findByProviderId(userId)
 			.orElseThrow(() -> new NullPointerException());
 
@@ -47,19 +49,19 @@ public class TeamService {
 			.description(registerTeamRequest.description())
 			.teamLeader(new TeamLeader(user.getUserId(), registerTeamRequest.teamLeaderAccountNumber(),
 				registerTeamRequest.bankName()))
-			.secretCode(registerTeamRequest.secretCode())
 			.point(ZERO)
 			.teamType(TeamType.valueOf(registerTeamRequest.teamType()))
 			.build();
 
-		teamRepository.save(team);
+		Team saved = teamRepository.save(team);
 
 		UserTeam userTeam = UserTeam.of(user, team);
 		userTeamRepository.save(userTeam);
 
-		return Message.builder()
-			.message("팀 생성이 완료되었습니다.")
-			.build();
+		TeamSecretCodeResponse teamSecretCodeResponse = new TeamSecretCodeResponse();
+		teamSecretCodeResponse.setUuid(saved.getSecretCode());
+
+		return teamSecretCodeResponse;
 	}
 
 	@Transactional
@@ -134,15 +136,13 @@ public class TeamService {
 
 		if (!team.getTeamLeader().getUser_id().equals(user.getUserId())) {
 			// 일반 구성원
-			MyTeamDetailsResponse myTeamDetailsAsMember = teamRepository.findMyTeamDetailsAsMember(user.getUserId(),
+			return teamRepository.findMyTeamDetailsAsMember(user.getUserId(),
 				teamId);
-			return myTeamDetailsAsMember;
 		}
 		// 팀 리더일 때
-		MyTeamDetailsResponse myTeamDetailsAsLeader = teamRepository.findMyTeamDetailsAsLeader(user.getUserId(),
-			teamId);
 
-		return myTeamDetailsAsLeader;
+		return teamRepository.findMyTeamDetailsAsLeader(user.getUserId(),
+			teamId);
 	}
 
 	public List<TeamMemberResponse> getTeamMembers(String userId, Long teamId) {

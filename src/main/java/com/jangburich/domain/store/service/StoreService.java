@@ -34,7 +34,7 @@ import com.jangburich.domain.store.domain.StoreCreateRequestDTO;
 import com.jangburich.domain.store.domain.StoreGetResponseDTO;
 import com.jangburich.domain.store.domain.StoreTeam;
 import com.jangburich.domain.store.domain.StoreUpdateRequestDTO;
-import com.jangburich.domain.store.dto.StoreTeamResponse;
+import com.jangburich.domain.store.dto.response.StoreTeamResponse;
 import com.jangburich.domain.store.dto.response.OrdersDetailResponse;
 import com.jangburich.domain.store.dto.response.OrdersGetResponse;
 import com.jangburich.domain.store.dto.response.OrdersTodayResponse;
@@ -215,7 +215,7 @@ public class StoreService {
 		return new StoreGetResponseDTO().of(store, menus);
 	}
 
-	public List<com.jangburich.domain.store.dto.StoreTeamResponse> getPaymentGroup(String userId) {
+	public List<StoreTeamResponse> getPaymentGroup(String userId) {
 		User user = userRepository.findByProviderId(userId)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
