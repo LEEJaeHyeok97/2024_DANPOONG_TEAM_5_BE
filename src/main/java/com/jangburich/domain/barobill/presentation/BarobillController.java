@@ -2,6 +2,7 @@ package com.jangburich.domain.barobill.presentation;
 
 import com.jangburich.domain.barobill.application.BarobillService;
 import com.jangburich.domain.barobill.dto.request.GetCertificateRegistURLRequest;
+import com.jangburich.domain.barobill.dto.request.RegistAndReverseIssueTaxInvoiceRequest;
 import com.jangburich.domain.barobill.dto.request.RegistCorpRequest;
 import com.jangburich.global.payload.Message;
 import com.jangburich.global.payload.ResponseCustom;
@@ -33,6 +34,14 @@ public class BarobillController {
             @RequestBody GetCertificateRegistURLRequest getCertificateRegistURLRequest
     ) {
         barobillService.getCertificateRegistURL(getCertificateRegistURLRequest);
+        return ResponseCustom.OK(Message.builder().message("success").build());
+    }
+
+    @PostMapping("/registAndReverseIssueTaxInvoice")
+    public ResponseCustom<Message> registAndReverseIssueTaxInvoice(
+            @RequestBody RegistAndReverseIssueTaxInvoiceRequest registAndReverseIssueTaxInvoiceRequest
+    ) {
+        barobillService.registAndReverseIssueTaxInvoice(registAndReverseIssueTaxInvoiceRequest);
         return ResponseCustom.OK(Message.builder().message("success").build());
     }
 }
