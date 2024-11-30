@@ -156,7 +156,7 @@ public class OrderService {
 		PointTransaction pointTransaction = PointTransaction
 				.builder()
 				.transactionType(TransactionType.FOOD_PURCHASE)
-				.transactionedPoint(totalAmount)
+				.transactionedPoint(totalAmount * -1)
 				.team(team)
 				.user(user)
 				.store(store)
