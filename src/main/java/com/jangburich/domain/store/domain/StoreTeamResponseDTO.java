@@ -10,6 +10,7 @@ import lombok.Builder;
 public record StoreTeamResponseDTO(
 		Long id,
 		Integer remainPoint,
+		Integer point,
 		Long teamId,
 		String teamName,
 		String teamDescription,
@@ -18,10 +19,11 @@ public record StoreTeamResponseDTO(
 
 ) {
 	@QueryProjection
-	public StoreTeamResponseDTO(Long id, Integer remainPoint, Long teamId, String teamName, String teamDescription,
-								Long storeId, LocalDateTime updatedAt) {
+	public StoreTeamResponseDTO(Long id, Integer remainPoint, Integer point, Long teamId, String teamName,
+		String teamDescription, Long storeId, LocalDateTime updatedAt) {
 		this.id = id;
 		this.remainPoint = remainPoint;
+		this.point = point;
 		this.teamId = teamId;
 		this.teamName = teamName;
 		this.teamDescription = teamDescription;
