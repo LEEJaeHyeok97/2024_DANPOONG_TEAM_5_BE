@@ -159,10 +159,10 @@ public class StoreController {
 	@Operation(summary = "가게 엑셀 다운로드", description = "가게 장부 세부 내역을 엑셀로 제공합니다.")
 	@GetMapping("/excel")
 	public ResponseEntity<?> getExcel(
-		// Authentication authentication,
+		Authentication authentication,
 		@RequestParam(defaultValue = "1") Integer period
 	) {
-		byte[] excel = storeService.createExcel("test-owner", period);
+		byte[] excel = storeService.createExcel(AuthenticationParser.parseUserId(authentication), period);
 
 		String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 		String fileName = "장부_세부내역_" + period + "개월_" + today + ".xlsx";
