@@ -69,6 +69,7 @@ public class PrepayService {
 			.transactionedPoint(prepayRequest.prepayAmount())
 			.user(user)
 			.store(store)
+			.team(team)
 			.build();
 
 		pointTransactionRepository.save(pointTransaction);
@@ -94,6 +95,7 @@ public class PrepayService {
 		StoreTeam storeTeam = storeAndTeam.get();
 		storeTeam.setPersonalAllocatedPoint(prepayRequest.personalAllocatedAmount());
 		storeTeam.recharge(prepayRequest.prepayAmount());
+		storeTeam.setPrepayCount(storeTeam.getPrepayCount() + 1);
 
 		return Message.builder()
 			.message("매장 선결제가 완료되었습니다.")

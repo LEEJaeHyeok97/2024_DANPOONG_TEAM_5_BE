@@ -64,6 +64,10 @@ dependencies {
     implementation 'com.sun.xml.ws:jaxws-rt:2.3.1'
     implementation 'org.glassfish.metro:webservices-rt:2.4.4'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // excel
+    implementation 'org.apache.poi:poi:5.2.3'       // .xls
+    implementation 'org.apache.poi:poi-ooxml:5.2.3' // .xlsx
 }
 
 tasks.named('test') {
