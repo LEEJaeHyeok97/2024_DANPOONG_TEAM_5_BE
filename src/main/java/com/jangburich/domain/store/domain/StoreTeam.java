@@ -48,6 +48,9 @@ public class StoreTeam extends BaseEntity {
 	@Column(name = "prepaid_expiration_date")
 	private LocalDate prepaidExpirationDate;
 
+	@Column(name = "prepay_count")
+	private Integer prepayCount;
+
 	public void updatePersonalAllocatedPoint(Integer point) {
 		this.personalAllocatedPoint = point;
 	}
