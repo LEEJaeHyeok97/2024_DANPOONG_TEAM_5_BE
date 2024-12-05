@@ -113,6 +113,7 @@ public class TeamService {
 
 				MyTeamResponse response = new MyTeamResponse(
 					team.getName(),
+					"진행중",
 					team.getCreatedAt().toLocalDate(),
 					team.getTeamType().getDescription(),
 					false, // isLiked는 임의로 false로 설정

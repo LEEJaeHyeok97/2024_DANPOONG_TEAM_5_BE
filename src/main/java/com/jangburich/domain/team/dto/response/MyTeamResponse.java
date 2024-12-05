@@ -5,6 +5,7 @@ import java.util.List;
 
 public record MyTeamResponse(
         String teamName,
+        String processState,
         LocalDate createdDate,
         String teamType,
         Boolean isLiked,
