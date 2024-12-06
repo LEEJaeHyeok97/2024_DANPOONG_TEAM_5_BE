@@ -68,7 +68,7 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
         List<TodayPayment> todayPayments = queryFactory
                 .selectDistinct(new QTodayPayment(
                         Expressions.constant(formattedDate),
-                        pointTransaction.createdAt.stringValue(),
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%H:%i')", pointTransaction.createdAt),
                         menu.name,
                         cart.user.name,
                         menu.price
@@ -104,13 +104,6 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
                 .leftJoin(pointTransaction).on(pointTransaction.transactionType.eq(TransactionType.FOOD_PURCHASE),
                         pointTransaction.user.userId.eq(userId))
                 .where(storeTeam.team.id.eq(teamId))
-                .groupBy(
-                        storeTeam.team.id,
-                        storeTeam.team.name,
-                        storeTeam.team.description,
-                        storeTeam.remainPoint,
-                        storeTeam.personalAllocatedPoint
-                )
                 .fetchOne();
 
     }
@@ -139,7 +132,7 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
         List<TodayPayment> todayPayments = queryFactory
                 .selectDistinct(new QTodayPayment(
                         Expressions.constant(formattedDate),
-                        pointTransaction.createdAt.stringValue(),
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%H:%i')", pointTransaction.createdAt),
                         menu.name,
                         cart.user.name,
                         menu.price
@@ -175,13 +168,6 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
                 .leftJoin(pointTransaction).on(pointTransaction.transactionType.eq(TransactionType.FOOD_PURCHASE),
                         pointTransaction.user.userId.eq(userId))
                 .where(storeTeam.team.id.eq(teamId))
-                .groupBy(
-                        storeTeam.team.id,
-                        storeTeam.team.name,
-                        storeTeam.team.description,
-                        storeTeam.point,
-                        storeTeam.remainPoint
-                )
                 .fetchOne();
 
     }
