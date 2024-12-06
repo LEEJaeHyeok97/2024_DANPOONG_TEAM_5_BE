@@ -6,13 +6,13 @@ import java.util.List;
 public record CartResponse(
         Long storeId,
         String storeName,
-        Category storeCategory,
+        String storeCategory,
         List<GetCartItemsResponse> cartItems,
         Integer totalAmount,
         Integer discountAmount,
         Integer finalAmount
 ) {
-    public static CartResponse of(Long storeId, String storeName, Category storeCategory, List<GetCartItemsResponse> cartItems, Integer discountAmount) {
+    public static CartResponse of(Long storeId, String storeName, String storeCategory, List<GetCartItemsResponse> cartItems, Integer discountAmount) {
         int totalAmount = cartItems.stream()
                 .mapToInt(item -> item.menuPrice() * item.quantity())
                 .sum();
