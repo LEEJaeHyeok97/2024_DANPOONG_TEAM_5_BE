@@ -105,10 +105,12 @@ public class OrderService {
 
 		List<GetCartItemsResponse> cartItems = carts.stream()
 			.map(cart -> GetCartItemsResponse.of(
-				cart.getMenu().getName(),
-				cart.getMenu().getDescription(),
-				cart.getQuantity(),
-				cart.getMenu().getPrice()
+					cart.getMenu().getId(),
+					cart.getMenu().getImageUrl(),
+					cart.getMenu().getName(),
+					cart.getMenu().getDescription(),
+					cart.getQuantity(),
+					cart.getMenu().getPrice()
 			))
 			.toList();
 
