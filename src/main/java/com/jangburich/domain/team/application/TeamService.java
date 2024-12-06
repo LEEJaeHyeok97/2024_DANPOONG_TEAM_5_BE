@@ -1,9 +1,10 @@
 package com.jangburich.domain.team.application;
 
+import com.jangburich.domain.store.domain.Store;
+import com.jangburich.domain.store.repository.StoreRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +39,7 @@ public class TeamService {
 	private final TeamRepository teamRepository;
 	private final UserRepository userRepository;
 	private final UserTeamRepository userTeamRepository;
+	private final StoreRepository storeRepository;
 
 	@Transactional
 	public TeamSecretCodeResponse registerTeam(String userId, RegisterTeamRequest registerTeamRequest) {
@@ -128,22 +130,25 @@ public class TeamService {
 		return myTeamResponses;
 	}
 
-	public MyTeamDetailsResponse getTeamDetailsById(String userId, Long teamId) {
+	public MyTeamDetailsResponse getTeamDetailsById(String userId, Long teamId, Long storeId) {
 		User user = userRepository.findByProviderId(userId)
 			.orElseThrow(() -> new NullPointerException("사용자를 찾을 수 없습니다."));
 
 		Team team = teamRepository.findById(teamId)
 			.orElseThrow(() -> new IllegalArgumentException("해당 팀을 찾을 수 없습니다."));
 
+		Store store = storeRepository.findById(storeId)
+				.orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
+
 		if (!team.getTeamLeader().getUser_id().equals(user.getUserId())) {
 			// 일반 구성원
 			return teamRepository.findMyTeamDetailsAsMember(user.getUserId(),
-				teamId);
+				teamId, storeId);
 		}
 		// 팀 리더일 때
 
 		return teamRepository.findMyTeamDetailsAsLeader(user.getUserId(),
-			teamId);
+			teamId, storeId);
 	}
 
 	public List<TeamMemberResponse> getTeamMembers(String userId, Long teamId) {
