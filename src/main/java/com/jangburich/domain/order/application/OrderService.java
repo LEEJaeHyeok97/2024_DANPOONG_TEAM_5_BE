@@ -100,7 +100,7 @@ public class OrderService {
 		List<Cart> carts = cartRepository.findAllByUserAndStatus(user, Status.ACTIVE);
 
 		if (carts.isEmpty()) {
-			return CartResponse.of(List.of(), 0);
+			return CartResponse.of(null, null, null, List.of(), 0);
 		}
 
 		List<GetCartItemsResponse> cartItems = carts.stream()
@@ -115,7 +115,7 @@ public class OrderService {
 			.toList();
 
 		int discountAmount = 0;
-		CartResponse cartResponse = CartResponse.of(cartItems, discountAmount);
+		CartResponse cartResponse = CartResponse.of(carts.get(0).getStore().getId(), carts.get(0).getStore().getName(), carts.get(0).getStore().getCategory(), cartItems, discountAmount);
 
 		return cartResponse;
 	}
