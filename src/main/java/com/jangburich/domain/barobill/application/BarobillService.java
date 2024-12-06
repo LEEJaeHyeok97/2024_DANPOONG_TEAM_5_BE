@@ -9,6 +9,8 @@ import com.baroservice.ws.TaxInvoiceTradeLineItem;
 import com.jangburich.domain.barobill.dto.request.GetCertificateRegistURLRequest;
 import com.jangburich.domain.barobill.dto.request.RegistAndReverseIssueTaxInvoiceRequest;
 import com.jangburich.domain.barobill.dto.request.RegistCorpRequest;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -82,14 +84,14 @@ public class BarobillService {
     }
 
     @Transactional
-    public void registAndReverseIssueTaxInvoice(
-            RegistAndReverseIssueTaxInvoiceRequest registAndReverseIssueTaxInvoiceRequest) {
+    public void registAndReverseIssueTaxInvoice() {
+        String timestamp = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
         // 공급자, 공급받는자의 관리번호 채번
-//        String invoicerMgtNum = "000003-R";
-//        String invoiceeMgtNum = "000003-E";
+        String invoicerMgtNum = timestamp + "-R";
+        String invoiceeMgtNum = timestamp + "-E";
 
-        String invoicerMgtNum = registAndReverseIssueTaxInvoiceRequest.invoicerMgtNum();
-        String invoiceeMgtNum = registAndReverseIssueTaxInvoiceRequest.invoiceeMgtNum();
+//        String invoicerMgtNum = registAndReverseIssueTaxInvoiceRequest.invoicerMgtNum();
+//        String invoiceeMgtNum = registAndReverseIssueTaxInvoiceRequest.invoiceeMgtNum();
 
         // 공급자, 공급받는자의 바로빌 아이디 불러오기
 //        String invoicerBarobillID = registAndReverseIssueTaxInvoiceRequest.invoicerBarobillID();
@@ -146,7 +148,7 @@ public class BarobillService {
         taxInvoice.getInvoicerParty().setContactName("빠리정육점");
         taxInvoice.getInvoicerParty().setTEL("");
         taxInvoice.getInvoicerParty().setHP("");
-        taxInvoice.getInvoicerParty().setEmail("tkddn0518@naver.com");
+        taxInvoice.getInvoicerParty().setEmail("hazardous10@naver.com");
 
         //공급받는자 정보
         taxInvoice.setInvoiceeParty(new InvoiceParty());

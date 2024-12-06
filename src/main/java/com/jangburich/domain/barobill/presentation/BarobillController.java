@@ -33,8 +33,8 @@ public class BarobillController {
 
     @Operation(summary = "세금계산서 역발행 요청", description = "세금 계산서를 소상공인이 역발행 요청합니다.")
     @PostMapping("/registAndReverseIssueTaxInvoice")
-    public ResponseCustom<Message> registAndReverseIssueTaxInvoice(@RequestBody RegistAndReverseIssueTaxInvoiceRequest registAndReverseIssueTaxInvoiceRequest) {
-        barobillService.registAndReverseIssueTaxInvoice(registAndReverseIssueTaxInvoiceRequest);
+    public ResponseCustom<Message> registAndReverseIssueTaxInvoice() {
+        barobillService.registAndReverseIssueTaxInvoice();
         return ResponseCustom.OK(Message.builder().message("success").build());
     }
 
