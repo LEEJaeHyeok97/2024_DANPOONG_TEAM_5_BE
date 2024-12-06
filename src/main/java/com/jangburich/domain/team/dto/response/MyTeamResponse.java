@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record MyTeamResponse(
+        Long teamId,
         String teamName,
         String processState,
         LocalDate createdDate,
