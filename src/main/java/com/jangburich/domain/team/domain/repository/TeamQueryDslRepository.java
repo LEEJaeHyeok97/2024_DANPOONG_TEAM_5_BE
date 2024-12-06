@@ -8,5 +8,5 @@ public interface TeamQueryDslRepository {
 
     MyTeamDetailsResponse findMyTeamDetailsAsLeader(Long userId, Long teamId);
 
-    IndividualStoreDetailsResponse findIndividualStoreDetails(Long userId, Long teamId, Long storeId);
+    IndividualStoreDetailsResponse findIndividualStoreDetails(Long userId, Long teamId, Long storeId, boolean isMeLeader);
 }

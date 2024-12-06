@@ -207,8 +207,10 @@
             Store store = storeRepository.findById(storeId)
                     .orElseThrow(() -> new IllegalArgumentException("해당하는 가게를 찾을 수 없습니다."));
 
+            boolean isMeLeader = team.getTeamLeader().getUser_id().equals(user.getUserId());
+
             IndividualStoreDetailsResponse individualStoreDetails = teamRepository.findIndividualStoreDetails(
-                    user.getUserId(), team.getId(), store.getId());
+                    user.getUserId(), team.getId(), store.getId(), isMeLeader);
 
             return individualStoreDetails;
         }
