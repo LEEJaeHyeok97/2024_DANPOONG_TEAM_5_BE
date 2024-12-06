@@ -95,7 +95,12 @@ public class PrepayService {
 		StoreTeam storeTeam = storeAndTeam.get();
 		storeTeam.setPersonalAllocatedPoint(prepayRequest.personalAllocatedAmount());
 		storeTeam.recharge(prepayRequest.prepayAmount());
-		storeTeam.setPrepayCount(storeTeam.getPrepayCount() + 1);
+
+		if (storeTeam.getPrepayCount() != null) {
+			storeTeam.setPrepayCount(storeTeam.getPrepayCount() + 1);
+		} else {
+			storeTeam.setPrepayCount(1);
+		}
 
 		return Message.builder()
 			.message("매장 선결제가 완료되었습니다.")
