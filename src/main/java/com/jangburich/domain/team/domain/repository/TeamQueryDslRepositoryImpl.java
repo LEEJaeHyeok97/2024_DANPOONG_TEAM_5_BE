@@ -40,7 +40,7 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
     LocalDateTime endOfDay = currentDate.plusDays(1).atStartOfDay().minusNanos(1);
 
     @Override
-    public MyTeamDetailsResponse findMyTeamDetailsAsMember(Long userId, Long teamId) {
+    public MyTeamDetailsResponse findMyTeamDetailsAsMember(Long userId, Long teamId, Long storeId) {
 
         List<PrepayedStore> prepayedStores = queryFactory
                 .select(new QPrepayedStore(
@@ -51,7 +51,7 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
                         Expressions.constant(false)
                 ))
                 .from(store)
-                .leftJoin(storeTeam).on(storeTeam.team.id.eq(teamId))
+                .leftJoin(storeTeam).on(storeTeam.team.id.eq(storeId))
                 .fetch();
 
         List<String> images = queryFactory
@@ -109,7 +109,7 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
     }
 
     @Override
-    public MyTeamDetailsResponse findMyTeamDetailsAsLeader(Long userId, Long teamId) {
+    public MyTeamDetailsResponse findMyTeamDetailsAsLeader(Long userId, Long teamId, Long storeId) {
 
         List<PrepayedStore> prepayedStores = queryFactory
                 .select(new QPrepayedStore(
@@ -120,7 +120,7 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
                         Expressions.constant(false)
                 ))
                 .from(store)
-                .leftJoin(storeTeam).on(storeTeam.team.id.eq(teamId))
+                .leftJoin(storeTeam).on(storeTeam.team.id.eq(storeId))
                 .fetch();
 
         List<String> images = queryFactory

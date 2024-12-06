@@ -65,13 +65,14 @@ public class TeamController {
 	}
 
 	@Operation(summary = "그룹(팀) 상세 조회", description = "내가 속한 팀의 정보를 상세 조회합니다.")
-	@GetMapping("/{teamId}")
+	@GetMapping("/{teamId}/{storeId}")
 	public ResponseCustom<MyTeamDetailsResponse> getTeamDetailsById(
 		Authentication authentication,
-		@PathVariable Long teamId
+		@PathVariable Long teamId,
+		@PathVariable Long storeId
 	) {
 		return ResponseCustom.OK(
-			teamService.getTeamDetailsById(AuthenticationParser.parseUserId(authentication), teamId));
+			teamService.getTeamDetailsById(AuthenticationParser.parseUserId(authentication), teamId, storeId));
 	}
 
 	@Operation(summary = "그룹(팀) 멤버 전체 조회", description = "그룹(팀)에 소속된 모든 멤버를 조회합니다.")
