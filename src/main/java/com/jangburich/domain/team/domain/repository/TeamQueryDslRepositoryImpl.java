@@ -11,8 +11,13 @@ import static com.jangburich.domain.user.domain.QUser.user;
 
 import com.jangburich.domain.common.Status;
 import com.jangburich.domain.point.domain.TransactionType;
+import com.jangburich.domain.store.domain.QStoreTeam;
+import com.jangburich.domain.team.dto.response.IndividualStoreDetailsResponse;
+import com.jangburich.domain.team.dto.response.MyPaymentHistory;
 import com.jangburich.domain.team.dto.response.MyTeamDetailsResponse;
 import com.jangburich.domain.team.dto.response.PrepayedStore;
+import com.jangburich.domain.team.dto.response.QIndividualStoreDetailsResponse;
+import com.jangburich.domain.team.dto.response.QMyPaymentHistory;
 import com.jangburich.domain.team.dto.response.QMyTeamDetailsResponse;
 import com.jangburich.domain.team.dto.response.QPrepayedStore;
 import com.jangburich.domain.team.dto.response.QTodayPayment;
@@ -40,7 +45,7 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
     LocalDateTime endOfDay = currentDate.plusDays(1).atStartOfDay().minusNanos(1);
 
     @Override
-    public MyTeamDetailsResponse findMyTeamDetailsAsMember(Long userId, Long teamId, Long storeId) {
+    public MyTeamDetailsResponse findMyTeamDetailsAsMember(Long userId, Long teamId) {
 
         List<PrepayedStore> prepayedStores = queryFactory
                 .select(new QPrepayedStore(
@@ -51,7 +56,7 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
                         Expressions.constant(false)
                 ))
                 .from(store)
-                .leftJoin(storeTeam).on(storeTeam.team.id.eq(storeId))
+                .leftJoin(storeTeam).on(storeTeam.team.id.eq(teamId))
                 .fetch();
 
         List<String> images = queryFactory
@@ -109,7 +114,7 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
     }
 
     @Override
-    public MyTeamDetailsResponse findMyTeamDetailsAsLeader(Long userId, Long teamId, Long storeId) {
+    public MyTeamDetailsResponse findMyTeamDetailsAsLeader(Long userId, Long teamId) {
 
         List<PrepayedStore> prepayedStores = queryFactory
                 .select(new QPrepayedStore(
@@ -120,7 +125,7 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
                         Expressions.constant(false)
                 ))
                 .from(store)
-                .leftJoin(storeTeam).on(storeTeam.team.id.eq(storeId))
+                .leftJoin(storeTeam).on(storeTeam.team.id.eq(teamId))
                 .fetch();
 
         List<String> images = queryFactory
@@ -176,5 +181,65 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
             )
             .fetchOne();
 
+    }
+
+    @Override
+    public IndividualStoreDetailsResponse findIndividualStoreDetails(Long userId, Long teamId, Long storeId) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime oneMonthAgo = now.minusMonths(1);
+
+        List<MyPaymentHistory> myPaymentHistories = queryFactory
+                .select(new QMyPaymentHistory(
+                        Expressions.stringTemplate(
+                                "DATE_FORMAT({0}, '%m.%d')", pointTransaction.createdAt
+                        ),
+                        Expressions.stringTemplate(
+                                "DATE_FORMAT({0}, '%H:%i')", pointTransaction.createdAt
+                        ),
+                        menu.name,
+                        menu.price
+                ))
+                .from(pointTransaction)
+                .leftJoin(menu).on(pointTransaction.menuId.eq(menu.id))
+                .where(pointTransaction.store.id.eq(storeId),
+                        pointTransaction.team.id.eq(teamId),
+                        pointTransaction.user.userId.eq(userId),
+                        pointTransaction.createdAt.between(oneMonthAgo, now))
+                .fetch();
+
+        Integer totalPrice = queryFactory
+                .select(pointTransaction.transactionedPoint.sum())
+                .from(pointTransaction)
+                .where(pointTransaction.store.id.eq(storeId),
+                        pointTransaction.team.id.eq(teamId),
+                        pointTransaction.user.userId.eq(userId),
+                        pointTransaction.createdAt.between(oneMonthAgo, now))
+                .fetchOne();
+
+        return queryFactory
+                .selectDistinct(new QIndividualStoreDetailsResponse(
+                        store.id,
+                        store.name,
+                        Expressions.constant(false),
+                        storeTeam.remainPoint,
+                        storeTeam.personalAllocatedPoint,
+                        Expressions.constant(totalPrice),
+                        Expressions.stringTemplate(
+                                "DATE_FORMAT({0}, '%y.%m.%d')", oneMonthAgo
+                        ),
+                        Expressions.stringTemplate(
+                                "DATE_FORMAT({0}, '%y.%m.%d')", now
+                        ),
+                        Expressions.constant(myPaymentHistories)
+                ))
+                .from(storeTeam)
+                .leftJoin(store).on(storeTeam.store.id.eq(store.id))
+                .leftJoin(team).on(team.id.eq(storeTeam.team.id))
+                .leftJoin(pointTransaction).on(pointTransaction.store.id.eq(storeTeam.store.id),
+                        pointTransaction.transactionType.eq(TransactionType.FOOD_PURCHASE),
+                        pointTransaction.user.userId.eq(userId))
+                .where(storeTeam.store.id.eq(storeId),
+                        storeTeam.team.id.eq(teamId))
+                .fetchOne();
     }
 }
