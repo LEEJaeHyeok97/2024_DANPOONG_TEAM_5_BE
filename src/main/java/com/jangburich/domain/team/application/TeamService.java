@@ -2,6 +2,7 @@
 
     import com.jangburich.domain.store.domain.Store;
     import com.jangburich.domain.store.repository.StoreRepository;
+    import com.jangburich.domain.team.dto.response.IndividualStoreDetailsResponse;
     import java.util.ArrayList;
     import java.util.List;
     import java.util.Optional;
@@ -131,25 +132,22 @@
             return myTeamResponses;
         }
 
-        public MyTeamDetailsResponse getTeamDetailsById(String userId, Long teamId, Long storeId) {
+        public MyTeamDetailsResponse getTeamDetailsById(String userId, Long teamId) {
             User user = userRepository.findByProviderId(userId)
                     .orElseThrow(() -> new NullPointerException("사용자를 찾을 수 없습니다."));
 
             Team team = teamRepository.findById(teamId)
                     .orElseThrow(() -> new IllegalArgumentException("해당 팀을 찾을 수 없습니다."));
 
-            Store store = storeRepository.findById(storeId)
-                    .orElseThrow(() -> new IllegalArgumentException("해당 가게를 찾을 수 없습니다."));
-
             if (!team.getTeamLeader().getUser_id().equals(user.getUserId())) {
                 // 일반 구성원
                 return teamRepository.findMyTeamDetailsAsMember(user.getUserId(),
-                        teamId, storeId);
+                        teamId);
             }
             // 팀 리더일 때
 
             return teamRepository.findMyTeamDetailsAsLeader(user.getUserId(),
-                    teamId, storeId);
+                    teamId);
         }
 
         public List<TeamMemberResponse> getTeamMembers(String userId, Long teamId) {
@@ -197,5 +195,21 @@
                     team.getStatus());
 
             return teamCodeResponse;
+        }
+
+        public IndividualStoreDetailsResponse getIndividualStoreDetails(String userId, Long teamId, Long storeId) {
+            User user = userRepository.findByProviderId(userId)
+                    .orElseThrow(() -> new NullPointerException("사용자를 찾을 수 없습니다."));
+
+            Team team = teamRepository.findById(teamId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당하는 팀을 찾을 수 없습니다."));
+
+            Store store = storeRepository.findById(storeId)
+                    .orElseThrow(() -> new IllegalArgumentException("해당하는 가게를 찾을 수 없습니다."));
+
+            IndividualStoreDetailsResponse individualStoreDetails = teamRepository.findIndividualStoreDetails(
+                    user.getUserId(), team.getId(), store.getId());
+
+            return individualStoreDetails;
         }
     }

@@ -1,5 +1,6 @@
 package com.jangburich.domain.team.presentation;
 
+import com.jangburich.domain.team.dto.response.IndividualStoreDetailsResponse;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,14 +66,24 @@ public class TeamController {
 	}
 
 	@Operation(summary = "그룹(팀) 상세 조회", description = "내가 속한 팀의 정보를 상세 조회합니다.")
-	@GetMapping("/{teamId}/{storeId}")
+	@GetMapping("/{teamId}")
 	public ResponseCustom<MyTeamDetailsResponse> getTeamDetailsById(
 		Authentication authentication,
-		@PathVariable Long teamId,
-		@PathVariable Long storeId
+		@PathVariable Long teamId
 	) {
 		return ResponseCustom.OK(
-			teamService.getTeamDetailsById(AuthenticationParser.parseUserId(authentication), teamId, storeId));
+			teamService.getTeamDetailsById(AuthenticationParser.parseUserId(authentication), teamId));
+	}
+
+	@Operation(summary = "그룹 상세 조회에서 개별 매장 상세 조회", description = "그룹 상세 조회에서 한 매장을 선택 시 조회되는 정보.")
+	@GetMapping("/{teamId}/{storeId}")
+	public ResponseCustom<IndividualStoreDetailsResponse> getIndividualStoreDetails(
+			Authentication authentication,
+			@PathVariable Long teamId,
+			@PathVariable Long storeId
+	) {
+		return ResponseCustom.OK(
+				teamService.getIndividualStoreDetails(AuthenticationParser.parseUserId(authentication), teamId, storeId));
 	}
 
 	@Operation(summary = "그룹(팀) 멤버 전체 조회", description = "그룹(팀)에 소속된 모든 멤버를 조회합니다.")

@@ -153,16 +153,19 @@ public class OrderService {
 				})
 				.sum();
 
-		PointTransaction pointTransaction = PointTransaction
-				.builder()
-				.transactionType(TransactionType.FOOD_PURCHASE)
-				.transactionedPoint(totalAmount * -1)
-				.team(team)
-				.user(user)
-				.store(store)
-				.build();
+		for (OrderRequest.OrderItemRequest item : orderRequest.items()) {
+			PointTransaction pointTransaction = PointTransaction
+					.builder()
+					.transactionType(TransactionType.FOOD_PURCHASE)
+					.transactionedPoint(totalAmount * -1)
+					.team(team)
+					.user(user)
+					.store(store)
+					.menuId(item.menuId())
+					.build();
 
-		pointTransactionRepository.save(pointTransaction);
+			pointTransactionRepository.save(pointTransaction);
+		}
 
 		StoreTeam storeTeam = storeTeamRepository.findByStoreIdAndTeamId(store.getId(), team.getId())
 				.orElseThrow(() -> new IllegalArgumentException("유효하지 않은 가게 id와 팀 id 입니다."));
