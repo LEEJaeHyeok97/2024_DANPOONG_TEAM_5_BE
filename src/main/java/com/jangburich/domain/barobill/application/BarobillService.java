@@ -148,7 +148,7 @@ public class BarobillService {
         taxInvoice.getInvoicerParty().setContactName("빠리정육점");
         taxInvoice.getInvoicerParty().setTEL("");
         taxInvoice.getInvoicerParty().setHP("");
-        taxInvoice.getInvoicerParty().setEmail("hazardous10@naver.com");
+        taxInvoice.getInvoicerParty().setEmail("tkddn0518@naver.com");
 
         //공급받는자 정보
         taxInvoice.setInvoiceeParty(new InvoiceParty());
