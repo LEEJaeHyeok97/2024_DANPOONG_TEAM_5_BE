@@ -1,5 +1,7 @@
 package com.jangburich.domain.store.domain;
 
+import java.util.Arrays;
+
 public enum Category {
     ALL("전체"),
     KOREAN("한식"),
@@ -24,4 +26,19 @@ public enum Category {
     public String getDisplayName() {
         return displayName;
     }
+
+    public static Category fromDisplayName(String displayName) {
+        return Arrays.stream(Category.values())
+            .filter(category -> category.getDisplayName().equals(displayName))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Invalid category: " + displayName + ". Please use one of: " + getValidCategories()));
+    }
+
+    private static String getValidCategories() {
+        return Arrays.stream(Category.values())
+            .map(Category::getDisplayName)
+            .reduce((a, b) -> a + ", " + b)
+            .orElse("");
+    }
+
 }
