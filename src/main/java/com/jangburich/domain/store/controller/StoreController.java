@@ -57,13 +57,12 @@ public class StoreController {
 	public ResponseCustom<Page<SearchStoresResponse>> searchByCategory(
 		Authentication authentication,
 		@RequestParam(required = false, defaultValue = "3") Integer searchRadius,
-		@RequestParam(required = false, defaultValue = "ALL") Category category,
-		Double lat,
-		Double lon, Pageable pageable) {
+		@RequestParam(required = false, defaultValue = "전체") String category,
+		Double lat, Double lon, Pageable pageable) {
+		Category categoryEnum = Category.fromDisplayName(category);
 		return ResponseCustom.OK(
-			storeService.searchByCategory(AuthenticationParser.parseUserId(authentication), searchRadius, category, lat,
-				lon,
-				pageable));
+			storeService.searchByCategory(AuthenticationParser.parseUserId(authentication), searchRadius, categoryEnum,
+				lat, lon, pageable));
 	}
 
 	@Operation(summary = "매장 찾기(검색)", description = "검색어와 매장 유형에 맞는 매장을 검색합니다.")
@@ -159,10 +158,10 @@ public class StoreController {
 	@Operation(summary = "가게 엑셀 다운로드", description = "가게 장부 세부 내역을 엑셀로 제공합니다.")
 	@GetMapping("/excel")
 	public ResponseEntity<?> getExcel(
-		Authentication authentication,
+		// Authentication authentication,
 		@RequestParam(defaultValue = "1") Integer period
 	) {
-		byte[] excel = storeService.createExcel(AuthenticationParser.parseUserId(authentication), period);
+		byte[] excel = storeService.createExcel("test-owner", period);
 
 		String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 		String fileName = "장부_세부내역_" + period + "개월_" + today + ".xlsx";
