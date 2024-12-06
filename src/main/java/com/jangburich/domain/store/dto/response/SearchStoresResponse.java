@@ -3,6 +3,9 @@ package com.jangburich.domain.store.dto.response;
 import com.jangburich.domain.store.domain.Category;
 import com.querydsl.core.annotations.QueryProjection;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 import lombok.Builder;
 
 @Builder
@@ -33,9 +36,18 @@ public record SearchStoresResponse(
 			category.getDisplayName(),
 			distance,
 			businessStatus,
-			closeTime,
+			formatCloseTime(closeTime),
 			phoneNumber,
 			imageUrl
 		);
+	}
+
+	private static String formatCloseTime(String closeTime) {
+		try {
+			LocalTime time = LocalTime.parse(closeTime.split("\\.")[0]);
+			return time.format(DateTimeFormatter.ofPattern("HH:mm"));
+		} catch (Exception e) {
+			return closeTime;
+		}
 	}
 }
