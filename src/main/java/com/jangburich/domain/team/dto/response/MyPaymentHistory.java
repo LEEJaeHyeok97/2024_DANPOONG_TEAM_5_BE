@@ -6,14 +6,16 @@ public record MyPaymentHistory(
         String paymentDate,
         String paymentTime,
         String menuName,
-        int price
+        int price,
+        String userName
 ) {
 
     @QueryProjection
-    public MyPaymentHistory(String paymentDate, String paymentTime, String menuName, int price) {
+    public MyPaymentHistory(String paymentDate, String paymentTime, String menuName, int price, String userName) {
         this.paymentDate = paymentDate;
         this.paymentTime = paymentTime;
         this.menuName = menuName;
         this.price = price;
+        this.userName = userName;
     }
 }
