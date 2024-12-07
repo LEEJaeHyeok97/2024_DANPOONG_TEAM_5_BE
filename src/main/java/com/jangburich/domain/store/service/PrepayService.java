@@ -126,6 +126,8 @@ public class PrepayService {
 		}
 		prepaymentInfoResponse.setMinPrepayAmount(store.getMinPrepayment());
 		prepaymentInfoResponse.setWallet(user.getPoint());
+		prepaymentInfoResponse.setCategory(store.getCategory().getDisplayName());
+		prepaymentInfoResponse.setStoreName(store.getName());
 		return prepaymentInfoResponse;
 	}
 }

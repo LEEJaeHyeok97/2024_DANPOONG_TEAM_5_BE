@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import com.jangburich.domain.payment.domain.repository.TeamChargeHistoryRepository;
 import com.jangburich.domain.payment.dto.request.PayRequest;
 import com.jangburich.domain.payment.dto.response.ApproveResponse;
 import com.jangburich.domain.payment.dto.response.ReadyResponse;
@@ -82,14 +81,6 @@ public class KakaopayService implements PaymentService {
 
 		readyResponseResponseEntity = template.postForEntity(url, requestEntity, ReadyResponse.class);
 
-		PointTransaction pointTransaction = PointTransaction.builder()
-			.user(user)
-			.transactionedPoint(Integer.valueOf(payRequest.totalAmount()))
-			.transactionType(TransactionType.POINT_PURCHASE)
-			.build();
-
-		pointTransactionRepository.save(pointTransaction);
-
 		return readyResponseResponseEntity.getBody();
 	}
 
@@ -112,7 +103,15 @@ public class KakaopayService implements PaymentService {
 
 		User user = userRepository.findByProviderId(userId)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
-		user.setPoint(user.getPoint() + Integer.valueOf(payRequest.totalAmount()));
+		user.setPoint(user.getPoint() + Integer.parseInt(payRequest.totalAmount()));
+
+		PointTransaction pointTransaction = PointTransaction.builder()
+			.user(user)
+			.transactionedPoint(Integer.valueOf(payRequest.totalAmount()))
+			.transactionType(TransactionType.POINT_PURCHASE)
+			.build();
+
+		pointTransactionRepository.save(pointTransaction);
 
 		return approveResponse;
 	}

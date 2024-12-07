@@ -293,14 +293,17 @@ public class StoreService {
 
 		List<Orders> orders = ordersRepository.findAllByTeam(team);
 
-		List<OrderResponse> orderResponse = orders.stream().map(order -> {
-			int price = 0;
-			for (Cart cart : cartRepository.findAllByOrders(order)) {
-				price += cart.getMenu().getPrice();
-			}
-			return new OrderResponse(order.getId(), order.getUser().getName(), order.getUpdatedAt(),
-				String.valueOf(price));
-		}).toList();
+		List<OrderResponse> orderResponse = orders.stream()
+			.map(order -> {
+				int price = 0;
+				for (Cart cart : cartRepository.findAllByOrders(order)) {
+					price += cart.getMenu().getPrice();
+				}
+				return new OrderResponse(order.getId(), order.getUser().getName(), order.getUpdatedAt(),
+					String.valueOf(price));
+			})
+			.sorted(Comparator.comparing(OrderResponse::getDate).reversed())
+			.toList();
 
 		return PaymentGroupDetailResponse.create(team, storeTeam.getPoint(), storeTeam.getRemainPoint(),
 			teamLeader, orderResponse);
@@ -316,7 +319,9 @@ public class StoreService {
 		Store store = storeRepository.findByOwner(owner)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
-		return pointTransactionRepository.findAllByStore(store);
+		return pointTransactionRepository.findAllByStore(store).stream()
+			.sorted(Comparator.comparing(StoreChargeHistoryResponse::createdAt).reversed()) // 최신순 정렬
+			.toList();
 	}
 
 	public List<OrdersGetResponse> getOrdersLast(String userId) {
@@ -461,7 +466,7 @@ public class StoreService {
 		Row headerRow = sheet.createRow(0);
 
 		// 헤더 스타일 생성
-		XSSFCellStyle headerStyle = (XSSFCellStyle) sheet.getWorkbook().createCellStyle();
+		XSSFCellStyle headerStyle = (XSSFCellStyle)sheet.getWorkbook().createCellStyle();
 
 		// 헥사 색상 설정
 		XSSFColor customColor = new XSSFColor(Color.decode("#FF7048"), null);
