@@ -1,6 +1,7 @@
 package com.jangburich.domain.user.service;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -178,12 +179,14 @@ public class UserService {
 		List<PointTransaction> transactions = pointTransactionRepository.findByUser(user);
 
 		List<PurchaseHistory> purchaseHistories = transactions.stream()
+			.sorted(Comparator.comparing(PointTransaction::getCreatedAt).reversed())
 			.map(transaction -> new PurchaseHistory(
 				transaction.getCreatedAt().format(DateTimeFormatter.ofPattern("MM.dd")),
 				transaction.getTransactionedPoint(),
-				transaction.getStore() != null ? transaction.getStore().getName() : "알 수 없음",
+				transaction.getStore() != null ? transaction.getStore().getName() : "장부리치 지갑",
 				transaction.getTransactionType().getDisplayName()))
 			.toList();
+
 		return new WalletResponse(user.getPoint(), purchaseHistories);
 	}
 
