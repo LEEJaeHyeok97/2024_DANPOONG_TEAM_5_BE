@@ -2,6 +2,7 @@ package com.jangburich.domain.store.repository;
 
 import com.jangburich.domain.team.domain.Team;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,4 +20,6 @@ public interface StoreTeamRepository extends JpaRepository<StoreTeam, Long> {
 	List<StoreTeamResponseDTO> findAllByStore(Store store);
 
     Optional<StoreTeam> findByStoreAndTeam(Store store, Team team);
+
+	List<StoreTeamResponseDTO> findAllByStoreOrderByCreatedAtDesc(Store store);
 }
