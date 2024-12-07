@@ -245,7 +245,11 @@ public class OrderService {
 			.team(team)
 			.orderStatus(OrderStatus.RECEIVED)
 			.build();
-		return ordersRepository.save(orders);
+		try {
+			return ordersRepository.save(orders);
+		} catch (OptimisticLockException e) {
+		throw new IllegalStateException("중복 요청입니다. 이전 요청이 처리 중입니다.");
+	}
 	}
 
 	@Transactional
