@@ -248,7 +248,7 @@ public class StoreService {
 		Store store = storeRepository.findByOwner(owner)
 			.orElseThrow(() -> new DefaultNullPointerException(ErrorCode.INVALID_AUTHENTICATION));
 
-		return storeTeamRepository.findAllByStore(store)
+		return storeTeamRepository.findAllByStoreOrderByCreatedAtDesc(store)
 			.stream()
 			.map(storeTeamResponseDTO -> new StoreTeamResponse(storeTeamResponseDTO.id(),
 				storeTeamResponseDTO.remainPoint(),
@@ -299,8 +299,8 @@ public class StoreService {
 				for (Cart cart : cartRepository.findAllByOrders(order)) {
 					price += cart.getMenu().getPrice();
 				}
-				return new OrderResponse(order.getId(), order.getUser().getName(), order.getUpdatedAt(),
-					String.valueOf(price));
+				LocalDate date = order.getUpdatedAt().toLocalDate();
+				return new OrderResponse(order.getId(), order.getUser().getName(), date, String.valueOf(price));
 			})
 			.sorted(Comparator.comparing(OrderResponse::getDate).reversed())
 			.toList();

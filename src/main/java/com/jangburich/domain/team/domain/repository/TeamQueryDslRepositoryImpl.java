@@ -197,7 +197,8 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
                                     "DATE_FORMAT({0}, '%H:%i')", pointTransaction.createdAt
                             ),
                             menu.name,
-                            menu.price
+                            menu.price,
+                            Expressions.nullExpression()
                     ))
                     .from(pointTransaction)
                     .leftJoin(menu).on(pointTransaction.menuId.eq(menu.id))
@@ -261,7 +262,8 @@ public class TeamQueryDslRepositoryImpl implements TeamQueryDslRepository {
                                 "DATE_FORMAT({0}, '%H:%i')", pointTransaction.createdAt
                         ),
                         menu.name,
-                        menu.price
+                        menu.price,
+                        pointTransaction.user.name
                 ))
                 .from(pointTransaction)
                 .leftJoin(menu).on(pointTransaction.menuId.eq(menu.id))

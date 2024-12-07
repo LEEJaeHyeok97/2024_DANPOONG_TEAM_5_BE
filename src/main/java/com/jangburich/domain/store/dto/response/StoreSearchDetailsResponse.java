@@ -10,7 +10,7 @@ import java.util.List;
 public record StoreSearchDetailsResponse(
         String reservable,
         Boolean isLiked,
-        Category category,
+        String category,
         String address,
         String operationStatus,
         String closeTime,
@@ -20,19 +20,20 @@ public record StoreSearchDetailsResponse(
 ) {
 
     @QueryProjection
-    public StoreSearchDetailsResponse(String reservable, Boolean isLiked, Category category, String address,
+    public StoreSearchDetailsResponse(String reservable, Boolean isLiked, String category, String address,
                                       String operationStatus, String closeTime, String contactNumber,
                                       String representativeImg, List<StoreMenu> storeMenus) {
         this.reservable = reservable;
         this.isLiked = isLiked;
-        this.category = category;
+        this.category = Category.valueOf(category).getDisplayName();
         this.address = address;
         this.operationStatus = operationStatus;
-        this.closeTime = formatCloseTime(closeTime);
+        this.closeTime = closeTime;
         this.contactNumber = contactNumber;
         this.representativeImg = representativeImg;
         this.storeMenus = storeMenus;
     }
+
 
     private static String formatCloseTime(String closeTime) {
         try {
