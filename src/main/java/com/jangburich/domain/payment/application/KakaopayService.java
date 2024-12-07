@@ -63,7 +63,7 @@ public class KakaopayService implements PaymentService {
 		parameters.put("cid", "TC0ONETIME");                                    // 가맹점 코드(테스트용)
 		parameters.put("partner_order_id", "1234567890");                       // 주문번호
 		parameters.put("partner_user_id", String.valueOf(userId));              // 회원 아이디
-		parameters.put("item_name", "ITEM_NAME");                               // 상품명
+		parameters.put("item_name", "장부리치");                               // 상품명
 		parameters.put("quantity", "1");                                        // 상품 수량
 		parameters.put("total_amount", payRequest.totalAmount());               // 상품 총액
 		parameters.put("tax_free_amount", "0");                                 // 상품 비과세 금액
