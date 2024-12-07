@@ -33,6 +33,9 @@ public class PointTransaction extends BaseEntity {
     @Column(name = "transaction_type")
     private TransactionType transactionType;
 
+    @Column(name = "menu_id")
+    private Long menuId;
+
     @Column(name = "transactioned_point")
     private Integer transactionedPoint;
 
@@ -50,9 +53,11 @@ public class PointTransaction extends BaseEntity {
 
 
     @Builder
-    public PointTransaction(TransactionType transactionType, Integer transactionedPoint, Team team, User user,
+    public PointTransaction(TransactionType transactionType, Long menuId, Integer transactionedPoint, Team team,
+                            User user,
                             Store store) {
         this.transactionType = transactionType;
+        this.menuId = menuId;
         this.transactionedPoint = transactionedPoint;
         this.team = team;
         this.user = user;

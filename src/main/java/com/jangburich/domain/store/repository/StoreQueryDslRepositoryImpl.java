@@ -98,6 +98,7 @@ public class StoreQueryDslRepositoryImpl implements StoreQueryDslRepository {
     public StoreSearchDetailsResponse findStoreSearchDetails(Long userId, Long storeId) {
         List<StoreMenu> storeMenus = queryFactory
                 .select(new QStoreMenu(
+                        menu.id,
                         menu.name,
                         menu.isSignatureMenu,
                         menu.description,

@@ -100,20 +100,22 @@ public class OrderService {
 		List<Cart> carts = cartRepository.findAllByUserAndStatus(user, Status.ACTIVE);
 
 		if (carts.isEmpty()) {
-			return CartResponse.of(List.of(), 0);
+			return CartResponse.of(null, null, null, List.of(), 0);
 		}
 
 		List<GetCartItemsResponse> cartItems = carts.stream()
 			.map(cart -> GetCartItemsResponse.of(
-				cart.getMenu().getName(),
-				cart.getMenu().getDescription(),
-				cart.getQuantity(),
-				cart.getMenu().getPrice()
+					cart.getMenu().getId(),
+					cart.getMenu().getImageUrl(),
+					cart.getMenu().getName(),
+					cart.getMenu().getDescription(),
+					cart.getQuantity(),
+					cart.getMenu().getPrice()
 			))
 			.toList();
 
 		int discountAmount = 0;
-		CartResponse cartResponse = CartResponse.of(cartItems, discountAmount);
+		CartResponse cartResponse = CartResponse.of(carts.get(0).getStore().getId(), carts.get(0).getStore().getName(), carts.get(0).getStore().getCategory().getDisplayName(), cartItems, discountAmount);
 
 		return cartResponse;
 	}
@@ -153,16 +155,19 @@ public class OrderService {
 				})
 				.sum();
 
-		PointTransaction pointTransaction = PointTransaction
-				.builder()
-				.transactionType(TransactionType.FOOD_PURCHASE)
-				.transactionedPoint(totalAmount * -1)
-				.team(team)
-				.user(user)
-				.store(store)
-				.build();
+		for (OrderRequest.OrderItemRequest item : orderRequest.items()) {
+			PointTransaction pointTransaction = PointTransaction
+					.builder()
+					.transactionType(TransactionType.FOOD_PURCHASE)
+					.transactionedPoint(totalAmount * -1)
+					.team(team)
+					.user(user)
+					.store(store)
+					.menuId(item.menuId())
+					.build();
 
-		pointTransactionRepository.save(pointTransaction);
+			pointTransactionRepository.save(pointTransaction);
+		}
 
 		StoreTeam storeTeam = storeTeamRepository.findByStoreIdAndTeamId(store.getId(), team.getId())
 				.orElseThrow(() -> new IllegalArgumentException("유효하지 않은 가게 id와 팀 id 입니다."));

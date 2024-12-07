@@ -5,6 +5,8 @@ import java.util.List;
 
 public record MyTeamDetailsResponse(
         Long teamId,
+        Boolean isMeLeader,
+        String storeName,
         String teamName,
         String description,
         int totalPrepaidAmount,
@@ -19,12 +21,14 @@ public record MyTeamDetailsResponse(
 ) {
 
     @QueryProjection
-    public MyTeamDetailsResponse(Long teamId, String teamName, String description, int totalPrepaidAmount,
-                                 int remainingAmount, int personalAllocatedAmount, int userUsedAmount,
-                                 List<PrepayedStore> prepayedStores, List<String> teamMemberImgUrl,
-                                 int totalMemberCount,
-                                 List<TodayPayment> todayPayments, int totalTodayTransactionCount) {
+    public MyTeamDetailsResponse(Long teamId, Boolean isMeLeader, String storeName, String teamName, String description,
+                                 int totalPrepaidAmount, int remainingAmount, int personalAllocatedAmount,
+                                 int userUsedAmount, List<PrepayedStore> prepayedStores, List<String> teamMemberImgUrl,
+                                 int totalMemberCount, List<TodayPayment> todayPayments,
+                                 int totalTodayTransactionCount) {
         this.teamId = teamId;
+        this.isMeLeader = isMeLeader;
+        this.storeName = storeName;
         this.teamName = teamName;
         this.description = description;
         this.totalPrepaidAmount = totalPrepaidAmount;

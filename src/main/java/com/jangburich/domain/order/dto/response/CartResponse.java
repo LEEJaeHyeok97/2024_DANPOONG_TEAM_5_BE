@@ -1,14 +1,18 @@
 package com.jangburich.domain.order.dto.response;
 
+import com.jangburich.domain.store.domain.Category;
 import java.util.List;
 
 public record CartResponse(
+        Long storeId,
+        String storeName,
+        String storeCategory,
         List<GetCartItemsResponse> cartItems,
         Integer totalAmount,
         Integer discountAmount,
         Integer finalAmount
 ) {
-    public static CartResponse of(List<GetCartItemsResponse> cartItems, Integer discountAmount) {
+    public static CartResponse of(Long storeId, String storeName, String storeCategory, List<GetCartItemsResponse> cartItems, Integer discountAmount) {
         int totalAmount = cartItems.stream()
                 .mapToInt(item -> item.menuPrice() * item.quantity())
                 .sum();
@@ -17,7 +21,7 @@ public record CartResponse(
 
         int finalAmount = totalAmount - discountAmount;
 
-        return new CartResponse(cartItems, totalAmount, discountAmount, finalAmount);
+        return new CartResponse(storeId, storeName, storeCategory, cartItems, totalAmount, discountAmount, finalAmount);
     }
 
 }
