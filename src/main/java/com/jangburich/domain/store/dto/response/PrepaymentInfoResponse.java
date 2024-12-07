@@ -11,4 +11,6 @@ public class PrepaymentInfoResponse {
 	private Long minPrepayAmount;
 	private Integer wallet;
 	private Integer remainPrepay;
+	private String category;
+	private String storeName;
 }
