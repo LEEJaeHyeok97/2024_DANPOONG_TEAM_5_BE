@@ -17,6 +17,8 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -115,7 +117,7 @@ public class StoreQueryDslRepositoryImpl implements StoreQueryDslRepository {
                 .select(new QStoreSearchDetailsResponse(
                                 Expressions.constant("예약 가능"),
                                 Expressions.constant(false),
-                                store.category,
+                                store.category.stringValue(),
                                 store.address,
                                 Expressions.constant("영업 중"),
                                 store.closeTime.stringValue(),
